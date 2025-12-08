@@ -1,0 +1,80 @@
+# RAG System Configuration
+
+# Document Processing
+document_processing:
+  chunk_size: 512
+  chunk_overlap: 50
+  supported_formats: ['txt', 'pdf', 'docx', 'md']
+
+# Encryption
+encryption:
+  algorithm: 'AES'
+  key_size: 256  # bits
+  mode: 'GCM'
+
+# Embedding
+embedding:
+  model_name: 'sentence-transformers/all-MiniLM-L6-v2'  # Lightweight model
+  dimension: 384
+  batch_size: 32
+  alternative_models:
+    - 'sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2'
+    - 'sentence-transformers/all-MiniLM-L12-v2'
+
+# Vector Database (Qdrant)
+vector_db:
+  host: 'localhost'
+  port: 6333
+  collection_name: 'encrypted_documents'
+  distance_metric: 'Cosine'
+  storage_path: './qdrant_storage'
+
+# Retrieval
+retrieval:
+  top_k_values: [3, 5, 10, 15]  # Different K values to test
+  default_top_k: 5
+
+# LLM (Ollama)
+llm:
+  model_name: 'llama2'  # or 'mistral', 'phi'
+  base_url: 'http://localhost:11434'
+  quantization:
+    enabled: true
+    bits: 4
+    type: 'nf4'  # or 'fp4'
+  temperature: 0.7
+  max_tokens: 512
+  context_window: 2048
+
+# RAG Pipeline
+rag:
+  prompt_template: |
+    Based on the following context, please answer the question.
+    
+    Context:
+    {context}
+    
+    Question: {question}
+    
+    Answer:
+  max_context_length: 2000
+
+# Audit Logging
+audit:
+  enabled: true
+  log_directory: './logs'
+  log_level: 'INFO'
+  integrity_check: true
+  log_rotation: 'daily'
+  max_log_size: 10485760  # 10MB
+
+# Evaluation
+evaluation:
+  test_dataset_size: 100
+  metrics: ['f1', 'precision', 'recall', 'accuracy']
+  benchmark_runs: 3
+
+# Performance
+performance:
+  enable_caching: true
+  max_workers: 4
