@@ -8,7 +8,7 @@ import base64
 from typing import Tuple
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 from cryptography.hazmat.primitives import hashes
-from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2
+from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 import hashlib
 
 
@@ -51,7 +51,7 @@ class AESEncryption:
         if salt is None:
             salt = os.urandom(16)
         
-        kdf = PBKDF2(
+        kdf = PBKDF2HMAC(
             algorithm=hashes.SHA256(),
             length=self.key_bytes,
             salt=salt,
