@@ -1,0 +1,5 @@
+"""Retrieval module for vector database and similarity search"""
+from .vector_store import VectorStore
+from .retriever import Retriever
+
+__all__ = ['VectorStore', 'Retriever']
