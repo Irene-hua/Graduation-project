@@ -68,23 +68,72 @@ Answer:"""
         # Step 1: Retrieve relevant chunks
         logger.info(f"Retrieving context for question: {question[:50]}...")
         retrieval_start = time.time()
-        retrieved_chunks = self.retriever.retrieve(question, top_k=top_k)
-        retrieval_time = time.time() - retrieval_start
-        
-        if not retrieved_chunks:
-            logger.warning("No relevant chunks retrieved")
+        try:
+            retrieved_chunks = self.retriever.retrieve(question, top_k=top_k)
+        except Exception as e:
+            # Log full exception and return a friendly answer so caller can display something
+            retrieval_time = time.time() - retrieval_start
+            logger.exception(f"Retrieval failed for question: {question[:50]}: {e}")
             return {
-                'answer': "I couldn't find relevant information to answer this question.",
+                'answer': "An error occurred while searching for relevant information. Please try again later.",
                 'question': question,
                 'context_chunks': [],
                 'retrieval_time': retrieval_time,
                 'generation_time': 0,
-                'total_time': time.time() - start_time
+                'total_time': time.time() - start_time,
+                'num_chunks_retrieved': 0,
+                'error': str(e)
+            }
+        retrieval_time = time.time() - retrieval_start
+        
+        if not retrieved_chunks:
+            logger.warning("No relevant chunks retrieved - falling back to LLM generation without context")
+            # Fall back to LLM-only generation so users still get an answer
+            try:
+                if hasattr(self.llm_client, 'generate'):
+                    gen_prompt = self.prompt_template.format(context="", question=question)
+                    gen_start = time.time()
+                    generation_result = self.llm_client.generate(
+                        gen_prompt,
+                        temperature=temperature,
+                        max_tokens=max_tokens
+                    )
+                    gen_time = time.time() - gen_start
+                    answer = generation_result.get('response') if isinstance(generation_result, dict) else str(generation_result)
+                    generation_metadata = generation_result
+                else:
+                    answer = "LLM client not properly configured"
+                    generation_metadata = {}
+                    gen_time = 0
+            except Exception as e:
+                logger.error(f"LLM fallback generation failed: {e}")
+                answer = "An error occurred while generating an answer."
+                generation_metadata = {}
+                gen_time = 0
+
+            total_time = time.time() - start_time
+            return {
+                'answer': answer,
+                'question': question,
+                'context_chunks': [],
+                'num_chunks_retrieved': 0,
+                'retrieval_time': retrieval_time,
+                'generation_time': gen_time,
+                'total_time': total_time,
+                'generation_metadata': generation_metadata,
+                'note': 'Generated without retrieved context'
             }
         
-        # Step 2: Build context from retrieved chunks
-        context = self._build_context(retrieved_chunks)
-        
+        # Ensure we prioritize highest-score chunks and then build context from them
+        try:
+            retrieved_chunks = sorted(retrieved_chunks, key=lambda c: c.get('score', 0), reverse=True)
+        except Exception:
+            # If sorting fails, fall back to original order
+            pass
+
+        # Step 2: Build context from retrieved chunks (also get which chunks were actually used)
+        context, used_chunks = self._build_context(retrieved_chunks, top_k=top_k)
+
         # Step 3: Build prompt
         prompt = self.prompt_template.format(
             context=context,
@@ -124,6 +173,7 @@ Answer:"""
             'answer': answer,
             'question': question,
             'context_chunks': retrieved_chunks,
+            'used_chunks': used_chunks,
             'num_chunks_retrieved': len(retrieved_chunks),
             'retrieval_time': retrieval_time,
             'generation_time': generation_time,
@@ -131,36 +181,40 @@ Answer:"""
             'generation_metadata': generation_metadata
         }
     
-    def _build_context(self, chunks: List[Dict]) -> str:
+    def _build_context(self, chunks: List[Dict], top_k: int = 5):
         """
-        Build context string from retrieved chunks
-        
-        Args:
-            chunks: List of chunk dicts with 'text' key
-            
-        Returns:
-            Formatted context string
+         Build context string from retrieved chunks
+
+         Args:
+             chunks: List of chunk dicts with 'text' key
+
+         Returns:
+            Tuple (formatted context string, list of chunks actually included)
         """
+        # Strategy: include up to top_k chunks. If including full chunks would exceed
+        # max_context_length, truncate each chunk to a per-chunk quota so we can include
+        # more chunks. Ensure a minimal per-chunk size (100 chars).
         context_parts = []
-        total_length = 0
-        
-        for i, chunk in enumerate(chunks):
-            text = chunk['text']
-            
-            # Check if adding this chunk would exceed max length
-            if total_length + len(text) > self.max_context_length:
-                # Try to fit partial chunk
-                remaining = self.max_context_length - total_length
-                if remaining > 100:  # Only add if significant space remains
-                    text = text[:remaining] + "..."
-                    context_parts.append(f"[{i+1}] {text}")
-                break
-            
-            context_parts.append(f"[{i+1}] {text}")
-            total_length += len(text)
-        
-        return "\n\n".join(context_parts)
-    
+        used = []
+
+        max_chunks = min(top_k, len(chunks))
+        min_per_chunk = 100
+        per_chunk_quota = max(min_per_chunk, self.max_context_length // max_chunks)
+
+        for i in range(max_chunks):
+            chunk = chunks[i]
+            text = chunk.get('text', '')
+            # Truncate text to per_chunk_quota
+            if len(text) > per_chunk_quota:
+                text_part = text[:per_chunk_quota].rstrip() + '...'
+            else:
+                text_part = text
+
+            context_parts.append(f"[{i+1}] {text_part}")
+            used.append(chunk)
+
+        return "\n\n".join(context_parts), used
+
     def batch_answer(self, 
                     questions: List[str],
                     top_k: int = 5,

@@ -51,30 +51,116 @@ class Retriever:
         logger.info(f"Decrypting {len(search_results)} chunks...")
         decrypted_results = []
         
+        # Fallback: if search_results empty or payloads missing ciphertext/nonce, try local scroll+similarity
+        need_fallback = False
+        if not search_results:
+            need_fallback = True
+        else:
+            # check first result for ciphertext presence
+            first = search_results[0]
+            if not first.get('ciphertext'):
+                need_fallback = True
+
+        if need_fallback:
+            try:
+                logger.info('Using local scroll fallback to obtain payloads and vectors')
+                records = self.vector_store.client.scroll(collection_name=self.vector_store.collection_name, limit=10000, with_payload=True, with_vectors=True)
+                recs = records[0] if isinstance(records, tuple) else records
+                vecs = []
+                metas = []
+                for rec in recs:
+                    v = getattr(rec, 'vector', None) or (rec.get('vector') if hasattr(rec, 'get') else None)
+                    if v is None:
+                        continue
+                    try:
+                        pv = getattr(rec, 'payload', None) or (rec.payload if hasattr(rec, 'payload') else {})
+                        if hasattr(pv, 'to_dict'):
+                            pd = pv.to_dict()
+                        else:
+                            pd = dict(pv) if pv is not None else {}
+                    except Exception:
+                        pd = {}
+                    vecs.append(np.asarray(v))
+                    metas.append({'id': getattr(rec, 'id', None), 'payload': pd, 'score': getattr(rec, 'score', None)})
+
+                if vecs:
+                    M = np.vstack(vecs)
+                    qv = np.asarray(query_vector).reshape(-1)
+                    try:
+                        qn = qv / np.linalg.norm(qv)
+                        Mn = M / np.linalg.norm(M, axis=1, keepdims=True)
+                        sims = Mn.dot(qn)
+                    except Exception:
+                        sims = M.dot(qv)
+                    idxs = np.argsort(-sims)[:top_k]
+                    search_results = []
+                    for ix in idxs:
+                        item = metas[ix]
+                        pd = item['payload']
+                        search_results.append({
+                            'id': item.get('id'),
+                            'score': float(sims[ix]),
+                            'ciphertext': pd.get('ciphertext'),
+                            'nonce': pd.get('nonce'),
+                            'metadata': {k: v for k, v in pd.items() if k not in ['ciphertext', 'nonce']}
+                        })
+                    logger.info(f'Local fallback produced {len(search_results)} candidates')
+            except Exception as e:
+                logger.debug(f'Local scroll fallback failed: {e}')
+
         for result in search_results:
             try:
-                # Decrypt the chunk
-                plaintext = self.encryption.decrypt(
-                    result['ciphertext'],
-                    result['nonce']
-                )
-                
+                # Locate ciphertext/nonce or fallback to plaintext stored in payload
+                ciphertext = result.get('ciphertext')
+                nonce = result.get('nonce')
+
+                # Normalize metadata
+                metadata = result.get('metadata') if result.get('metadata') is not None else {}
+                if not isinstance(metadata, dict):
+                    # leave as-is, but prefer dict where possible
+                    try:
+                        metadata = dict(metadata)
+                    except Exception:
+                        metadata = {}
+
+                # Some clients may nest the encrypted fields in metadata
+                if (ciphertext is None or nonce is None) and isinstance(metadata, dict):
+                    # common fallback names
+                    ciphertext = ciphertext or metadata.get('ciphertext') or metadata.get('ct')
+                    nonce = nonce or metadata.get('nonce') or metadata.get('n')
+
+                plaintext = None
+                if ciphertext is None or nonce is None:
+                    # Maybe the payload contains the plaintext directly under common keys
+                    for key in ('text', 'plaintext', 'content', 'document', 'source_text'):
+                        if key in metadata and metadata[key]:
+                            plaintext = metadata[key]
+                            break
+
+                if plaintext is None:
+                    # If we still have ciphertext/nonce, attempt decryption
+                    if ciphertext is None or nonce is None:
+                        raise ValueError('Missing ciphertext or nonce in search result payload')
+
+                    # Decrypt (AESEncryption.decrypt expects base64 strings)
+                    plaintext = self.encryption.decrypt(ciphertext, nonce)
+
                 decrypted_result = {
                     'text': plaintext,
-                    'score': result['score'],
-                    'metadata': result['metadata']
+                    'score': result.get('score'),
+                    'metadata': metadata
                 }
-                
+
                 # Optionally include encrypted data
                 if return_encrypted:
-                    decrypted_result['ciphertext'] = result['ciphertext']
-                    decrypted_result['nonce'] = result['nonce']
-                
+                    decrypted_result['ciphertext'] = ciphertext
+                    decrypted_result['nonce'] = nonce
+
                 decrypted_results.append(decrypted_result)
-                
+
             except Exception as e:
                 logger.error(f"Failed to decrypt chunk {result.get('id', 'unknown')}: {e}")
-        
+
         logger.info(f"Successfully retrieved and decrypted {len(decrypted_results)} chunks")
         return decrypted_results
     

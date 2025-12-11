@@ -179,13 +179,21 @@ def process_question(rag_system, question, top_k, temperature, audit_logger=None
     print(f"Generation time: {result['generation_time']:.3f}s")
     print(f"Total time: {result['total_time']:.3f}s")
     
-    # Show sources
-    if result['context_chunks']:
+    # Show sources (prefer used_chunks which are actually passed to the LLM)
+    used = result.get('used_chunks') or result.get('context_chunks') or []
+    if used:
         print("\nSources:")
-        for i, chunk in enumerate(result['context_chunks'][:3], 1):
-            source = chunk['metadata'].get('source_file', 'unknown')
+        try:
+            nchunks = len(used)
+        except Exception:
+            nchunks = 0
+        print(f"  (chunks used for generation: {nchunks})")
+        for i, chunk in enumerate(used[:top_k], 1):
+            source = chunk.get('metadata', {}).get('source_file', 'unknown')
             score = chunk.get('score', 0)
-            print(f"  {i}. {source} (score: {score:.3f})")
+            chunk_id = chunk.get('metadata', {}).get('chunk_id', 'unknown')
+            preview = (chunk.get('text') or '')[:120].replace('\n', ' ')
+            print(f"  {i}. {source} (score: {score:.3f}) chunk_id={chunk_id} preview='{preview}...' ")
 
 
 if __name__ == '__main__':
