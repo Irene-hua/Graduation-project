@@ -12,14 +12,15 @@ from qdrant_client.models import (
 import uuid
 import logging
 import inspect
+import json
 
 logger = logging.getLogger(__name__)
 
 
 class VectorStore:
     """Qdrant vector database wrapper"""
-    
-    def __init__(self, 
+
+    def __init__(self,
                  collection_name: str = 'encrypted_documents',
                  dimension: int = 384,
                  distance_metric: str = 'Cosine',
@@ -39,15 +40,14 @@ class VectorStore:
         """
         self.collection_name = collection_name
         self.dimension = dimension
-        
-        # Map string to Distance enum
+
         distance_map = {
             'Cosine': Distance.COSINE,
             'Euclidean': Distance.EUCLID,
             'Dot': Distance.DOT
         }
         self.distance = distance_map.get(distance_metric, Distance.COSINE)
-        
+
         # Initialize client
         if host:
             self.client = QdrantClient(host=host, port=port)
@@ -55,16 +55,16 @@ class VectorStore:
         else:
             self.client = QdrantClient(path=storage_path)
             logger.info(f"Using local Qdrant storage at {storage_path}")
-        
+
         # Create collection if it doesn't exist
         self._create_collection_if_not_exists()
-    
+
     def _create_collection_if_not_exists(self):
         """Create collection if it doesn't exist"""
         try:
             collections = self.client.get_collections().collections
             collection_names = [c.name for c in collections]
-            
+
             if self.collection_name not in collection_names:
                 self.client.create_collection(
                     collection_name=self.collection_name,
@@ -79,8 +79,8 @@ class VectorStore:
         except Exception as e:
             logger.error(f"Error creating collection: {e}")
             raise
-    
-    def add_vectors(self, 
+
+    def add_vectors(self,
                     vectors: np.ndarray,
                     encrypted_chunks: List[Dict],
                     metadata: List[Dict] = None) -> List[str]:
@@ -97,29 +97,29 @@ class VectorStore:
         """
         if len(vectors) != len(encrypted_chunks):
             raise ValueError("Number of vectors must match number of encrypted chunks")
-        
+
         if metadata and len(metadata) != len(vectors):
             raise ValueError("Number of metadata items must match number of vectors")
-        
+
         points = []
         point_ids = []
-        
+
         for i, (vector, encrypted_chunk) in enumerate(zip(vectors, encrypted_chunks)):
             # Generate unique ID
             point_id = str(uuid.uuid4())
             point_ids.append(point_id)
-            
+
             # Prepare payload
             payload = {
                 'ciphertext': encrypted_chunk['ciphertext'],
                 'nonce': encrypted_chunk['nonce'],
                 'chunk_id': encrypted_chunk.get('chunk_id', i)
             }
-            
+
             # Add metadata if provided
             if metadata and i < len(metadata):
                 payload.update(metadata[i])
-            
+
             # Create point
             point = PointStruct(
                 id=point_id,
@@ -127,7 +127,7 @@ class VectorStore:
                 payload=payload
             )
             points.append(point)
-        
+
         # Upload points in batches
         batch_size = 100
         for i in range(0, len(points), batch_size):
@@ -136,62 +136,154 @@ class VectorStore:
                 collection_name=self.collection_name,
                 points=batch
             )
-        
+
         logger.info(f"Added {len(points)} vectors to collection")
         return point_ids
-    
-    def search(self, 
+
+    # -------------------- Payload normalization helpers --------------------
+    def _extract_value(self, value):
+        """
+        Extract a primitive Python value from various qdrant/protobuf wrapper objects.
+        """
+        if value is None:
+            return None
+        if isinstance(value, (str, int, float, bool, bytes)):
+            if isinstance(value, bytes):
+                try:
+                    return value.decode('utf-8')
+                except Exception:
+                    return value
+            return value
+
+        if hasattr(value, 'to_dict'):
+            try:
+                return value.to_dict()
+            except Exception:
+                pass
+        if hasattr(value, 'to_json'):
+            try:
+                return json.loads(value.to_json())
+            except Exception:
+                pass
+
+        # Common protobuf Value fields
+        for attr in ('string_value', 'text_value', 'integer_value', 'int_value', 'bool_value', 'float_value', 'double_value', 'bytes_value'):
+            if hasattr(value, attr):
+                v = getattr(value, attr)
+                if v is not None:
+                    if isinstance(v, bytes):
+                        try:
+                            return v.decode('utf-8')
+                        except Exception:
+                            return v
+                    return v
+
+        if hasattr(value, 'value'):
+            try:
+                return self._extract_value(getattr(value, 'value'))
+            except Exception:
+                pass
+
+        try:
+            return str(value)
+        except Exception:
+            return None
+
+    def _normalize_payload(self, payload) -> Dict:
+        """
+        Convert various payload shapes returned by qdrant-client into a plain dict
+        of primitive Python values.
+        """
+        if payload is None:
+            return {}
+
+        if isinstance(payload, dict):
+            out = {}
+            for k, v in payload.items():
+                out[k] = self._extract_value(v)
+            return out
+
+        if hasattr(payload, 'to_dict'):
+            try:
+                d = payload.to_dict()
+                if isinstance(d, dict):
+                    return {k: self._extract_value(v) for k, v in d.items()}
+            except Exception:
+                pass
+
+        if hasattr(payload, 'items'):
+            try:
+                return {k: self._extract_value(v) for k, v in payload.items()}
+            except Exception:
+                pass
+
+        if isinstance(payload, (list, tuple)):
+            out = {}
+            for entry in payload:
+                key = None
+                val = None
+                if hasattr(entry, 'key') and hasattr(entry, 'value'):
+                    key = getattr(entry, 'key')
+                    val = getattr(entry, 'value')
+                elif isinstance(entry, (list, tuple)) and len(entry) >= 2:
+                    key, val = entry[0], entry[1]
+                else:
+                    key = getattr(entry, 'name', None) or getattr(entry, 'k', None)
+                    val = getattr(entry, 'v', None) or getattr(entry, 'value', None)
+
+                if key is None:
+                    continue
+                out[key] = self._extract_value(val)
+            return out
+
+        if hasattr(payload, 'payload'):
+            try:
+                return self._normalize_payload(getattr(payload, 'payload'))
+            except Exception:
+                pass
+
+        try:
+            d = dict(payload)
+            return {k: self._extract_value(v) for k, v in d.items()}
+        except Exception:
+            return {}
+
+    # -------------------- Search --------------------
+    def search(self,
                query_vector: np.ndarray,
                top_k: int = 5,
                filter_dict: Dict = None) -> List[Dict]:
         """
-        Search for similar vectors
-        
-        Args:
-            query_vector: Query vector
-            top_k: Number of results to return
-            filter_dict: Optional filter conditions
-            
-        Returns:
-            List of search results with scores and payloads
+        Search for similar vectors and return formatted results with payloads
         """
         # Normalize and validate query_vector
         try:
-            # Allow callers to pass list or numpy array
             if isinstance(query_vector, list):
                 query_vec = np.array(query_vector)
             else:
                 query_vec = np.asarray(query_vector)
 
-            # If shape is (1, dim) extract the single vector
             if query_vec.ndim == 2 and query_vec.shape[0] == 1:
                 query_vec = query_vec[0]
 
-            # Ensure we have a 1D vector
             if query_vec.ndim != 1:
-                raise ValueError(f"query_vector must be 1D or shape (1, dim). Got ndim={query_vec.ndim}")
+                raise ValueError("query_vector must be 1D or shape (1, dim)")
 
-            # Validate dimension
             if query_vec.shape[0] != self.dimension:
-                raise ValueError(f"Query vector dimension ({query_vec.shape[0]}) does not match store dimension ({self.dimension})")
+                raise ValueError("Query vector dimension does not match store dimension")
 
             query_list = query_vec.tolist()
         except Exception as e:
             logger.error(f"Invalid query vector provided: {e}")
-            # Return empty list so caller can handle lack of results gracefully
             return []
 
-        # Prepare filter if provided
         query_filter = None
         if filter_dict:
-            # Note: Filter implementation can be extended based on specific needs
-            # For now, filters are not supported - this is a future enhancement
             logger.debug("Filters supplied to VectorStore.search but filtering is not implemented")
-            raise NotImplementedError("Filtering is not yet implemented. This is a future feature.")
+            raise NotImplementedError("Filtering is not yet implemented.")
 
-        # Search
         try:
-            # If local scroll is available, prefer it for local storage to ensure payloads are returned
+            # Prefer local scroll + local similarity for local storage to guarantee payloads available
             if hasattr(self.client, 'scroll'):
                 try:
                     logger.info('Using local scroll + local similarity for search (preferred for local storage)')
@@ -206,13 +298,7 @@ class VectorStore:
                             continue
                         v = np.asarray(vec)
                         payload = getattr(rec, 'payload', None) or (rec.payload if hasattr(rec, 'payload') else {})
-                        try:
-                            if hasattr(payload, 'to_dict'):
-                                pd = payload.to_dict()
-                            else:
-                                pd = dict(payload) if payload is not None else {}
-                        except Exception:
-                            pd = {}
+                        pd = self._normalize_payload(payload)
                         vecs.append(v)
                         rec_meta.append((getattr(rec, 'id', None), pd, getattr(rec, 'score', None)))
 
@@ -242,7 +328,7 @@ class VectorStore:
                 except Exception as e:
                     logger.debug(f'Local scroll approach failed or not suitable: {e}')
 
-            # Try several possible search method names/signatures to support different qdrant-client versions
+            # Try several possible qdrant client methods to support multiple versions
             results = None
             attempted_methods = []
 
@@ -252,7 +338,6 @@ class VectorStore:
                 'retrieve'
             ]
 
-            # A pool of possible kwargs we can supply; we'll filter by method signature
             possible_kwargs = {
                 'collection_name': self.collection_name,
                 'query_vector': query_list,
@@ -269,30 +354,24 @@ class VectorStore:
                     method = getattr(self.client, method_name)
                     try:
                         sig = inspect.signature(method)
-                        # choose kwargs supported by this method
                         kwargs = {k: v for k, v in possible_kwargs.items() if k in sig.parameters and v is not None}
-                        # If method signature does not accept a query vector keyword, prefer positional call
                         accepts_vector_kw = any(k in kwargs for k in ('query_vector', 'vector'))
                         if not accepts_vector_kw:
-                            # Try positional fallback first: common positional ordering (collection_name, query_vector, limit)
                             try:
                                 results = method(self.collection_name, query_list, top_k)
                                 logger.info(f"Vector search using client.{method_name}(collection, vector, limit) [positional]")
                                 break
                             except Exception as e:
                                 logger.debug(f"client.{method_name} positional call failed: {e}")
-                        # Try keyword call (if vector kw present or positional failed)
                         try:
                             results = method(**kwargs)
                             logger.info(f"Vector search using client.{method_name}() with kwargs {list(kwargs.keys())}")
                             break
                         except TypeError:
-                            # positional fallback if keyword call fails
                             results = method(self.collection_name, query_list, top_k)
                             logger.info(f"Vector search using client.{method_name}(collection, vector, limit) [positional after TypeError]")
                             break
                     except TypeError:
-                        # positional fallback: try common positional ordering (collection_name, query_vector, limit)
                         try:
                             results = method(self.collection_name, query_list, top_k)
                             logger.info(f"Vector search using client.{method_name}(collection, vector, limit) [positional in except]")
@@ -309,120 +388,103 @@ class VectorStore:
             logger.error(f"Vector search failed: {e}")
             return []
 
-        # Format results
+        # Format results from whatever shape 'results' took
         formatted_results = []
         try:
-            for result in results:
-                # Log short repr and available attributes for debugging
+            # Normalize wrapper shapes
+            if hasattr(results, 'result') and isinstance(getattr(results, 'result'), (list, tuple)):
+                results_iter = getattr(results, 'result')
+            elif isinstance(results, dict) and 'result' in results and isinstance(results['result'], (list, tuple)):
+                results_iter = results['result']
+            elif isinstance(results, (list, tuple)) and len(results) >= 2 and isinstance(results[1], (list, tuple)):
+                # e.g. ('points', [ScoredPoint,...])
+                results_iter = results[1]
+            else:
+                results_iter = results
+
+            for result in results_iter:
                 try:
-                    rrepr = repr(result)
-                except Exception:
-                    rrepr = f'<unrepresentable {type(result)}>'
-                attrs = [a for a in dir(result) if not a.startswith('_')]
-                logger.debug(f"Result repr={rrepr[:300]}, attrs={attrs}")
+                    # Try to extract id/score/payload from many shapes
+                    rid = None
+                    score = None
+                    payload = None
 
-                # Attempt to extract id/score/payload robustly from multiple shapes
-                rid = None
-                score = None
-                payload = None
+                    if isinstance(result, tuple) and len(result) >= 3:
+                        rid = result[0]
+                        score = result[1]
+                        payload = result[2]
 
-                # tuple-like (id, score, payload)
-                if isinstance(result, tuple) and len(result) >= 3:
-                    rid = result[0]
-                    score = result[1]
-                    payload = result[2]
+                    if rid is None and hasattr(result, 'id'):
+                        try:
+                            rid = getattr(result, 'id')
+                        except Exception:
+                            rid = None
+                    if score is None and hasattr(result, 'score'):
+                        try:
+                            score = getattr(result, 'score')
+                        except Exception:
+                            score = None
+                    if payload is None and hasattr(result, 'payload'):
+                        try:
+                            payload = getattr(result, 'payload')
+                        except Exception:
+                            payload = None
 
-                # object with attributes
-                if rid is None and hasattr(result, 'id'):
+                    if rid is None and hasattr(result, 'point_id'):
+                        try:
+                            rid = getattr(result, 'point_id')
+                        except Exception:
+                            pass
+
+                    if rid is None and hasattr(result, 'get'):
+                        try:
+                            rid = result.get('id', result.get('point_id', None))
+                        except Exception:
+                            pass
+
+                    payload = payload or {}
+                    logger.debug(f"Extracted rid={rid}, score={score}, payload_type={type(payload)}")
+
+                    # Normalize payload into plain dict
                     try:
-                        rid = getattr(result, 'id')
+                        payload_dict = self._normalize_payload(payload)
                     except Exception:
-                        rid = None
-                if score is None and hasattr(result, 'score'):
-                    try:
-                        score = getattr(result, 'score')
-                    except Exception:
-                        score = None
-                if payload is None and hasattr(result, 'payload'):
-                    try:
-                        payload = getattr(result, 'payload')
-                    except Exception:
-                        payload = None
+                        payload_dict = {}
 
-                # alternate attribute name
-                if rid is None and hasattr(result, 'point_id'):
-                    try:
-                        rid = getattr(result, 'point_id')
-                    except Exception:
-                        pass
-
-                # mapping-like
-                if rid is None and hasattr(result, 'get'):
-                    try:
-                        rid = result.get('id', result.get('point_id', None))
-                    except Exception:
-                        pass
-
-                # fallback: empty payload
-                payload = payload or {}
-                logger.debug(f"Extracted rid={rid}, score={score}, payload_type={type(payload)}")
-                if ('ciphertext' not in (payload or {})) and rid is None:
-                    # Log at INFO so it's visible by default
-                    try:
-                        logger.info(f"Result with empty payload and no id. repr: {repr(result)[:500]}")
-                    except Exception:
-                        logger.info(f"Result with empty payload and no id of type {type(result)}")
-
-                # payload may be dict-like or have .to_dict()
-                try:
-                    if hasattr(payload, 'to_dict'):
-                        payload_dict = payload.to_dict()
+                    keys = list(payload_dict.keys())
+                    if 'ciphertext' not in payload_dict or 'nonce' not in payload_dict:
+                        logger.info(f"Search result payload keys (missing ciphertext/nonce): {keys}")
+                        preview = {k: (str(v)[:200] + '...') if isinstance(v, (str, bytes)) and len(str(v))>200 else v for k, v in list(payload_dict.items())[:10]}
+                        logger.info(f"Payload preview: {preview}")
                     else:
-                        payload_dict = dict(payload) if payload is not None else {}
-                except Exception:
-                    payload_dict = {}
-                # If ciphertext/nonce missing, log payload content at INFO to help debugging
-                keys = list(payload_dict.keys())
-                if 'ciphertext' not in payload_dict or 'nonce' not in payload_dict:
-                    logger.info(f"Search result payload keys (missing ciphertext/nonce): {keys}")
-                    # show some values for likely text fields
-                    preview = {k: (str(v)[:200] + '...') if isinstance(v, (str, bytes)) and len(str(v))>200 else v for k, v in list(payload_dict.items())[:10]}
-                    logger.info(f"Payload preview: {preview}")
-                else:
-                    logger.debug(f"Parsed payload keys: {keys}")
+                        logger.debug(f"Parsed payload keys: {keys}")
 
-                formatted_results.append({
-                    'id': rid,
-                    'score': score,
-                    'ciphertext': payload_dict.get('ciphertext'),
-                    'nonce': payload_dict.get('nonce'),
-                    'metadata': {k: v for k, v in payload_dict.items() if k not in ['ciphertext', 'nonce']}
-                })
+                    formatted_results.append({
+                        'id': rid,
+                        'score': score,
+                        'ciphertext': payload_dict.get('ciphertext'),
+                        'nonce': payload_dict.get('nonce'),
+                        'metadata': {k: v for k, v in payload_dict.items() if k not in ['ciphertext', 'nonce']}
+                    })
+                except Exception as e:
+                    logger.debug(f"Failed to parse individual search result: {e}")
+                    continue
         except Exception as e:
             logger.error(f"Failed to format search results: {e}")
             return []
 
-        # If payloads are empty (no ciphertext/nonce found), try to fetch payloads via retrieve() for the returned ids
+        # If no ciphertexts, try retrieve(ids) to fetch payloads
         try:
             has_cipher = any(item.get('ciphertext') for item in formatted_results)
             if not has_cipher:
                 ids = [item.get('id') for item in formatted_results if item.get('id') is not None]
                 if ids:
                     try:
-                        # retrieve detailed records by ids
                         records = self.client.retrieve(collection_name=self.collection_name, ids=ids, with_payload=True, with_vectors=False)
-                        # reformat retrieved records
                         formatted_results = []
                         for rec in records:
                             payload = getattr(rec, 'payload', None) or (rec.payload if hasattr(rec, 'payload') else {})
-                            try:
-                                if hasattr(payload, 'to_dict'):
-                                    pd = payload.to_dict()
-                                else:
-                                    pd = dict(payload) if payload is not None else {}
-                            except Exception:
-                                pd = {}
-
+                            pd = self._normalize_payload(payload)
                             formatted_results.append({
                                 'id': getattr(rec, 'id', None),
                                 'score': getattr(rec, 'score', None),
@@ -436,20 +498,18 @@ class VectorStore:
         except Exception:
             pass
 
-        # If still no ciphertexts, perform a local scan: fetch points with vectors and payloads and compute similarity locally
+        # If still no ciphertexts, do a local scan fallback computing similarity locally
         try:
             has_cipher = any(item.get('ciphertext') for item in formatted_results)
             if not has_cipher:
                 logger.info('Attempting local scan fallback: retrieving vectors and payloads via scroll')
                 try:
                     records = self.client.scroll(collection_name=self.collection_name, limit=10000, with_payload=True, with_vectors=True)
-                    # records may be tuple (list, next)
                     recs = records[0] if isinstance(records, tuple) else records
                 except Exception as e:
                     logger.debug(f'client.scroll failed: {e}')
                     recs = []
 
-                # Collect vectors and payloads
                 vecs = []
                 rec_meta = []
                 for rec in recs:
@@ -459,18 +519,9 @@ class VectorStore:
                             vec = rec.get('vector')
                         if vec is None:
                             continue
-                        # convert to numpy
                         v = np.asarray(vec)
                         payload = getattr(rec, 'payload', None) or (rec.payload if hasattr(rec, 'payload') else {})
-                        # normalize payload dict
-                        try:
-                            if hasattr(payload, 'to_dict'):
-                                pd = payload.to_dict()
-                            else:
-                                pd = dict(payload) if payload is not None else {}
-                        except Exception:
-                            pd = {}
-
+                        pd = self._normalize_payload(payload)
                         vecs.append(v)
                         rec_meta.append((getattr(rec, 'id', None), pd, getattr(rec, 'score', None)))
                     except Exception:
@@ -479,7 +530,6 @@ class VectorStore:
                 if vecs:
                     mat = np.vstack(vecs)
                     qv = np.asarray(query_list)
-                    # normalize
                     try:
                         qv_norm = qv / np.linalg.norm(qv)
                         mat_norms = mat / np.linalg.norm(mat, axis=1, keepdims=True)
@@ -487,7 +537,6 @@ class VectorStore:
                     except Exception:
                         sims = np.dot(mat, qv)
 
-                    # pick top_k
                     idxs = np.argsort(-sims)[:top_k]
                     formatted_results = []
                     for ix in idxs:

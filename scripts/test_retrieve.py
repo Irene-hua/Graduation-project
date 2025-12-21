@@ -8,7 +8,7 @@ from src.encryption import AESEncryption
 from src.embedding import EmbeddingModel
 from src.retrieval import VectorStore, Retriever
 
-logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger('test_retrieve')
 
 CONFIG_PATH = 'config/config.yaml'
@@ -61,4 +61,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
