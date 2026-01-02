@@ -183,35 +183,47 @@ Answer:"""
     
     def _build_context(self, chunks: List[Dict], top_k: int = 5):
         """
-         Build context string from retrieved chunks
+        Build context string from retrieved chunks
 
-         Args:
-             chunks: List of chunk dicts with 'text' key
+        Args:
+            chunks: List of chunk dicts with 'text' key
 
-         Returns:
-            Tuple (formatted context string, list of chunks actually included)
+        Returns:
+           Tuple (formatted context string, list of chunks actually included)
         """
-        # Strategy: include up to top_k chunks. If including full chunks would exceed
-        # max_context_length, truncate each chunk to a per-chunk quota so we can include
-        # more chunks. Ensure a minimal per-chunk size (100 chars).
+        # Strategy: always include up to `top_k` chunks in the returned `used` list.
+        # If the combined length would exceed `max_context_length`, we truncate each
+        # chunk to a per-chunk quota so we still include the same number of chunks.
+        # This guarantees callers that `used` contains up to `top_k` items (only the
+        # text may be shortened to fit the context budget).
         context_parts = []
         used = []
 
-        max_chunks = min(top_k, len(chunks))
-        min_per_chunk = 100
-        per_chunk_quota = max(min_per_chunk, self.max_context_length // max_chunks)
+        desired_count = min(top_k, len(chunks))
+        if desired_count == 0:
+            return "", []
 
-        for i in range(max_chunks):
+        min_per_chunk = 100
+        # compute per-chunk quota so desired_count * per_chunk_quota <= max_context_length
+        per_chunk_quota = max(min_per_chunk, self.max_context_length // desired_count)
+
+        for i in range(desired_count):
             chunk = chunks[i]
-            text = chunk.get('text', '')
-            # Truncate text to per_chunk_quota
+            text = chunk.get('text', '') or ''
+
+            # Truncate text to per_chunk_quota to ensure we can include all desired chunks
             if len(text) > per_chunk_quota:
                 text_part = text[:per_chunk_quota].rstrip() + '...'
             else:
                 text_part = text
 
             context_parts.append(f"[{i+1}] {text_part}")
-            used.append(chunk)
+
+            # Include the original chunk in `used` but with truncated text to indicate
+            # what was actually added to the prompt. Keep other fields intact.
+            truncated_chunk = dict(chunk)
+            truncated_chunk['text'] = text_part
+            used.append(truncated_chunk)
 
         return "\n\n".join(context_parts), used
 
