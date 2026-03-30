@@ -132,10 +132,14 @@ python scripts\ingest_documents.py --input_dir data\lihua_world --config config\
 
 ### 4. 运行 RAG 系统
 
+当前命令行入口已经收拢到 `src/rag_pipeline/rag_system.py`，推荐直接通过模块方式启动：
+
 ```powershell
 # 单个问题问答，指定要查询的 collection
-python scripts\run_rag.py --question "What is the date and time that Leslie Hansen responded to Stephanie Panus' email about Wabash and other parties?" --config config\config.yaml --key_file encryption.key --collection_name encrypted_documents_test1 --exact_extract
+python -m src.rag_pipeline.rag_system --question "What is the date and time that Leslie Hansen responded to Stephanie Panus' email about Wabash and other parties?" --config config\config.yaml --key_file encryption.key --collection_name encrypted_documents_test1 --exact_extract
 ```
+
+如果你更习惯调用脚本入口，`scripts` 目录里已经不再保留 `run_rag.py`；现在请统一使用上面的模块入口。
 
 > 说明：`--collection_name` 会覆盖 `config.yaml` 中的默认 collection，因此你可以在不修改配置文件的情况下，随时切换查询不同数据集。
 
@@ -149,12 +153,46 @@ python scripts\run_batch_chinese_prompt.py --collection_name encrypted_documents
 python scripts\run_batch_queries.py --collection_name encrypted_documents_test1 --queries_file data\test_datasets\test_queries.txt
 ```
 
-### 6. 统一命令规范
+### 6. 当前命令行使用方式
+
+#### 运行问答
+
+```powershell
+python -m src.rag_pipeline.rag_system --question "Your question" --collection_name encrypted_documents_test1
+```
+
+#### 可用参数
+
+- `--config`：配置文件路径，默认 `config/config.yaml`
+- `--key_file`：加密密钥文件，默认 `encryption.key`
+- `--question`：单条问答问题；不传则进入交互模式
+- `--top_k`：检索 chunk 数量，默认 `5`
+- `--temperature`：LLM 温度，默认 `0.7`
+- `--exact_extract`：用于日期/时间类问题的确定性精确抽取
+- `--collection_name`：覆盖配置文件中的 Qdrant collection 名称
+
+#### 交互模式
+
+```powershell
+python -m src.rag_pipeline.rag_system --collection_name encrypted_documents_test1
+```
+
+#### 常见组合
+
+```powershell
+# 指定 collection + 单题问答
+python -m src.rag_pipeline.rag_system --question "What is the date and time..." --collection_name encrypted_documents_test1 --exact_extract
+
+# 指定更大的 top_k
+python -m src.rag_pipeline.rag_system --question "Your question" --collection_name encrypted_documents_test1 --top_k 10
+```
+
+### 7. 统一命令规范
 
 建议按下面的方式组织：
 
 - 导入：`python scripts\ingest_documents.py --input_dir <文档目录> --collection_name <数据集collection> [--reset_collection]`
-- 查询：`python scripts\run_rag.py --question "..." --collection_name <数据集collection>`
+- 查询：`python -m src.rag_pipeline.rag_system --question "..." --collection_name <数据集collection>`
 - 批量：`python scripts\run_batch_chinese_prompt.py --collection_name <数据集collection>`
 - 诊断：`python scripts\inspect_collection.py --collection_name <数据集collection>`
 
@@ -166,7 +204,7 @@ python scripts\run_batch_queries.py --collection_name encrypted_documents_test1 
 
 ## 项目结构
 
-```
+```text
 graduation-design/
 ├── src/                          # 源代码
 │   ├── document_processing/      # 文档解析与切块
@@ -183,7 +221,7 @@ graduation-design/
 │   │   ├── ollama_client.py      # Ollama客户端
 │   │   └── quantized_model.py    # 量化模型支持
 │   ├── rag_pipeline/             # RAG流程
-│   │   └── rag_system.py         # RAG系统主类
+│   │   └── rag_system.py         # RAG系统主类与CLI入口
 │   ├── audit/                    # 审计模块
 │   │   └── audit_logger.py       # 审计日志
 │   └── evaluation/               # 评估模块
@@ -191,18 +229,15 @@ graduation-design/
 │       └── benchmarking.py       # 性能基准测试
 ├── scripts/                      # 运行脚本
 │   ├── ingest_documents.py       # 文档导入
-│   ├── run_rag.py                # 运行RAG系统
 │   ├── run_benchmark.py          # 运行基准测试
 │   ├── validate_setup.py         # 环境检查
-│   └── test_retrieve.py          # 检索验证
+│   └── visualize_results.py      # 结果可视化
 ├── config/                       # 配置文件
 │   └── config.yaml               # 主配置文件
 ├── data/                         # 数据目录
 │   ├── raw/                      # 原始文档
 │   ├── processed/                # 处理后数据
 │   └── test_datasets/            # 测试数据集
-├── examples/                     # 示例代码
-│   └── example_usage.py          # 使用示例
 ├── tests/                        # 测试代码
 ├── requirements.txt              # Python依赖
 └── README.md                     # 本文件
@@ -489,7 +524,7 @@ python scripts\ingest_documents.py --input_dir data\single_test1 --config config
 ```powershell
 # 推荐的单文件验证流程
 python scripts\ingest_documents.py --input_dir data\single_test1 --config config\config.yaml --key_file encryption.key
-python scripts\run_rag.py --question "What is the date and time that Leslie Hansen responded to Stephanie Panus' email about Wabash and other parties?" --config config\config.yaml --key_file encryption.key --exact_extract
+python -m src.rag_pipeline.rag_system --question "What is the date and time that Leslie Hansen responded to Stephanie Panus' email about Wabash and other parties?" --config config\config.yaml --key_file encryption.key --exact_extract
 ```
 
 ## 贡献指南
