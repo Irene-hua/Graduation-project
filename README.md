@@ -31,12 +31,11 @@
 │                                             │            │
 │                                             ▼            │
 │  ┌──────────┐      ┌──────────┐      ┌──────────┐      │
-│  │  Vector  │ <─── │ Embedding│ <─── │ Original │      │
-│  │ Database │      │  Model   │      │   Text   │      │
-│  │ (Qdrant) │      └──────────┘      └──────────┘      │
-│  └──────────┘                                            │
-│       │                                                   │
-│       ▼                                                   │
+│  │ Embedding│ ───> │   Qdrant  │ ───> │ Payload  │      │
+│  │  Model   │      │ Vector DB │      │ (cipher/ │      │
+│  └──────────┘      └──────────┘      │  nonce)  │      │
+│                                             │            │
+│                                             ▼            │
 │  ┌──────────┐      ┌──────────┐      ┌──────────┐      │
 │  │ Retrieve │ ───> │ Decrypt  │ ───> │   LLM    │      │
 │  │  Top-K   │      │  Chunks  │      │ (Ollama) │      │
@@ -49,6 +48,20 @@
 │                                                           │
 └─────────────────────────────────────────────────────────┘
 ```
+
+### 实际执行顺序
+
+当前代码的真实问答链路是：
+
+1. **文档处理与加密**：`ingest_documents.py` 将原文切块、生成向量，并把每个 chunk 的密文和元数据写入 Qdrant。
+2. **检索**：`Retriever` 先用本地 Embedding 生成查询向量，再从 Qdrant 检索候选块。
+3. **解密/明文兜底**：如果检索结果带有 `ciphertext + nonce`，则执行 AES 解密；如果结果已包含明文 `text/plaintext/content`，则直接使用，不再强制解密。
+4. **上下文构建**：`RAGSystem` 先把检索到的块拼接成上下文，再交给 LLM 生成答案。
+5. **主路径生成**：本地 Ollama LLM 基于上下文生成答案，这是默认主路径。
+6. **规则兜底**：只有当 LLM 明确无法给出答案（例如返回 `Not found`）时，才启用 `TemporalComparisonRule` 作为窄范围 fallback，且不会改变主链路的 RAG 流程。
+7. **审计日志**：记录查询、模型调用与系统访问元数据，但不记录具体查询内容或答案正文。
+
+> 说明：规则系统现在只作为辅助兜底，不参与主链路；主链路始终保持“检索 → 上下文构建 → LLM 生成”的 RAG 流程。
 
 ## 技术栈
 
@@ -73,57 +86,56 @@
 
 ### 1. 环境配置
 
-```bash
-# 克隆仓库
-git clone https://github.com/Irene-hua/graduation-design.git
-cd graduation-design
+```powershell
+# 进入项目根目录
+cd D:\PycharmProjects\Graduation-project
 
-# 创建虚拟环境
+# 创建虚拟环境（如果还没有）
 python -m venv venv
-source venv/bin/activate  # Linux/Mac
-# or
-venv\Scripts\activate  # Windows
+
+# 激活虚拟环境
+.\venv\Scripts\Activate.ps1
 
 # 安装依赖
 pip install -r requirements.txt
 ```
 
-### 2. 安装Ollama
+### 2. 安装 Ollama
 
-```bash
-# Linux/Mac
-curl -fsSL https://ollama.com/install.sh | sh
-
-# 启动Ollama服务
+```powershell
+# 启动 Ollama 服务（单独打开一个终端）
 ollama serve
 
-# 拉取模型（新终端）
+# 拉取模型（示例）
 ollama pull llama2
 ```
 
 ### 3. 文档导入
 
-```bash
-# 将文档放入 data/raw/ 目录
-# 运行文档导入脚本
-python scripts/ingest_documents.py \
-  --input_dir data/raw/ \
-  --config config/config.yaml \
-  --generate_key
+```powershell
+# 将文档放入 data\raw\ 或单独目录（例如 data\single_test1\test1.txt）
+python scripts\ingest_documents.py --input_dir data\raw --config config\config.yaml --key_file encryption.key --generate_key
+
+# 只导入 test1.txt（推荐用于单文件验证）
+python scripts\ingest_documents.py --input_dir data\single_test1 --config config\config.yaml --key_file encryption.key
 ```
 
-### 4. 运行RAG系统
+### 4. 运行 RAG 系统
 
-```bash
-# 交互式问答
-python scripts/run_rag.py \
-  --config config/config.yaml \
-  --key_file encryption.key
+```powershell
+# 单个问题问答
+python scripts\run_rag.py --question "What is the date and time that Leslie Hansen responded to Stephanie Panus' email about Wabash and other parties?" --config config\config.yaml --key_file encryption.key --exact_extract
+```
 
-# 单个问题
-python scripts/run_rag.py \
-  --question "什么是机器学习？" \
-  --top_k 5
+### 5. 单文件验证流程（推荐）
+
+```powershell
+# 1) 确保 test1.txt 已放到 data\single_test1\
+# 2) 重新导入
+python scripts\ingest_documents.py --input_dir data\single_test1 --config config\config.yaml --key_file encryption.key
+
+# 3) 提问并强制精确抽取
+python scripts\run_rag.py --question "What is the date and time that Leslie Hansen responded to Stephanie Panus' email about Wabash and other parties?" --config config\config.yaml --key_file encryption.key --exact_extract
 ```
 
 ## 项目结构
@@ -154,7 +166,9 @@ graduation-design/
 ├── scripts/                      # 运行脚本
 │   ├── ingest_documents.py       # 文档导入
 │   ├── run_rag.py                # 运行RAG系统
-│   └── run_benchmark.py          # 运行基准测试
+│   ├── run_benchmark.py          # 运行基准测试
+│   ├── validate_setup.py         # 环境检查
+│   └── test_retrieve.py          # 检索验证
 ├── config/                       # 配置文件
 │   └── config.yaml               # 主配置文件
 ├── data/                         # 数据目录
@@ -193,7 +207,36 @@ graduation-design/
 - Qdrant向量数据库集成
 - Top-K相似度检索
 - 支持多种距离度量（余弦、欧氏、点积）
-- 自动解密检索结果
+- **检索结果支持两种形态**：
+  - `ciphertext + nonce`：返回密文块，由 `Retriever` 解密后送入 LLM
+  - `text/plaintext/content`：如果 payload 中已带明文，则直接使用，不再重复解密
+- 支持可选的本地两阶段检索：`Retrieve → Rerank → Context → Generate`
+- **引入 Rerank 的原因**：仅依赖向量相似度容易将“语义相近但证据不够精确”的块排到前面；本地精排模块可以在不改变整体架构的前提下，对候选块重新排序，从而提升上下文命中率与最终答案准确率
+- **设计原则**：Rerank 作为可选的本地模块插入在 `Retriever` 与 `ContextBuilder` 之间，遵循 `Retrieve → Rerank → Context → Generate` 的两阶段检索架构；若未启用或出现异常，系统会自动退回到原始检索结果，不影响 `RuleEngine` 的 fallback 行为，也不破坏主流程的模块化设计
+- **适用场景**：对时间点、邮件头、问答证据位置较敏感的任务，Rerank 可显著减少“相似但不够精确”的候选块进入上下文，提高生成答案的稳定性与可解释性
+
+### 检索结果 payload 规范
+
+向量库中每个文本块建议使用如下 payload 约定：
+
+- `ciphertext`：AES-GCM 加密后的密文，Base64 字符串
+- `nonce`：AES-GCM nonce，Base64 字符串
+- `chunk_id`：chunk 在文档中的局部编号
+- `source_file`：来源文件名
+- `doc_id`：文档编号
+- 可选明文字段：`text` / `plaintext` / `content` / `source_text`
+
+代码的读取优先级为：
+
+1. 若同时存在 `ciphertext` 和 `nonce`，先解密得到明文
+2. 若不存在密文，但存在 `text/plaintext/content/source_text`，直接使用该明文
+3. 若两者都没有，则跳过该条结果，不让整条检索链路失败
+
+这意味着：
+
+- **写入阶段**：优先存密文与元数据
+- **检索阶段**：优先取密文，必要时可兼容明文 payload
+- **生成阶段**：只消费最终明文上下文
 
 ### 5. LLM模块
 - Ollama本地部署支持
@@ -352,12 +395,14 @@ python scripts/run_benchmark.py \
 
 ### 添加新的文档格式
 
-在 `src/document_processing/document_parser.py` 中添加新的解析方法：
+在 `src/document_processing/document_parser.py` 中添加新的解析方法。示例中若需要引用路径类型，请直接在代码里 `import Path`（来自 `pathlib`），不要把类型注解单独放在 README 的代码识别区域。
 
 ```python
-def _parse_new_format(self, filepath: Path) -> str:
-    # 实现新格式的解析逻辑
-    pass
+# 在源码中新增解析函数
+# 例如：
+# def _parse_new_format(self, filepath):
+#     # 实现新格式的解析逻辑
+#     pass
 ```
 
 ### 集成新的Embedding模型
@@ -389,35 +434,35 @@ rag:
 
 ## 故障排除
 
-### Ollama连接失败
-```bash
-# 检查Ollama服务状态
-ps aux | grep ollama
+### Ollama 连接失败
+```powershell
+# 检查 Ollama 服务是否可访问
+Invoke-WebRequest http://localhost:11434/api/tags -UseBasicParsing
 
-# 重启服务
+# 启动服务（在单独窗口执行）
 ollama serve
 ```
 
-### Qdrant存储错误
-```bash
-# 清空并重建集合
-rm -rf qdrant_storage/
-python scripts/ingest_documents.py --generate_key
+### Qdrant 存储错误
+```powershell
+# 如果看到“Storage folder ... is already accessed by another instance”的报错：
+# 1) 关闭其他正在占用 ./qdrant_storage 的 Python/脚本窗口
+# 2) 或者直接重启终端后再运行
+# 3) 如果要并发使用，请改用 Qdrant server（不要共享本地目录）
+
+# 备份或清空本地向量库（按需执行）
+Rename-Item qdrant_storage qdrant_storage_backup -ErrorAction SilentlyContinue
+New-Item -ItemType Directory -Path qdrant_storage -Force | Out-Null
+
+# 重新导入文档
+python scripts\ingest_documents.py --input_dir data\single_test1 --config config\config.yaml --key_file encryption.key
 ```
 
-### 内存不足
-- 降低 `embedding.batch_size`
-- 减小 `document_processing.chunk_size`
-- 使用更小的Embedding模型
-- 启用模型量化
-
-### GPU相关问题
-```bash
-# 检查CUDA可用性
-python -c "import torch; print(torch.cuda.is_available())"
-
-# 强制使用CPU
-# 在配置中设置 device: 'cpu'
+### 本地问答结果不准确
+```powershell
+# 推荐的单文件验证流程
+python scripts\ingest_documents.py --input_dir data\single_test1 --config config\config.yaml --key_file encryption.key
+python scripts\run_rag.py --question "What is the date and time that Leslie Hansen responded to Stephanie Panus' email about Wabash and other parties?" --config config\config.yaml --key_file encryption.key --exact_extract
 ```
 
 ## 贡献指南
@@ -448,3 +493,13 @@ MIT License
 - 作者：Irene Hua
 - GitHub：[@Irene-hua](https://github.com/Irene-hua)
 - 项目链接：[https://github.com/Irene-hua/graduation-design](https://github.com/Irene-hua/graduation-design)
+
+## 实验性 Demo（不接入主链路）
+
+为了便于快速实验，本仓库还包含一个**自包含 demo**：`examples/privacy_rag_demo.py`。
+
+- 使用 **Fernet** 做加密
+- 使用 **Qdrant :memory:** 做临时向量库
+- 带 `CrossEncoder` rerank
+
+该 demo **不符合本项目主设计（AES-256-GCM + Qdrant 持久化/Server + Retriever 解密）**，因此**不被 `scripts/run_rag.py` 使用**。主链路仍以 `src/rag_pipeline/rag_system.py` 中的 `RAGSystem` 为准。

@@ -115,7 +115,9 @@ def main():
         collection_name=config['vector_db']['collection_name'],
         dimension=embedding_model.get_dimension(),
         distance_metric=config['vector_db']['distance_metric'],
-        storage_path=config['vector_db']['storage_path']
+        storage_path=config['vector_db']['storage_path'],
+        host=config['vector_db'].get('host'),
+        port=config['vector_db'].get('port')
     )
     
     # Prepare metadata

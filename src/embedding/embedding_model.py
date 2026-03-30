@@ -7,6 +7,7 @@ from typing import List, Union
 import numpy as np
 from sentence_transformers import SentenceTransformer
 import logging
+import hashlib
 
 logger = logging.getLogger(__name__)
 
@@ -24,18 +25,38 @@ class EmbeddingModel:
             device: Device to run model on ('cuda', 'cpu', or None for auto)
         """
         self.model_name = model_name
-        
+        self.fallback = False
+
         logger.info(f"Loading embedding model: {model_name}")
-        
+
+        # Strategy:
+        # 1) Try to load model online (may download into cache). This gives the best chance
+        #    to obtain real SentenceTransformer embeddings when network is available.
+        # 2) If online load fails (network or other), attempt to load from local cache.
+        # 3) If both fail, fall back to deterministic hash embedding.
         try:
-            self.model = SentenceTransformer(model_name, device=device)
-            self.dimension = self.model.get_sentence_embedding_dimension()
-            
-            logger.info(f"Model loaded successfully. Dimension: {self.dimension}")
+            # Try local cache first to avoid long download/retry delays when offline.
+            try:
+                self.model = SentenceTransformer(model_name, device=device, local_files_only=True)
+                self.dimension = self.model.get_sentence_embedding_dimension()
+                logger.info(f"Model loaded from local cache. Dimension: {self.dimension}")
+            except Exception as e_local:
+                logger.info(f"Local cache load failed for {model_name}: {e_local}. Attempting online load...")
+                try:
+                    # Only try online load if local cache is not present; may still fail if network unreachable
+                    self.model = SentenceTransformer(model_name, device=device, local_files_only=False)
+                    self.dimension = self.model.get_sentence_embedding_dimension()
+                    logger.info(f"Model loaded (online). Dimension: {self.dimension}")
+                except Exception as e_online:
+                    logger.warning(f"Online load failed for {model_name}: {e_online}.")
+                    raise
         except Exception as e:
-            logger.error(f"Failed to load model {model_name}: {e}")
-            raise
-    
+            # Final fallback: deterministic hash embedding for fully offline/unavailable model cases.
+            logger.warning(f"Failed to load model {model_name} (local/online): {e}. Falling back to local hash embedding.")
+            self.model = None
+            self.dimension = 384
+            self.fallback = True
+
     def encode(self, texts: Union[str, List[str]], 
                batch_size: int = 32,
                show_progress: bool = False,
@@ -60,16 +81,38 @@ class EmbeddingModel:
             return np.array([])
         
         try:
-            embeddings = self.model.encode(
-                texts,
-                batch_size=batch_size,
-                show_progress_bar=show_progress,
-                normalize_embeddings=normalize,
-                convert_to_numpy=True
-            )
-            
-            return embeddings
-        
+            if not self.fallback and self.model is not None:
+                embeddings = self.model.encode(
+                    texts,
+                    batch_size=batch_size,
+                    show_progress_bar=show_progress,
+                    normalize_embeddings=normalize,
+                    convert_to_numpy=True
+                )
+                return embeddings
+
+            # Fallback deterministic hash embedding (cheap, no external deps)
+            embs = []
+            for t in texts:
+                if t is None:
+                    t = ''
+                # Tokenize simply by whitespace; if no spaces, fall back to characters
+                tokens = t.split() if len(t.split())>1 else list(t)
+                vec = np.zeros(self.dimension, dtype=float)
+                for tok in tokens:
+                    # create a 32-byte digest
+                    h = hashlib.sha256(tok.encode('utf-8')).digest()
+                    # add digest bytes into the 384-d vector by repeating
+                    for i in range(self.dimension):
+                        vec[i] += h[i % len(h)]
+                # normalize to unit length if requested
+                if normalize:
+                    norm = np.linalg.norm(vec)
+                    if norm > 0:
+                        vec = vec / norm
+                embs.append(vec)
+            return np.vstack(embs)
+
         except Exception as e:
             logger.error(f"Failed to encode texts: {e}")
             raise

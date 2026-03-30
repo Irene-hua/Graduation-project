@@ -18,7 +18,7 @@ class OllamaClient:
     def __init__(self, 
                  base_url: str = 'http://localhost:11434',
                  model_name: str = 'llama2',
-                 timeout: int = 120):
+                 timeout: int = 300):
         """
         Initialize Ollama client
         
@@ -93,42 +93,25 @@ class OllamaClient:
         start_time = time.time()
         
         try:
-            if stream:
-                # Handle streaming response
-                response = requests.post(url, json=payload, stream=True, timeout=self.timeout)
-                full_response = ""
-                
-                for line in response.iter_lines():
-                    if line:
-                        chunk = json.loads(line)
-                        if 'response' in chunk:
-                            full_response += chunk['response']
-                        if chunk.get('done', False):
-                            break
-                
-                inference_time = time.time() - start_time
-                
-                return {
-                    'response': full_response,
-                    'model': self.model_name,
-                    'inference_time': inference_time
-                }
-            else:
-                # Non-streaming response
-                response = requests.post(url, json=payload, timeout=self.timeout)
-                response.raise_for_status()
-                
-                data = response.json()
-                inference_time = time.time() - start_time
-                
-                return {
-                    'response': data.get('response', ''),
-                    'model': self.model_name,
-                    'inference_time': inference_time,
-                    'eval_count': data.get('eval_count', 0),
-                    'eval_duration': data.get('eval_duration', 0)
-                }
-        
+            # Use non-streaming default for robustness; streaming parsing varies by Ollama version.
+            response = requests.post(url, json=payload, timeout=self.timeout)
+            response.raise_for_status()
+
+            data = response.json()
+            inference_time = time.time() - start_time
+
+            # Ollama may return {'response': '...'} or {'output': '...'} depending on version; be flexible.
+            resp_text = data.get('response') or data.get('output') or ''
+
+            return {
+                'response': resp_text,
+                'model': self.model_name,
+                'inference_time': inference_time,
+                'eval_count': data.get('eval_count', 0),
+                'eval_duration': data.get('eval_duration', 0),
+                'raw': data
+            }
+
         except requests.exceptions.Timeout:
             logger.error(f"Request timeout after {self.timeout}s")
             raise

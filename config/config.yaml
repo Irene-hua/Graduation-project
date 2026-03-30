@@ -32,7 +32,13 @@ vector_db:
 # Retrieval
 retrieval:
   top_k_values: [3, 5, 10, 15]  # Different K values to test
-  default_top_k: 5
+  default_top_k: 15
+
+# Local Rerank (two-stage retrieval)
+rerank:
+  enabled: true
+  max_candidates: 20
+  min_score: 0.0
 
 # LLM (Ollama)
 llm:

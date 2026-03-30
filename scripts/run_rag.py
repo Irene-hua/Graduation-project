@@ -16,7 +16,7 @@ from src.encryption import AESEncryption
 from src.embedding import EmbeddingModel
 from src.retrieval import VectorStore, Retriever
 from src.llm import OllamaClient
-from src.rag_pipeline import RAGSystem
+from src.rag_pipeline import RAGSystem, LocalReranker
 from src.audit import AuditLogger
 
 # Setup logging
@@ -39,7 +39,9 @@ def main():
                        help='Number of chunks to retrieve')
     parser.add_argument('--temperature', type=float, default=0.7,
                        help='LLM temperature')
-    
+    parser.add_argument('--exact_extract', action='store_true',
+                       help='Prefer deterministic exact extraction for date/time style questions')
+
     args = parser.parse_args()
     
     # Load configuration
@@ -81,7 +83,9 @@ def main():
         collection_name=config['vector_db']['collection_name'],
         dimension=embedding_model.get_dimension(),
         distance_metric=config['vector_db']['distance_metric'],
-        storage_path=config['vector_db']['storage_path']
+        storage_path=config['vector_db']['storage_path'],
+        host=config['vector_db'].get('host'),
+        port=config['vector_db'].get('port')
     )
     
     info = vector_store.get_collection_info()
@@ -106,12 +110,23 @@ def main():
         logger.error("  ollama serve")
         return
     
+    # Initialize optional local reranker
+    reranker = None
+    if config.get('rerank', {}).get('enabled', False):
+        reranker = LocalReranker(
+            max_candidates=config['rerank'].get('max_candidates', 20),
+            min_score=config['rerank'].get('min_score', 0.0)
+        )
+        logger.info("Local reranker enabled (max_candidates=%s, min_score=%s)",
+                    config['rerank'].get('max_candidates', 20), config['rerank'].get('min_score', 0.0))
+
     # Initialize RAG system
     rag_system = RAGSystem(
         retriever=retriever,
         llm_client=llm_client,
         prompt_template=config['rag']['prompt_template'],
-        max_context_length=config['rag']['max_context_length']
+        max_context_length=config['rag']['max_context_length'],
+        reranker=reranker
     )
     
     logger.info("RAG system ready!")
@@ -119,7 +134,7 @@ def main():
     # Process question(s)
     if args.question:
         # Single question mode
-        process_question(rag_system, args.question, args.top_k, args.temperature, audit_logger)
+        process_question(rag_system, args.question, args.top_k, args.temperature, audit_logger, args.exact_extract)
     else:
         # Interactive mode
         print("\n" + "="*50)
@@ -138,8 +153,8 @@ def main():
                     print("Goodbye!")
                     break
                 
-                process_question(rag_system, question, args.top_k, args.temperature, audit_logger)
-                
+                process_question(rag_system, question, args.top_k, args.temperature, audit_logger, args.exact_extract)
+
             except KeyboardInterrupt:
                 print("\n\nGoodbye!")
                 break
@@ -149,7 +164,7 @@ def main():
                     audit_logger.log_error('question_processing', str(e))
 
 
-def process_question(rag_system, question, top_k, temperature, audit_logger=None):
+def process_question(rag_system, question, top_k, temperature, audit_logger=None, exact_extract=False):
     """Process a single question"""
     print(f"\nQuestion: {question}")
     print("-" * 50)
@@ -159,8 +174,9 @@ def process_question(rag_system, question, top_k, temperature, audit_logger=None
         audit_logger.log_query(question)
     
     # Answer question
+    query = question
     result = rag_system.answer_question(
-        question=question,
+        question=query,
         top_k=top_k,
         temperature=temperature
     )
@@ -179,6 +195,13 @@ def process_question(rag_system, question, top_k, temperature, audit_logger=None
     print(f"Generation time: {result['generation_time']:.3f}s")
     print(f"Total time: {result['total_time']:.3f}s")
     
+    # Show rerank diagnostics if available
+    if result.get('rerank_enabled'):
+        print("\nRerank diagnostics:")
+        print(f"  enabled: {result.get('rerank_enabled')}")
+        print(f"  before_top1: {result.get('rerank_before_top1') or 'n/a'}")
+        print(f"  after_top1: {result.get('rerank_after_top1') or 'n/a'}")
+
     # Show sources (prefer used_chunks which are actually passed to the LLM)
     used = result.get('used_chunks') or result.get('context_chunks') or []
     if used:
@@ -192,8 +215,12 @@ def process_question(rag_system, question, top_k, temperature, audit_logger=None
             source = chunk.get('metadata', {}).get('source_file', 'unknown')
             score = chunk.get('score', 0)
             chunk_id = chunk.get('metadata', {}).get('chunk_id', 'unknown')
+            rerank_score = chunk.get('rerank_score')
             preview = (chunk.get('text') or '')[:120].replace('\n', ' ')
-            print(f"  {i}. {source} (score: {score:.3f}) chunk_id={chunk_id} preview='{preview}...' ")
+            if rerank_score is not None:
+                print(f"  {i}. {source} (score: {score:.3f}, rerank: {rerank_score:.3f}) chunk_id={chunk_id} preview='{preview}...' ")
+            else:
+                print(f"  {i}. {source} (score: {score:.3f}) chunk_id={chunk_id} preview='{preview}...' ")
 
 
 if __name__ == '__main__':
