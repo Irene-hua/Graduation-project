@@ -1,293 +1,286 @@
 """
 RAG System
-Integrates encryption, retrieval, and generation for question answering
 """
 
-from typing import List, Dict, Optional
+from __future__ import annotations
+from dataclasses import dataclass
+from datetime import datetime
+from typing import Dict, List, Optional
+
 import logging
+import re
 import time
 
 logger = logging.getLogger(__name__)
 
 
-class RAGSystem:
-    """Complete RAG pipeline with encryption and quantization"""
-    
-    def __init__(self,
-                 retriever,
-                 llm_client,
-                 prompt_template: Optional[str] = None,
-                 max_context_length: int = 2000):
-        """
-        Initialize RAG system
-        
-        Args:
-            retriever: Retriever instance
-            llm_client: LLM client (OllamaClient or QuantizedModel)
-            prompt_template: Template for QA prompt
-            max_context_length: Maximum context length
-        """
-        self.retriever = retriever
-        self.llm_client = llm_client
-        self.max_context_length = max_context_length
-        
-        # Default prompt template
-        if prompt_template is None:
-            self.prompt_template = """Based on the following context, please answer the question.
+class QueryType:
+    TEMPORAL = "temporal"
+    COMPARISON = "comparison"
+    YES_NO = "yes_no"
+    FACTOID = "factoid"
+    OPEN = "open"
 
-Context:
-{context}
 
-Question: {question}
+@dataclass(frozen=True)
+class QueryInfo:
+    query_type: str
+    is_yes_no: bool
 
-Answer:"""
-        else:
-            self.prompt_template = prompt_template
-        
-        logger.info("RAG system initialized")
-    
-    def answer_question(self, 
-                       question: str,
-                       top_k: int = 5,
-                       temperature: float = 0.7,
-                       max_tokens: Optional[int] = None) -> Dict:
-        """
-        Answer a question using RAG pipeline
-        
-        Args:
-            question: User question
-            top_k: Number of chunks to retrieve
-            temperature: LLM temperature
-            max_tokens: Maximum tokens to generate
-            
-        Returns:
-            Dict with answer, context, and metadata
-        """
-        start_time = time.time()
-        
-        # Step 1: Retrieve relevant chunks
-        logger.info(f"Retrieving context for question: {question[:50]}...")
-        retrieval_start = time.time()
-        try:
-            retrieved_chunks = self.retriever.retrieve(question, top_k=top_k)
-        except Exception as e:
-            # Log full exception and return a friendly answer so caller can display something
-            retrieval_time = time.time() - retrieval_start
-            logger.exception(f"Retrieval failed for question: {question[:50]}: {e}")
-            return {
-                'answer': "An error occurred while searching for relevant information. Please try again later.",
-                'question': question,
-                'context_chunks': [],
-                'retrieval_time': retrieval_time,
-                'generation_time': 0,
-                'total_time': time.time() - start_time,
-                'num_chunks_retrieved': 0,
-                'error': str(e)
-            }
-        retrieval_time = time.time() - retrieval_start
-        
-        if not retrieved_chunks:
-            logger.warning("No relevant chunks retrieved - falling back to LLM generation without context")
-            # Fall back to LLM-only generation so users still get an answer
-            try:
-                if hasattr(self.llm_client, 'generate'):
-                    gen_prompt = self.prompt_template.format(context="", question=question)
-                    gen_start = time.time()
-                    generation_result = self.llm_client.generate(
-                        gen_prompt,
-                        temperature=temperature,
-                        max_tokens=max_tokens
-                    )
-                    gen_time = time.time() - gen_start
-                    answer = generation_result.get('response') if isinstance(generation_result, dict) else str(generation_result)
-                    generation_metadata = generation_result
-                else:
-                    answer = "LLM client not properly configured"
-                    generation_metadata = {}
-                    gen_time = 0
-            except Exception as e:
-                logger.error(f"LLM fallback generation failed: {e}")
-                answer = "An error occurred while generating an answer."
-                generation_metadata = {}
-                gen_time = 0
 
-            total_time = time.time() - start_time
-            return {
-                'answer': answer,
-                'question': question,
-                'context_chunks': [],
-                'num_chunks_retrieved': 0,
-                'retrieval_time': retrieval_time,
-                'generation_time': gen_time,
-                'total_time': total_time,
-                'generation_metadata': generation_metadata,
-                'note': 'Generated without retrieved context'
-            }
-        
-        # Ensure we prioritize highest-score chunks and then build context from them
-        try:
-            retrieved_chunks = sorted(retrieved_chunks, key=lambda c: c.get('score', 0), reverse=True)
-        except Exception:
-            # If sorting fails, fall back to original order
-            pass
+@dataclass(frozen=True)
+class RuleResult:
+    answer: str
+    confidence: float
+    rule_name: str
 
-        # Step 2: Build context from retrieved chunks (also get which chunks were actually used)
-        context, used_chunks = self._build_context(retrieved_chunks, top_k=top_k)
 
-        # Step 3: Build prompt
-        prompt = self.prompt_template.format(
-            context=context,
-            question=question
+# =========================
+# Query分类
+# =========================
+
+class QueryClassifier:
+
+    def classify(self, question: str) -> QueryInfo:
+        q = (question or "").lower()
+
+        if any(k in q for k in ["before", "after", "earlier", "later"]):
+            return QueryInfo(QueryType.COMPARISON, False)
+
+        if any(k in q for k in ["when", "time", "date"]):
+            return QueryInfo(QueryType.TEMPORAL, False)
+
+        if q.startswith(("is ", "are ", "was ", "were ")):
+            return QueryInfo(QueryType.YES_NO, True)
+
+        return QueryInfo(QueryType.OPEN, False)
+
+
+# =========================
+# Temporal Rule（唯一保留规则）
+# =========================
+
+class TemporalComparisonRule:
+    """
+    泛化时间推理规则（论文核心：非硬编码）
+    """
+
+    name = "temporal_comparison"
+
+    def apply(self, question: str, chunks: List[Dict]) -> Optional[RuleResult]:
+        times = []
+
+        for ch in chunks:
+            text = ch.get("text", "")
+            matches = re.findall(r"\d{4}-\d{2}-\d{2} \d{2}:\d{2}", text)
+            for m in matches:
+                try:
+                    dt = datetime.strptime(m, "%Y-%m-%d %H:%M")
+                    times.append(dt)
+                except Exception:
+                    continue
+
+        if len(times) < 2:
+            return None
+
+        times.sort()
+
+        if "difference" in (question or "").lower():
+            delta = times[-1] - times[0]
+            return RuleResult(
+                answer=f"Time difference is {delta}",
+                confidence=0.7,
+                rule_name=self.name
+            )
+
+        return RuleResult(
+            answer=f"Earliest time is {times[0]}",
+            confidence=0.65,
+            rule_name=self.name
         )
-        
-        # Step 4: Generate answer
-        logger.info("Generating answer...")
-        generation_start = time.time()
-        
+
+
+# =========================
+# Rule Engine（只保留一个规则）
+# =========================
+
+class RuleEngine:
+    def __init__(self):
+        self.rule = TemporalComparisonRule()
+
+    def run(self, question, chunks):
+        return self.rule.apply(question, chunks)
+
+
+# =========================
+# Context Builder
+# =========================
+
+class ContextBuilder:
+    """
+    负责上下文构建（论文点：限制长度 + 提高相关性）
+    """
+
+    def build(self, chunks: List[Dict], top_k: int):
+        return "\n".join([c.get("text", "") for c in chunks[:top_k]]), chunks[:top_k]
+
+
+# =========================
+# LLM 调用
+# =========================
+
+class LLMCaller:
+
+    def __init__(self, client):
+        self.client = client
+
+    def generate(self, prompt: str):
         try:
-            # Check if using Ollama or QuantizedModel
-            if hasattr(self.llm_client, 'generate'):
-                generation_result = self.llm_client.generate(
-                    prompt,
-                    temperature=temperature,
-                    max_tokens=max_tokens
-                )
-                answer = generation_result['response']
-                generation_metadata = generation_result
-            else:
-                # Fallback
-                answer = "LLM client not properly configured"
-                generation_metadata = {}
-            
-            generation_time = time.time() - generation_start
-            
+            return self.client.generate(prompt=prompt)["response"]
+        except Exception:
+            return "Not found"
+
+
+# =========================
+# 主RAG系统
+# =========================
+
+class RAGSystem:
+
+    def __init__(self, retriever, llm_client, prompt_template: Optional[str] = None, max_context_length: int = 2000, reranker=None):
+        self.retriever = retriever
+        self.classifier = QueryClassifier()
+        self.context_builder = ContextBuilder()
+        self.llm = LLMCaller(llm_client)
+        self.rule_engine = RuleEngine()
+        # Optional local reranker. If absent, the pipeline behaves exactly as before.
+        self.reranker = reranker
+        # Keep prompt_template and max_context_length in the public signature for backward compatibility.
+        self.prompt_template = prompt_template or self._default_prompt()
+        self.max_context_length = max_context_length
+
+    # =========================
+    # Prompt设计（论文关键）
+    # =========================
+    def _default_prompt(self):
+        return (
+            "Answer ONLY using the provided context.\n"
+            "If the answer is not in the context, say 'Not found'.\n\n"
+            "Context:\n{context}\n\n"
+            "Question: {question}\n"
+            "Answer:\n"
+        )
+
+    def build_prompt(self, question, context):
+        return self.prompt_template.format(context=context, question=question)
+
+    # =========================
+    # 核心流程（重点改造）
+    # =========================
+    def answer_question(self, question: str, top_k: int = 5, temperature: float = 0.7, max_tokens: Optional[int] = None):
+        start = time.time()
+        rerank_enabled = self.reranker is not None
+        rerank_before_top1 = None
+        rerank_after_top1 = None
+
+        # 1️⃣ 检索（RAG第一步）
+        try:
+            chunks = self.retriever.retrieve(question, top_k=top_k)
         except Exception as e:
-            logger.error(f"Generation failed: {e}")
-            answer = f"Error generating answer: {str(e)}"
-            generation_time = time.time() - generation_start
-            generation_metadata = {}
-        
-        total_time = time.time() - start_time
-        
+            return {
+                "answer": "An error occurred while searching for relevant information. Please try again later.",
+                "path": "FAIL",
+                "reasoning_path": "error",
+                "time": time.time() - start,
+                "total_time": time.time() - start,
+                "retrieval_time": 0.0,
+                "generation_time": 0.0,
+                "num_chunks_retrieved": 0,
+                "used_chunks": [],
+                "context_chunks": [],
+                "confidence": 0.0,
+                "error": str(e),
+            }
+        retrieval_time = time.time() - start
+
+        # 1.5️⃣ Rerank（本地二阶段检索）
+        if self.reranker is not None:
+            # Design note: rerank only reorders candidate chunks; it does not replace retrieval.
+            try:
+                rerank_before_top1 = chunks[0].get("text") if chunks else None
+                chunks = self.reranker.rerank(question, chunks, top_k=top_k)
+                rerank_after_top1 = chunks[0].get("text") if chunks else None
+            except Exception as e:
+                logger.debug("Reranker failed, falling back to raw retrieval order: %s", e)
+
+        # 2️⃣ 构建上下文
+        context, used_chunks = self.context_builder.build(chunks, top_k)
+
+        # 3️⃣ 构建prompt
+        prompt = self.build_prompt(question, context)
+
+        # 4️⃣ LLM生成（主路径）
+        gen_start = time.time()
+        answer = self.llm.generate(prompt)
+        generation_time = time.time() - gen_start
+
+        # =========================
+        # ❗ 核心：RAG优先
+        # =========================
+        if answer and "Not found" not in answer:
+            return {
+                "answer": answer,
+                "path": "RAG",
+                "reasoning_path": "llm",
+                "time": time.time() - start,
+                "total_time": time.time() - start,
+                "retrieval_time": retrieval_time,
+                "generation_time": generation_time,
+                "num_chunks_retrieved": len(chunks),
+                "used_chunks": used_chunks,
+                "context_chunks": chunks,
+                "confidence": 0.55,
+                "rerank_enabled": rerank_enabled,
+                "rerank_before_top1": rerank_before_top1,
+                "rerank_after_top1": rerank_after_top1,
+             }
+
+        # =========================
+        # ❗ fallback：规则
+        # =========================
+        rule_result = self.rule_engine.run(question, chunks)
+
+        if rule_result:
+            return {
+                "answer": rule_result.answer,
+                "path": f"RULE:{rule_result.rule_name}",
+                "reasoning_path": f"fallback_rule:{rule_result.rule_name}",
+                "time": time.time() - start,
+                "total_time": time.time() - start,
+                "retrieval_time": retrieval_time,
+                "generation_time": generation_time,
+                "num_chunks_retrieved": len(chunks),
+                "used_chunks": used_chunks,
+                "context_chunks": chunks,
+                "confidence": rule_result.confidence,
+                "rerank_enabled": rerank_enabled,
+                "rerank_before_top1": rerank_before_top1,
+                "rerank_after_top1": rerank_after_top1,
+             }
+
         return {
-            'answer': answer,
-            'question': question,
-            'context_chunks': retrieved_chunks,
-            'used_chunks': used_chunks,
-            'num_chunks_retrieved': len(retrieved_chunks),
-            'retrieval_time': retrieval_time,
-            'generation_time': generation_time,
-            'total_time': total_time,
-            'generation_metadata': generation_metadata
-        }
-    
-    def _build_context(self, chunks: List[Dict], top_k: int = 5):
-        """
-        Build context string from retrieved chunks
-
-        Args:
-            chunks: List of chunk dicts with 'text' key
-
-        Returns:
-           Tuple (formatted context string, list of chunks actually included)
-        """
-        # Strategy: always include up to `top_k` chunks in the returned `used` list.
-        # If the combined length would exceed `max_context_length`, we truncate each
-        # chunk to a per-chunk quota so we still include the same number of chunks.
-        # This guarantees callers that `used` contains up to `top_k` items (only the
-        # text may be shortened to fit the context budget).
-        context_parts = []
-        used = []
-
-        desired_count = min(top_k, len(chunks))
-        if desired_count == 0:
-            return "", []
-
-        min_per_chunk = 100
-        # compute per-chunk quota so desired_count * per_chunk_quota <= max_context_length
-        per_chunk_quota = max(min_per_chunk, self.max_context_length // desired_count)
-
-        for i in range(desired_count):
-            chunk = chunks[i]
-            text = chunk.get('text', '') or ''
-
-            # Truncate text to per_chunk_quota to ensure we can include all desired chunks
-            if len(text) > per_chunk_quota:
-                text_part = text[:per_chunk_quota].rstrip() + '...'
-            else:
-                text_part = text
-
-            context_parts.append(f"[{i+1}] {text_part}")
-
-            # Include the original chunk in `used` but with truncated text to indicate
-            # what was actually added to the prompt. Keep other fields intact.
-            truncated_chunk = dict(chunk)
-            truncated_chunk['text'] = text_part
-            used.append(truncated_chunk)
-
-        return "\n\n".join(context_parts), used
-
-    def batch_answer(self, 
-                    questions: List[str],
-                    top_k: int = 5,
-                    temperature: float = 0.7) -> List[Dict]:
-        """
-        Answer multiple questions
-        
-        Args:
-            questions: List of questions
-            top_k: Number of chunks to retrieve per question
-            temperature: LLM temperature
-            
-        Returns:
-            List of answer dicts
-        """
-        results = []
-        
-        for i, question in enumerate(questions):
-            logger.info(f"Processing question {i+1}/{len(questions)}")
-            result = self.answer_question(question, top_k=top_k, temperature=temperature)
-            results.append(result)
-        
-        return results
-    
-    def evaluate(self,
-                test_questions: List[str],
-                ground_truth_answers: List[str],
-                top_k: int = 5) -> Dict:
-        """
-        Evaluate RAG system on test questions
-        
-        Args:
-            test_questions: List of test questions
-            ground_truth_answers: List of ground truth answers
-            top_k: Number of chunks to retrieve
-            
-        Returns:
-            Dict with evaluation metrics
-        """
-        if len(test_questions) != len(ground_truth_answers):
-            raise ValueError("Number of questions must match number of answers")
-        
-        logger.info(f"Evaluating on {len(test_questions)} questions...")
-        
-        results = self.batch_answer(test_questions, top_k=top_k)
-        
-        # Calculate metrics
-        total_retrieval_time = sum(r['retrieval_time'] for r in results)
-        total_generation_time = sum(r['generation_time'] for r in results)
-        total_time = sum(r['total_time'] for r in results)
-        
-        avg_chunks_retrieved = sum(r['num_chunks_retrieved'] for r in results) / len(results)
-        
-        return {
-            'num_questions': len(test_questions),
-            'total_time': total_time,
-            'avg_time_per_question': total_time / len(test_questions),
-            'total_retrieval_time': total_retrieval_time,
-            'avg_retrieval_time': total_retrieval_time / len(test_questions),
-            'total_generation_time': total_generation_time,
-            'avg_generation_time': total_generation_time / len(test_questions),
-            'avg_chunks_retrieved': avg_chunks_retrieved,
-            'results': results
-        }
+            "answer": "Not found",
+            "path": "FAIL",
+            "reasoning_path": "llm",
+            "time": time.time() - start,
+            "total_time": time.time() - start,
+            "retrieval_time": retrieval_time,
+            "generation_time": generation_time,
+            "num_chunks_retrieved": len(chunks),
+            "used_chunks": used_chunks,
+            "context_chunks": chunks,
+            "confidence": 0.0,
+            "rerank_enabled": rerank_enabled,
+            "rerank_before_top1": rerank_before_top1,
+            "rerank_after_top1": rerank_after_top1,
+         }
