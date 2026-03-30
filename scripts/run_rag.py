@@ -6,6 +6,7 @@ Interactive question-answering using the RAG pipeline
 
 import sys
 import os
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
 import argparse
@@ -30,26 +31,28 @@ logger = logging.getLogger(__name__)
 def main():
     parser = argparse.ArgumentParser(description='Run RAG system for Q&A')
     parser.add_argument('--config', type=str, default='config/config.yaml',
-                       help='Path to configuration file')
+                        help='Path to configuration file')
     parser.add_argument('--key_file', type=str, default='encryption.key',
-                       help='Path to encryption key file')
+                        help='Path to encryption key file')
     parser.add_argument('--question', type=str,
-                       help='Single question to answer (if not provided, runs interactive mode)')
+                        help='Single question to answer (if not provided, runs interactive mode)')
     parser.add_argument('--top_k', type=int, default=5,
-                       help='Number of chunks to retrieve')
+                        help='Number of chunks to retrieve')
     parser.add_argument('--temperature', type=float, default=0.7,
-                       help='LLM temperature')
+                        help='LLM temperature')
     parser.add_argument('--exact_extract', action='store_true',
-                       help='Prefer deterministic exact extraction for date/time style questions')
+                        help='Prefer deterministic exact extraction for date/time style questions')
+    parser.add_argument('--collection_name', type=str, default=None,
+                        help='Override Qdrant collection name for this run')
 
     args = parser.parse_args()
-    
+
     # Load configuration
-    with open(args.config, 'r') as f:
+    with open(args.config, 'r', encoding='utf-8') as f:
         config = yaml.safe_load(f)
-    
+
     logger.info("Initializing RAG system")
-    
+
     # Initialize audit logger
     audit_logger = None
     if config['audit']['enabled']:
@@ -59,57 +62,62 @@ def main():
             enable_integrity_check=config['audit']['integrity_check']
         )
         audit_logger.log_system_access('user', 'initialize_rag_system')
-    
+
     # Initialize encryption
     logger.info(f"Loading encryption key from {args.key_file}")
     encryption = AESEncryption(key_size=config['encryption']['key_size'])
-    
+
     if not os.path.exists(args.key_file):
         logger.error(f"Encryption key not found: {args.key_file}")
         logger.error("Please run ingest_documents.py first to generate the key")
         return
-    
+
     encryption.load_key(args.key_file)
-    
+
     # Initialize embedding model
     logger.info("Loading embedding model")
     embedding_model = EmbeddingModel(
         model_name=config['embedding']['model_name']
     )
-    
+
     # Initialize vector store
-    logger.info("Connecting to vector database")
+    logger.info("Connecting to local vector database")
+    collection_name = args.collection_name or config['vector_db']['collection_name']
+    logger.info("Effective Qdrant collection: %s", collection_name)
     vector_store = VectorStore(
-        collection_name=config['vector_db']['collection_name'],
+        collection_name=collection_name,
         dimension=embedding_model.get_dimension(),
         distance_metric=config['vector_db']['distance_metric'],
         storage_path=config['vector_db']['storage_path'],
         host=config['vector_db'].get('host'),
         port=config['vector_db'].get('port')
     )
-    
+
     info = vector_store.get_collection_info()
-    logger.info(f"Collection has {info['points_count']} documents")
-    
+    logger.info(
+        "Collection diagnostics: name=%s points=%s vectors=%s status=%s storage_path=%s",
+        info.get('name'), info.get('points_count'), info.get('vectors_count'), info.get('status'), config['vector_db']['storage_path']
+    )
+
     if info['points_count'] == 0:
         logger.error("Vector database is empty. Please run ingest_documents.py first")
         return
-    
+
     # Initialize retriever
     retriever = Retriever(embedding_model, vector_store, encryption)
-    
+
     # Initialize LLM
     logger.info("Connecting to Ollama")
     llm_client = OllamaClient(
         base_url=config['llm']['base_url'],
         model_name=config['llm']['model_name']
     )
-    
+
     if not llm_client.is_available():
         logger.error("Ollama server not available. Please start Ollama first:")
         logger.error("  ollama serve")
         return
-    
+
     # Initialize optional local reranker
     reranker = None
     if config.get('rerank', {}).get('enabled', False):
@@ -121,6 +129,7 @@ def main():
                     config['rerank'].get('max_candidates', 20), config['rerank'].get('min_score', 0.0))
 
     # Initialize RAG system
+    logger.info("Building local-first RAG pipeline (retrieve → rerank → context → generate)")
     rag_system = RAGSystem(
         retriever=retriever,
         llm_client=llm_client,
@@ -128,31 +137,31 @@ def main():
         max_context_length=config['rag']['max_context_length'],
         reranker=reranker
     )
-    
+
     logger.info("RAG system ready!")
-    
+
     # Process question(s)
     if args.question:
         # Single question mode
         process_question(rag_system, args.question, args.top_k, args.temperature, audit_logger, args.exact_extract)
     else:
         # Interactive mode
-        print("\n" + "="*50)
+        print("\n" + "=" * 50)
         print("Interactive RAG Q&A System")
         print("Type 'quit' or 'exit' to stop")
-        print("="*50 + "\n")
-        
+        print("=" * 50 + "\n")
+
         while True:
             try:
                 question = input("\nYour question: ").strip()
-                
+
                 if not question:
                     continue
-                
+
                 if question.lower() in ['quit', 'exit', 'q']:
                     print("Goodbye!")
                     break
-                
+
                 process_question(rag_system, question, args.top_k, args.temperature, audit_logger, args.exact_extract)
 
             except KeyboardInterrupt:
@@ -168,11 +177,11 @@ def process_question(rag_system, question, top_k, temperature, audit_logger=None
     """Process a single question"""
     print(f"\nQuestion: {question}")
     print("-" * 50)
-    
+
     # Log query
     if audit_logger:
         audit_logger.log_query(question)
-    
+
     # Answer question
     query = question
     result = rag_system.answer_question(
@@ -180,27 +189,33 @@ def process_question(rag_system, question, top_k, temperature, audit_logger=None
         top_k=top_k,
         temperature=temperature
     )
-    
+
     # Log model invocation
     if audit_logger:
+        model_name = getattr(getattr(rag_system, 'llm', None), 'client', None)
+        model_name = getattr(model_name, 'model_name', 'unknown-model')
         audit_logger.log_model_invocation(
-            model_name=rag_system.llm_client.model_name,
+            model_name=model_name,
             inference_time=result['generation_time']
         )
-    
+
     # Display answer
     print(f"\nAnswer: {result['answer']}")
     print(f"\nRetrieved {result['num_chunks_retrieved']} chunks")
     print(f"Retrieval time: {result['retrieval_time']:.3f}s")
     print(f"Generation time: {result['generation_time']:.3f}s")
     print(f"Total time: {result['total_time']:.3f}s")
-    
+    print(f"Weak answer: {result.get('weak_answer', False)}")
+
     # Show rerank diagnostics if available
     if result.get('rerank_enabled'):
         print("\nRerank diagnostics:")
         print(f"  enabled: {result.get('rerank_enabled')}")
+        print(f"  retrieve_k: {result.get('retrieve_k')}")
         print(f"  before_top1: {result.get('rerank_before_top1') or 'n/a'}")
         print(f"  after_top1: {result.get('rerank_after_top1') or 'n/a'}")
+        print(f"  top_scores: {result.get('rerank_top_scores') or []}")
+        print(f"  context_length: {result.get('context_length')}")
 
     # Show sources (prefer used_chunks which are actually passed to the LLM)
     used = result.get('used_chunks') or result.get('context_chunks') or []
@@ -216,9 +231,11 @@ def process_question(rag_system, question, top_k, temperature, audit_logger=None
             score = chunk.get('score', 0)
             chunk_id = chunk.get('metadata', {}).get('chunk_id', 'unknown')
             rerank_score = chunk.get('rerank_score')
+            rerank_reason = chunk.get('rerank_reason')
             preview = (chunk.get('text') or '')[:120].replace('\n', ' ')
             if rerank_score is not None:
                 print(f"  {i}. {source} (score: {score:.3f}, rerank: {rerank_score:.3f}) chunk_id={chunk_id} preview='{preview}...' ")
+                print(f"     rerank_reason: {rerank_reason}")
             else:
                 print(f"  {i}. {source} (score: {score:.3f}) chunk_id={chunk_id} preview='{preview}...' ")
 

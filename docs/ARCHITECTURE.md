@@ -42,6 +42,8 @@
 - 结果排序
 - 支持本地两阶段检索：Retrieve → Rerank → Context → Generate
 - Rerank 为可选的本地模块，不影响原有 `RuleEngine` fallback 与主流程模块化结构
+- 对时间类问题，ContextBuilder 会优先保留包含时间戳、邮箱头部或时间表达的高质量证据块，减少长对话噪声进入上下文
+- 系统返回 `retrieve_k`、`rerank_top_scores`、`context_length`、`weak_answer` 等解释性字段，便于论文分析
 
 ### 6. 生成层
 - Ollama本地LLM

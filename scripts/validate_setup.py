@@ -101,7 +101,7 @@ def main():
     print("Checking directories...")
     dirs_ok = check_directories()
     print()
-    
+
     # Check custom modules
     print("Checking custom modules...")
     sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
@@ -139,6 +139,7 @@ def main():
         print("  pip install -r requirements.txt")
         print("\nTo create missing directories:")
         print("  bash scripts/setup.sh")
+        print("\nOperational note: use one Qdrant collection per dataset and pass --collection_name to ingest/query scripts to keep corpora isolated.")
         return 1
 
 

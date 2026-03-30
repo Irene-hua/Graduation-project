@@ -14,14 +14,14 @@ logger = logging.getLogger(__name__)
 
 class OllamaClient:
     """Client for Ollama API"""
-    
-    def __init__(self, 
+
+    def __init__(self,
                  base_url: str = 'http://localhost:11434',
                  model_name: str = 'llama2',
                  timeout: int = 300):
         """
         Initialize Ollama client
-        
+
         Args:
             base_url: Base URL for Ollama API
             model_name: Name of the model to use
@@ -30,9 +30,9 @@ class OllamaClient:
         self.base_url = base_url.rstrip('/')
         self.model_name = model_name
         self.timeout = timeout
-        
+
         logger.info(f"Initialized Ollama client for model: {model_name}")
-    
+
     def is_available(self) -> bool:
         """Check if Ollama server is available"""
         try:
@@ -41,7 +41,7 @@ class OllamaClient:
         except Exception as e:
             logger.warning(f"Ollama server not available: {e}")
             return False
-    
+
     def list_models(self) -> List[str]:
         """List available models"""
         try:
@@ -53,28 +53,28 @@ class OllamaClient:
         except Exception as e:
             logger.error(f"Failed to list models: {e}")
             return []
-    
-    def generate(self, 
-                prompt: str,
-                temperature: float = 0.7,
-                max_tokens: Optional[int] = None,
-                stream: bool = False,
-                **kwargs) -> Dict:
+
+    def generate(self,
+                 prompt: str,
+                 temperature: float = 0.7,
+                 max_tokens: Optional[int] = None,
+                 stream: bool = False,
+                 **kwargs) -> Dict:
         """
         Generate text using Ollama
-        
+
         Args:
             prompt: Input prompt
             temperature: Sampling temperature
             max_tokens: Maximum tokens to generate
             stream: Whether to stream response
             **kwargs: Additional generation parameters
-            
+
         Returns:
             Dict with 'response' and metadata
         """
         url = f"{self.base_url}/api/generate"
-        
+
         payload = {
             'model': self.model_name,
             'prompt': prompt,
@@ -83,15 +83,15 @@ class OllamaClient:
                 'temperature': temperature,
             }
         }
-        
+
         if max_tokens:
             payload['options']['num_predict'] = max_tokens
-        
+
         # Add any additional options
         payload['options'].update(kwargs)
-        
+
         start_time = time.time()
-        
+
         try:
             # Use non-streaming default for robustness; streaming parsing varies by Ollama version.
             response = requests.post(url, json=payload, timeout=self.timeout)
@@ -118,24 +118,24 @@ class OllamaClient:
         except Exception as e:
             logger.error(f"Generation failed: {e}")
             raise
-    
-    def chat(self, 
-            messages: List[Dict[str, str]],
-            temperature: float = 0.7,
-            max_tokens: Optional[int] = None) -> Dict:
+
+    def chat(self,
+             messages: List[Dict[str, str]],
+             temperature: float = 0.7,
+             max_tokens: Optional[int] = None) -> Dict:
         """
         Chat completion using Ollama
-        
+
         Args:
             messages: List of message dicts with 'role' and 'content'
             temperature: Sampling temperature
             max_tokens: Maximum tokens to generate
-            
+
         Returns:
             Dict with response
         """
         url = f"{self.base_url}/api/chat"
-        
+
         payload = {
             'model': self.model_name,
             'messages': messages,
@@ -144,29 +144,29 @@ class OllamaClient:
                 'temperature': temperature,
             }
         }
-        
+
         if max_tokens:
             payload['options']['num_predict'] = max_tokens
-        
+
         start_time = time.time()
-        
+
         try:
             response = requests.post(url, json=payload, timeout=self.timeout)
             response.raise_for_status()
-            
+
             data = response.json()
             inference_time = time.time() - start_time
-            
+
             return {
                 'response': data.get('message', {}).get('content', ''),
                 'model': self.model_name,
                 'inference_time': inference_time
             }
-        
+
         except Exception as e:
             logger.error(f"Chat failed: {e}")
             raise
-    
+
     def get_model_info(self) -> Dict:
         """Get information about the current model"""
         try:
