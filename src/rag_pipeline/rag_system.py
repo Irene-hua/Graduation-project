@@ -7,9 +7,20 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Dict, List, Optional
 
+import argparse
 import logging
+import os
 import re
 import time
+
+import yaml
+
+from src.audit import AuditLogger
+from src.encryption import AESEncryption
+from src.embedding import EmbeddingModel
+from src.llm import OllamaClient
+from src.rag_pipeline.rerank import LocalReranker
+from src.retrieval import Retriever, VectorStore
 
 logger = logging.getLogger(__name__)
 
@@ -219,9 +230,7 @@ class RAGSystem:
         self.context_builder = ContextBuilder()
         self.llm = LLMCaller(llm_client)
         self.rule_engine = RuleEngine()
-        # Optional local reranker. If absent, the pipeline behaves exactly as before.
         self.reranker = reranker
-        # Keep prompt_template and max_context_length in the public signature for backward compatibility.
         self.prompt_template = prompt_template or self._default_prompt()
         self.max_context_length = max_context_length
 
@@ -394,3 +403,169 @@ class RAGSystem:
             "retrieve_k": retrieve_k,
             "weak_answer": True,
         }
+
+
+def _build_parser():
+    parser = argparse.ArgumentParser(description='Run RAG system for Q&A')
+    parser.add_argument('--config', type=str, default='config/config.yaml', help='Path to configuration file')
+    parser.add_argument('--key_file', type=str, default='encryption.key', help='Path to encryption key file')
+    parser.add_argument('--question', type=str, help='Single question to answer (if not provided, runs interactive mode)')
+    parser.add_argument('--top_k', type=int, default=5, help='Number of chunks to retrieve')
+    parser.add_argument('--temperature', type=float, default=0.7, help='LLM temperature')
+    parser.add_argument('--exact_extract', action='store_true', help='Prefer deterministic exact extraction for date/time style questions')
+    parser.add_argument('--collection_name', type=str, default=None, help='Override Qdrant collection name for this run')
+    return parser
+
+
+def _build_runtime(config_path: str, key_file: str, collection_name: Optional[str] = None):
+    with open(config_path, 'r', encoding='utf-8') as f:
+        config = yaml.safe_load(f)
+
+    audit_logger = None
+    if config.get('audit', {}).get('enabled', False):
+        audit_logger = AuditLogger(
+            log_directory=config['audit']['log_directory'],
+            log_level=config['audit']['log_level'],
+            enable_integrity_check=config['audit']['integrity_check']
+        )
+        audit_logger.log_system_access('user', 'initialize_rag_system')
+
+    encryption = AESEncryption(key_size=config['encryption']['key_size'])
+    if not os.path.exists(key_file):
+        raise FileNotFoundError(f'Encryption key not found: {key_file}')
+    encryption.load_key(key_file)
+
+    embedding_model = EmbeddingModel(model_name=config['embedding']['model_name'])
+
+    effective_collection = collection_name or config['vector_db']['collection_name']
+    vector_store = VectorStore(
+        collection_name=effective_collection,
+        dimension=embedding_model.get_dimension(),
+        distance_metric=config['vector_db']['distance_metric'],
+        storage_path=config['vector_db']['storage_path'],
+        host=config['vector_db'].get('host'),
+        port=config['vector_db'].get('port')
+    )
+    info = vector_store.get_collection_info()
+    if info.get('points_count', 0) == 0:
+        raise RuntimeError('Vector database is empty. Please run ingest_documents.py first')
+
+    retriever = Retriever(embedding_model, vector_store, encryption)
+    llm_client = OllamaClient(base_url=config['llm']['base_url'], model_name=config['llm']['model_name'])
+    if not llm_client.is_available():
+        raise RuntimeError('Ollama server not available. Please start Ollama first: ollama serve')
+
+    reranker = None
+    if config.get('rerank', {}).get('enabled', False):
+        reranker = LocalReranker(
+            max_candidates=config['rerank'].get('max_candidates', 20),
+            min_score=config['rerank'].get('min_score', 0.0)
+        )
+
+    rag_system = RAGSystem(
+        retriever=retriever,
+        llm_client=llm_client,
+        prompt_template=config['rag']['prompt_template'],
+        max_context_length=config['rag']['max_context_length'],
+        reranker=reranker
+    )
+    return rag_system, audit_logger
+
+
+def process_question(rag_system, question, top_k, temperature, audit_logger=None, exact_extract=False):
+    del exact_extract
+    print(f"\nQuestion: {question}")
+    print("-" * 50)
+
+    if audit_logger:
+        audit_logger.log_query(question)
+
+    result = rag_system.answer_question(question=question, top_k=top_k, temperature=temperature)
+
+    if audit_logger:
+        model_obj = getattr(getattr(rag_system, 'llm', None), 'client', None)
+        model_name = getattr(model_obj, 'model_name', 'unknown-model')
+        audit_logger.log_model_invocation(model_name=model_name, inference_time=result['generation_time'])
+
+    print(f"\nAnswer: {result['answer']}")
+    print(f"\nRetrieved {result['num_chunks_retrieved']} chunks")
+    print(f"Retrieval time: {result['retrieval_time']:.3f}s")
+    print(f"Generation time: {result['generation_time']:.3f}s")
+    print(f"Total time: {result['total_time']:.3f}s")
+    print(f"Weak answer: {result.get('weak_answer', False)}")
+
+    if result.get('rerank_enabled'):
+        print("\nRerank diagnostics:")
+        print(f"  enabled: {result.get('rerank_enabled')}")
+        print(f"  retrieve_k: {result.get('retrieve_k')}")
+        print(f"  before_top1: {result.get('rerank_before_top1') or 'n/a'}")
+        print(f"  after_top1: {result.get('rerank_after_top1') or 'n/a'}")
+        print(f"  top_scores: {result.get('rerank_top_scores') or []}")
+        print(f"  context_length: {result.get('context_length')}")
+
+    used = result.get('used_chunks') or result.get('context_chunks') or []
+    if used:
+        print("\nSources:")
+        try:
+            nchunks = len(used)
+        except Exception:
+            nchunks = 0
+        print(f"  (chunks used for generation: {nchunks})")
+        for i, chunk in enumerate(used[:top_k], 1):
+            source = chunk.get('metadata', {}).get('source_file', 'unknown')
+            score = chunk.get('score', 0)
+            chunk_id = chunk.get('metadata', {}).get('chunk_id', 'unknown')
+            rerank_score = chunk.get('rerank_score')
+            rerank_reason = chunk.get('rerank_reason')
+            preview = (chunk.get('text') or '')[:120].replace('\n', ' ')
+            if rerank_score is not None:
+                print(f"  {i}. {source} (score: {score:.3f}, rerank: {rerank_score:.3f}) chunk_id={chunk_id} preview='{preview}...' ")
+                print(f"     rerank_reason: {rerank_reason}")
+            else:
+                print(f"  {i}. {source} (score: {score:.3f}) chunk_id={chunk_id} preview='{preview}...' ")
+
+
+def main(argv=None):
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    parser = _build_parser()
+    args = parser.parse_args(argv)
+
+    logger.info('Initializing RAG system')
+    rag_system, audit_logger = _build_runtime(
+        config_path=args.config,
+        key_file=args.key_file,
+        collection_name=args.collection_name,
+    )
+    logger.info('RAG system ready!')
+
+    if args.question:
+        process_question(rag_system, args.question, args.top_k, args.temperature, audit_logger, args.exact_extract)
+        return 0
+
+    print("\n" + "=" * 50)
+    print("Interactive RAG Q&A System")
+    print("Type 'quit' or 'exit' to stop")
+    print("=" * 50 + "\n")
+
+    while True:
+        try:
+            question = input("\nYour question: ").strip()
+            if not question:
+                continue
+            if question.lower() in ['quit', 'exit', 'q']:
+                print('Goodbye!')
+                break
+            process_question(rag_system, question, args.top_k, args.temperature, audit_logger, args.exact_extract)
+        except KeyboardInterrupt:
+            print("\n\nGoodbye!")
+            break
+        except Exception as e:
+            logger.error(f'Error: {e}')
+            if audit_logger:
+                audit_logger.log_error('question_processing', str(e))
+
+    return 0
+
+
+if __name__ == '__main__':
+    raise SystemExit(main())

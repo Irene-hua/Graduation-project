@@ -34,7 +34,6 @@ ollama pull llama2
 cp your_documents.txt data/raw/
 ```
 
-或者使用提供的示例文档：
 ```bash
 # 已包含示例文档
 ls data/raw/sample_document.txt
