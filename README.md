@@ -67,7 +67,7 @@
 
 ### 核心依赖
 - **Python 3.8+**
-- **Qdrant**: 向量数据库
+- **Qdrant**: 本地向量数据库
 - **Sentence Transformers**: 轻量级Embedding模型
 - **Ollama**: 本地LLM部署
 - **Cryptography**: AES加密实现
@@ -112,31 +112,57 @@ ollama pull llama2
 
 ### 3. 文档导入
 
-```powershell
-# 将文档放入 data\raw\ 或单独目录（例如 data\single_test1\test1.txt）
-python scripts\ingest_documents.py --input_dir data\raw --config config\config.yaml --key_file encryption.key --generate_key
+推荐采用“一个数据集一个 collection”的方式，这样不同数据集不会互相污染。
 
-# 只导入 test1.txt（推荐用于单文件验证）
-python scripts\ingest_documents.py --input_dir data\single_test1 --config config\config.yaml --key_file encryption.key
+命名建议：
+- `encrypted_documents_test1`
+- `encrypted_documents_lihua`
+- `encrypted_documents_<dataset_name>`
+
+```powershell
+# 方案 A：导入到默认 collection（适合单数据集测试）
+python scripts\ingest_documents.py --input_dir data\raw --config config\config.yaml --key_file encryption.key --generate_key --reset_collection
+
+# 方案 B：导入到指定 collection（推荐）
+python scripts\ingest_documents.py --input_dir data\single_test1 --config config\config.yaml --key_file encryption.key --collection_name encrypted_documents_test1 --reset_collection --log_file logs\ingest_test1.jsonl
+
+# 方案 C：保留历史数据，追加导入到另一个独立 collection
+python scripts\ingest_documents.py --input_dir data\lihua_world --config config\config.yaml --key_file encryption.key --collection_name encrypted_documents_lihua --log_file logs\ingest_lihua.jsonl
 ```
 
 ### 4. 运行 RAG 系统
 
 ```powershell
-# 单个问题问答
-python scripts\run_rag.py --question "What is the date and time that Leslie Hansen responded to Stephanie Panus' email about Wabash and other parties?" --config config\config.yaml --key_file encryption.key --exact_extract
+# 单个问题问答，指定要查询的 collection
+python scripts\run_rag.py --question "What is the date and time that Leslie Hansen responded to Stephanie Panus' email about Wabash and other parties?" --config config\config.yaml --key_file encryption.key --collection_name encrypted_documents_test1 --exact_extract
 ```
 
-### 5. 单文件验证流程（推荐）
+> 说明：`--collection_name` 会覆盖 `config.yaml` 中的默认 collection，因此你可以在不修改配置文件的情况下，随时切换查询不同数据集。
+
+### 5. 批量运行
 
 ```powershell
-# 1) 确保 test1.txt 已放到 data\single_test1\
-# 2) 重新导入
-python scripts\ingest_documents.py --input_dir data\single_test1 --config config\config.yaml --key_file encryption.key
+# 批量中文评测，指定 collection
+python scripts\run_batch_chinese_prompt.py --collection_name encrypted_documents_lihua --queries_file data\test_datasets\Lihua-World-queries
 
-# 3) 提问并强制精确抽取
-python scripts\run_rag.py --question "What is the date and time that Leslie Hansen responded to Stephanie Panus' email about Wabash and other parties?" --config config\config.yaml --key_file encryption.key --exact_extract
+# 通用批处理，指定 collection
+python scripts\run_batch_queries.py --collection_name encrypted_documents_test1 --queries_file data\test_datasets\test_queries.txt
 ```
+
+### 6. 统一命令规范
+
+建议按下面的方式组织：
+
+- 导入：`python scripts\ingest_documents.py --input_dir <文档目录> --collection_name <数据集collection> [--reset_collection]`
+- 查询：`python scripts\run_rag.py --question "..." --collection_name <数据集collection>`
+- 批量：`python scripts\run_batch_chinese_prompt.py --collection_name <数据集collection>`
+- 诊断：`python scripts\inspect_collection.py --collection_name <数据集collection>`
+
+规则：
+1. 一个数据集对应一个 collection，避免互相污染。
+2. 如果是全新导入，建议加 `--reset_collection`。
+3. 如果要保留旧数据，不要 reset，而是改用新的 collection 名称。
+4. 查询前先用 `inspect_collection.py` 确认 collection 里确实有目标文档。
 
 ## 项目结构
 
@@ -237,6 +263,7 @@ graduation-design/
 - **写入阶段**：优先存密文与元数据
 - **检索阶段**：优先取密文，必要时可兼容明文 payload
 - **生成阶段**：只消费最终明文上下文
+- **解释性输出**：系统会额外返回 `retrieve_k`、`rerank_top_scores`、`context_length`、`weak_answer` 等字段，便于论文实验分析与答辩展示
 
 ### 5. LLM模块
 - Ollama本地部署支持

@@ -1,4 +1,9 @@
 # RAG System Configuration
+#
+# 本文件采用“本地优先（local-first）”配置：
+# - 默认使用本地 Qdrant 存储目录，不连接远程服务器
+# - 数据不应默认离开本地环境
+# - 如需远程 Qdrant，必须显式修改 host/port；当前版本不建议启用
 
 # Document Processing
 document_processing:
@@ -23,8 +28,8 @@ embedding:
 
 # Vector Database (Qdrant)
 vector_db:
-  host: 'localhost'
-  port: 6333
+  # 说明：本项目默认采用本地 Qdrant 存储，避免数据上传远程服务器。
+  # 因此不配置 host/port，VectorStore 会直接使用 storage_path。
   collection_name: 'encrypted_documents'
   distance_metric: 'Cosine'
   storage_path: './qdrant_storage'

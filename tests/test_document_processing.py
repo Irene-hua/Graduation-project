@@ -3,6 +3,7 @@ Unit tests for document processing module
 """
 
 import unittest
+from pathlib import Path
 from src.document_processing import TextChunker
 
 
@@ -73,6 +74,10 @@ class TestTextChunker(unittest.TestCase):
             self.assertIn('source_file', chunk)
             self.assertIn('doc_id', chunk)
             self.assertIn('global_chunk_id', chunk)
+
+    def test_project_root_data_path_example_exists_or_not(self):
+        project_root = Path(__file__).resolve().parent.parent
+        self.assertTrue((project_root / 'data').exists())
 
 
 if __name__ == '__main__':

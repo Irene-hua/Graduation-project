@@ -47,17 +47,46 @@ class VectorStore:
             'Dot': Distance.DOT
         }
         self.distance = distance_map.get(distance_metric, Distance.COSINE)
+        self.storage_path = storage_path
+        self.host = host
+        self.port = port
+        self._is_remote = bool(host)
 
         # Initialize client
-        if host:
-            self.client = QdrantClient(host=host, port=port)
-            logger.info(f"Connected to Qdrant server at {host}:{port}")
-        else:
-            self.client = QdrantClient(path=storage_path)
-            logger.info(f"Using local Qdrant storage at {storage_path}")
+        self.client = self._init_client_local_first()
 
         # Create collection if it doesn't exist
         self._create_collection_if_not_exists()
+
+    def _init_client_local_first(self):
+        """Initialize Qdrant client with strict local-first semantics.
+
+        Privacy note:
+        - The README requires that the default pipeline remains local and that data
+          does not get uploaded to an external/remote server by accident.
+        - Therefore, the default path is always the local Qdrant storage directory.
+        - A remote Qdrant endpoint is only used when the user explicitly configures
+          `host`/`port` in the config.
+
+        If a remote endpoint is explicitly configured but unreachable, we raise a
+        clear error instead of silently changing storage location. This keeps the
+        data-flow contract explicit and avoids surprising privacy regressions.
+        """
+        if self.host:
+            client = QdrantClient(host=self.host, port=self.port)
+            try:
+                client.get_collections()
+                logger.info(f"Connected to explicitly configured Qdrant server at {self.host}:{self.port}")
+                return client
+            except Exception as e:
+                raise RuntimeError(
+                    f"Configured remote Qdrant at {self.host}:{self.port} is unavailable. "
+                    f"Because this project is local-first, please either start the Qdrant service "
+                    f"or remove host/port from config to use local storage at {self.storage_path}."
+                ) from e
+
+        logger.info(f"Using local Qdrant storage at {self.storage_path}")
+        return QdrantClient(path=self.storage_path)
 
     def _create_collection_if_not_exists(self):
         """Create collection if it doesn't exist"""
@@ -139,6 +168,80 @@ class VectorStore:
 
         logger.info(f"Added {len(points)} vectors to collection")
         return point_ids
+
+    def reset_collection(self):
+        """Delete and recreate the current collection.
+
+        This is useful when you want a clean import for a specific dataset.
+        It prevents old corpora from contaminating later ingestions while keeping
+        the default append behavior unchanged unless the caller explicitly opts in.
+        """
+        try:
+            existing = [c.name for c in self.client.get_collections().collections]
+            distance = self.distance or Distance.COSINE
+            if self.collection_name in existing:
+                self.client.delete_collection(collection_name=self.collection_name)
+                logger.info(f"Deleted collection: {self.collection_name}")
+            self.client.create_collection(
+                collection_name=self.collection_name,
+                vectors_config=VectorParams(size=self.dimension, distance=distance)
+            )
+            logger.info(f"Recreated collection: {self.collection_name}")
+        except Exception as e:
+            logger.error(f"Error resetting collection {self.collection_name}: {e}")
+            raise
+
+    def delete_collection(self):
+        """Delete the current collection if it exists."""
+        try:
+            self.client.delete_collection(collection_name=self.collection_name)
+            logger.info(f"Deleted collection: {self.collection_name}")
+        except Exception as e:
+            logger.error(f"Error deleting collection {self.collection_name}: {e}")
+            raise
+
+    def count(self) -> int:
+        """Return the number of points in the current collection."""
+        info = self.get_collection_info()
+        return int(info.get('points_count') or 0)
+
+    def get_collection_info(self) -> Dict:
+        """Return basic collection statistics."""
+        try:
+            info = self.client.get_collection(collection_name=self.collection_name)
+            return {
+                'name': self.collection_name,
+                'points_count': getattr(info, 'points_count', None),
+                'vectors_count': getattr(info, 'vectors_count', None),
+                'status': str(getattr(info, 'status', 'unknown')),
+            }
+        except Exception as e:
+            logger.error(f"Error getting collection info for {self.collection_name}: {e}")
+            raise
+
+    def get_all_points(self, batch_size: int = 1000, with_payload: bool = True, with_vectors: bool = False):
+        """Scroll through all points in the current collection."""
+        points = []
+        offset = None
+        while True:
+            records = self.client.scroll(
+                collection_name=self.collection_name,
+                limit=batch_size,
+                offset=offset,
+                with_payload=with_payload,
+                with_vectors=with_vectors,
+            )
+            recs = records[0] if isinstance(records, tuple) else records
+            if not recs:
+                break
+            points.extend(recs)
+            if len(recs) < batch_size:
+                break
+            last = recs[-1]
+            offset = getattr(last, 'id', None)
+            if offset is None:
+                break
+        return points
 
     # -------------------- Payload normalization helpers --------------------
     def _extract_value(self, value):
@@ -554,22 +657,3 @@ class VectorStore:
 
         return formatted_results
 
-    def delete_collection(self):
-        """Delete the collection"""
-        self.client.delete_collection(collection_name=self.collection_name)
-        logger.info(f"Deleted collection: {self.collection_name}")
-
-    def get_collection_info(self) -> Dict:
-        """Get information about the collection"""
-        info = self.client.get_collection(collection_name=self.collection_name)
-        return {
-            'name': self.collection_name,
-            'vectors_count': info.points_count,
-            'points_count': info.points_count,
-            'status': info.status
-        }
-
-    def count(self) -> int:
-        """Get number of vectors in collection"""
-        info = self.client.get_collection(collection_name=self.collection_name)
-        return info.points_count

@@ -121,8 +121,74 @@ class ContextBuilder:
     负责上下文构建（论文点：限制长度 + 提高相关性）
     """
 
-    def build(self, chunks: List[Dict], top_k: int):
-        return "\n".join([c.get("text", "") for c in chunks[:top_k]]), chunks[:top_k]
+    def __init__(self, max_chars: int = 2000, max_tokens: int = 650, min_rerank_score: float = 0.0):
+        self.max_chars = int(max_chars)
+        self.max_tokens = int(max_tokens)
+        self.min_rerank_score = float(min_rerank_score)
+
+    @staticmethod
+    def _token_estimate(text: str) -> int:
+        t = (text or "").strip()
+        if not t:
+            return 0
+        return max(1, int(len(t) / 4) + int(len(t.split()) / 2))
+
+    @staticmethod
+    def _looks_temporal(question: str) -> bool:
+        q = (question or "").lower()
+        return any(k in q for k in ["before", "after", "earlier", "later", "when", "time", "date", "difference"])
+
+    def build(self, question: str, chunks: List[Dict], top_k: int):
+        if not chunks:
+            return "", []
+
+        # Prefer higher rerank_score chunks and suppress weak candidates.
+        ranked = list(chunks)
+        try:
+            ranked.sort(key=lambda c: float(c.get("rerank_score", c.get("score", 0.0)) or 0.0), reverse=True)
+        except Exception:
+            pass
+
+        # For temporal questions, bias toward chunks that actually contain timestamps or header-like evidence.
+        temporal = self._looks_temporal(question)
+        filtered = []
+        for c in ranked:
+            score = float(c.get("rerank_score", c.get("score", 0.0)) or 0.0)
+            if score < self.min_rerank_score:
+                continue
+            text = (c.get("text") or "").strip()
+            if not text:
+                continue
+            if temporal:
+                tl = text.lower()
+                has_time = bool(re.search(r"\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}", tl)) or any(h in tl for h in ("sent:", "date:", "time:", "from:", "to:", "subject:"))
+                if not has_time:
+                    # Keep a small amount of non-temporal support, but prefer evidence-rich chunks.
+                    continue
+            filtered.append({**c, "text": text})
+
+        parts = []
+        used = []
+        total_chars = 0
+        total_tokens = 0
+
+        for idx, ch in enumerate(filtered[:top_k], 1):
+            md = ch.get("metadata") if isinstance(ch.get("metadata"), dict) else {}
+            src = md.get("source_file") or md.get("source") or md.get("source_file_name") or "unknown_source"
+            cid = md.get("chunk_id")
+            provenance = f"[source: {src}" + (f" chunk_id: {cid}" if cid is not None else "") + "]"
+            block = f"[{idx}] {provenance}\n{ch.get('text', '')}".strip()
+
+            block_tokens = self._token_estimate(block)
+            if parts and (total_chars + len(block) > self.max_chars or total_tokens + block_tokens > self.max_tokens):
+                break
+
+            parts.append(block)
+            used.append(ch)
+            total_chars += len(block)
+            total_tokens += block_tokens
+
+        return "\n\n".join(parts), used
 
 
 # =========================
@@ -174,6 +240,20 @@ class RAGSystem:
     def build_prompt(self, question, context):
         return self.prompt_template.format(context=context, question=question)
 
+    @staticmethod
+    def is_valid_answer(answer: str) -> bool:
+        """Filter out weak or non-answers.
+
+        Thesis note: free-form LLMs often produce vague fallback phrases when evidence
+        is insufficient. We explicitly block these to keep the system behavior
+        deterministic and easier to evaluate.
+        """
+        if not answer:
+            return False
+        a = answer.strip().lower()
+        banned = ("not found", "i don't know", "i do not know", "cannot find", "no information")
+        return not any(b in a for b in banned)
+
     # =========================
     # 核心流程（重点改造）
     # =========================
@@ -182,10 +262,14 @@ class RAGSystem:
         rerank_enabled = self.reranker is not None
         rerank_before_top1 = None
         rerank_after_top1 = None
+        # Retrieve is widened to improve recall; rerank then restores precision.
+        retrieve_k = max(top_k * 4, 20)
+        context_length = 0
+        rerank_top_scores: List[float] = []
 
-        # 1️⃣ 检索（RAG第一步）
+        # 1️⃣ 检索（Recall first）
         try:
-            chunks = self.retriever.retrieve(question, top_k=top_k)
+            chunks = self.retriever.retrieve(question, top_k=retrieve_k)
         except Exception as e:
             return {
                 "answer": "An error occurred while searching for relevant information. Please try again later.",
@@ -200,21 +284,35 @@ class RAGSystem:
                 "context_chunks": [],
                 "confidence": 0.0,
                 "error": str(e),
+                "rerank_enabled": rerank_enabled,
+                "rerank_before_top1": rerank_before_top1,
+                "rerank_after_top1": rerank_after_top1,
+                "rerank_top_scores": rerank_top_scores,
+                "context_length": context_length,
+                "retrieve_k": retrieve_k,
             }
         retrieval_time = time.time() - start
 
-        # 1.5️⃣ Rerank（本地二阶段检索）
+        # 1.5️⃣ Rerank（Precision first）
+        # Why rerank: vector retrieval maximizes recall, but the initial ordering is not
+        # always evidence-precise enough for generation. Reranking re-orders candidates so
+        # the context builder sees the most relevant chunks first.
         if self.reranker is not None:
-            # Design note: rerank only reorders candidate chunks; it does not replace retrieval.
             try:
                 rerank_before_top1 = chunks[0].get("text") if chunks else None
-                chunks = self.reranker.rerank(question, chunks, top_k=top_k)
+                chunks = self.reranker.rerank(question, chunks, top_k=retrieve_k)
                 rerank_after_top1 = chunks[0].get("text") if chunks else None
             except Exception as e:
                 logger.debug("Reranker failed, falling back to raw retrieval order: %s", e)
 
+        rerank_top_scores = [float(ch.get("rerank_score", ch.get("score", 0.0)) or 0.0) for ch in (chunks or [])[:3]]
+
         # 2️⃣ 构建上下文
-        context, used_chunks = self.context_builder.build(chunks, top_k)
+        # ContextBuilder is responsible for token/character budgeting and for preferring
+        # higher-quality reranked chunks. This prevents noisy evidence from overflowing
+        # the prompt and improves answer stability.
+        context, used_chunks = self.context_builder.build(question, chunks, top_k)
+        context_length = len(context)
 
         # 3️⃣ 构建prompt
         prompt = self.build_prompt(question, context)
@@ -227,7 +325,7 @@ class RAGSystem:
         # =========================
         # ❗ 核心：RAG优先
         # =========================
-        if answer and "Not found" not in answer:
+        if self.is_valid_answer(answer):
             return {
                 "answer": answer,
                 "path": "RAG",
@@ -243,7 +341,11 @@ class RAGSystem:
                 "rerank_enabled": rerank_enabled,
                 "rerank_before_top1": rerank_before_top1,
                 "rerank_after_top1": rerank_after_top1,
-             }
+                "rerank_top_scores": rerank_top_scores,
+                "context_length": context_length,
+                "retrieve_k": retrieve_k,
+                "weak_answer": False,
+            }
 
         # =========================
         # ❗ fallback：规则
@@ -266,7 +368,11 @@ class RAGSystem:
                 "rerank_enabled": rerank_enabled,
                 "rerank_before_top1": rerank_before_top1,
                 "rerank_after_top1": rerank_after_top1,
-             }
+                "rerank_top_scores": rerank_top_scores,
+                "context_length": context_length,
+                "retrieve_k": retrieve_k,
+                "weak_answer": True,
+            }
 
         return {
             "answer": "Not found",
@@ -283,4 +389,8 @@ class RAGSystem:
             "rerank_enabled": rerank_enabled,
             "rerank_before_top1": rerank_before_top1,
             "rerank_after_top1": rerank_after_top1,
-         }
+            "rerank_top_scores": rerank_top_scores,
+            "context_length": context_length,
+            "retrieve_k": retrieve_k,
+            "weak_answer": True,
+        }

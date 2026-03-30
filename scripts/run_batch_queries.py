@@ -3,6 +3,7 @@ import sys
 import yaml
 import json
 from datetime import datetime
+import argparse
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
 from src.encryption import AESEncryption
@@ -11,9 +12,16 @@ from src.retrieval import VectorStore, Retriever
 from src.llm.ollama_client import OllamaClient
 from src.rag_pipeline.rag_system import RAGSystem
 
-CONFIG_PATH = 'config/config.yaml'
-KEY_FILE = 'encryption.key'
-QUERIES_FILE = 'data/test_datasets/test_queries.txt'
+parser = argparse.ArgumentParser(description='Run batch queries against a selected collection')
+parser.add_argument('--config', type=str, default='config/config.yaml')
+parser.add_argument('--key_file', type=str, default='encryption.key')
+parser.add_argument('--queries_file', type=str, default='data/test_datasets/test_queries.txt')
+parser.add_argument('--collection_name', type=str, default=None, help='Override Qdrant collection name for this batch run')
+args = parser.parse_args()
+
+CONFIG_PATH = args.config
+KEY_FILE = args.key_file
+QUERIES_FILE = args.queries_file
 OUTPUT_DIR = 'results'
 OUTPUT_FILE = os.path.join(OUTPUT_DIR, f'batch_results_{datetime.now().strftime("%Y%m%d_%H%M%S")}.jsonl')
 
@@ -32,13 +40,15 @@ em = EmbeddingModel(model_name=config['embedding']['model_name'])
 print('Loaded embedding model, dim=', em.get_dimension())
 
 # Vector store
+collection_name = args.collection_name or config['vector_db']['collection_name']
 vs = VectorStore(
-    collection_name=config['vector_db']['collection_name'],
+    collection_name=collection_name,
     dimension=em.get_dimension(),
     distance_metric=config['vector_db']['distance_metric'],
     storage_path=config['vector_db']['storage_path']
 )
 print('Connected to VectorStore')
+print('Using collection:', collection_name)
 
 retriever = Retriever(em, vs, enc)
 
@@ -67,4 +77,3 @@ with open(OUTPUT_FILE, 'w', encoding='utf-8') as out:
             out.write(json.dumps({'query': q, 'error': str(e)}) + '\n')
 
 print('\nBatch run complete. Results saved to', OUTPUT_FILE)
-
