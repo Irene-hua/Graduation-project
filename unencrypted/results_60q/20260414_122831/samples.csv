@@ -1,0 +1,7 @@
+system,dataset,qid,question,retrieval_time_s,generation_time_s,total_time_s,num_chunks,context_length,retrieve_k,ok,error
+encrypted,Multi,1,Did Adam Smith send a message to Li Hua about the upcoming building maintenance schedule before the administrators announced a temporary change in the construction schedule due to weather conditions?,0.14096283912658691,66.06684064865112,66.20935678482056,20,2776,30,True,
+plaintext,Multi,1,Did Adam Smith send a message to Li Hua about the upcoming building maintenance schedule before the administrators announced a temporary change in the construction schedule due to weather conditions?,0.16907691955566406,3.2104973793029785,3.381908893585205,20,2776,30,True,
+encrypted,Single,1,Why did Adam remind Li Hua not to play guitar late at night?,0.126633882522583,75.61312508583069,75.74099540710449,20,2727,30,True,
+plaintext,Single,1,Why did Adam remind Li Hua not to play guitar late at night?,0.16672372817993164,6.249982833862305,6.418639898300171,20,2727,30,True,
+encrypted,Null,1,What time will Li Hua and Wolfgang meet for breakfast on the morning of the 9th?,0.17104268074035645,79.37161159515381,79.54500460624695,20,2761,30,True,
+plaintext,Null,1,What time will Li Hua and Wolfgang meet for breakfast on the morning of the 9th?,0.16431760787963867,6.397338628768921,6.563477993011475,20,2761,30,True,

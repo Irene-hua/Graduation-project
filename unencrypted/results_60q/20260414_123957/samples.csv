@@ -1,0 +1,13 @@
+system,dataset,qid,question,retrieval_time_s,generation_time_s,total_time_s,num_chunks,context_length,retrieve_k,ok,error
+encrypted,Multi,1,Did Adam Smith send a message to Li Hua about the upcoming building maintenance schedule before the administrators announced a temporary change in the construction schedule due to weather conditions?,0.15253019332885742,59.172542095184326,59.32745051383972,20,2700,30,True,
+encrypted,Multi,2,"Did Wolfgang ask Li Hua about watching ""Star Wars: A New Hope"" after he asked Li Hua about going to see ""Overwatch 3""?",0.16849613189697266,73.96401882171631,74.13440132141113,20,2693,30,True,
+plaintext,Multi,1,Did Adam Smith send a message to Li Hua about the upcoming building maintenance schedule before the administrators announced a temporary change in the construction schedule due to weather conditions?,0.15175461769104004,67.5685727596283,67.72231531143188,20,2700,30,True,
+plaintext,Multi,2,"Did Wolfgang ask Li Hua about watching ""Star Wars: A New Hope"" after he asked Li Hua about going to see ""Overwatch 3""?",0.18129444122314453,86.23726749420166,86.421945810318,20,2693,30,True,
+encrypted,Single,1,Why did Adam remind Li Hua not to play guitar late at night?,0.18044614791870117,68.9547188282013,69.13760447502136,20,2727,30,True,
+encrypted,Single,2,What type of ambiance does YurikoYamamoto want for her studio's homepage?,0.17000293731689453,69.66131281852722,69.8339569568634,20,2786,30,True,
+plaintext,Single,1,Why did Adam remind Li Hua not to play guitar late at night?,0.213667631149292,74.50869870185852,74.72439122200012,20,2727,30,True,
+plaintext,Single,2,What type of ambiance does YurikoYamamoto want for her studio's homepage?,0.17573904991149902,73.33306121826172,73.51132726669312,20,2786,30,True,
+encrypted,Null,1,What time will Li Hua and Wolfgang meet for breakfast on the morning of the 9th?,0.18654704093933105,76.66859912872314,76.85740613937378,20,2761,30,False,
+encrypted,Null,2,What type of equipment does Wolfgang Schulz use when he works out at the gym?,0.7194898128509521,83.1713752746582,83.89351868629456,20,2955,30,True,
+plaintext,Null,1,What time will Li Hua and Wolfgang meet for breakfast on the morning of the 9th?,1.1817281246185303,76.45971202850342,77.64558959007263,20,2761,30,False,
+plaintext,Null,2,What type of equipment does Wolfgang Schulz use when he works out at the gym?,0.43494415283203125,71.30818367004395,71.74638772010803,20,2955,30,True,

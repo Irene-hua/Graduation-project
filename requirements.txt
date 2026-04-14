@@ -32,3 +32,6 @@ pytest>=8.0.0
 
 # HTTP client (Ollama API)
 requests>=2.31.0
+
+# Performance benchmarking (optional but recommended)
+psutil>=5.9.0

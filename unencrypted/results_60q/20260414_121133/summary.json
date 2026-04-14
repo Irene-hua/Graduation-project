@@ -1,0 +1,187 @@
+{
+  "run_id": "20260414_121133",
+  "timestamp": "2026-04-14T12:11:33",
+  "config": {
+    "embedding_model": "sentence-transformers/all-MiniLM-L6-v2",
+    "distance_metric": "Cosine",
+    "rerank_enabled": true,
+    "llm_model": "mistral",
+    "llm_base_url": "http://localhost:11434",
+    "sleep_s": 0.0,
+    "limit": 2
+  },
+  "encrypted": {
+    "collection_name": "encrypted_documents_lihua",
+    "storage_path": "D:\\PycharmProjects\\Graduation-project\\qdrant_storage",
+    "storage_size_bytes": 11201424,
+    "points_count": 2242,
+    "datasets": {
+      "Multi": {
+        "latency": {
+          "n": 2,
+          "ok_rate": 1.0,
+          "retrieval_time_s": {
+            "mean": 0.19958388805389404,
+            "median": 0.19958388805389404,
+            "p90": 0.21222436428070068,
+            "p95": 0.2138044238090515
+          },
+          "generation_time_s": {
+            "mean": 80.18353343009949,
+            "median": 80.18353343009949,
+            "p90": 80.57363047599793,
+            "p95": 80.62239260673523
+          },
+          "total_time_s": {
+            "mean": 80.38558065891266,
+            "median": 80.38558065891266,
+            "p90": 80.762997174263,
+            "p95": 80.8101742386818
+          }
+        }
+      },
+      "Single": {
+        "latency": {
+          "n": 2,
+          "ok_rate": 1.0,
+          "retrieval_time_s": {
+            "mean": 0.42527270317077637,
+            "median": 0.42527270317077637,
+            "p90": 0.4407874584197998,
+            "p95": 0.44272680282592775
+          },
+          "generation_time_s": {
+            "mean": 81.35456156730652,
+            "median": 81.35456156730652,
+            "p90": 83.87445540428162,
+            "p95": 84.1894421339035
+          },
+          "total_time_s": {
+            "mean": 81.7842960357666,
+            "median": 81.7842960357666,
+            "p90": 84.28844680786133,
+            "p95": 84.60146565437317
+          }
+        }
+      },
+      "Null": {
+        "latency": {
+          "n": 2,
+          "ok_rate": 1.0,
+          "retrieval_time_s": {
+            "mean": 0.3717385530471802,
+            "median": 0.3717385530471802,
+            "p90": 0.44440176486968996,
+            "p95": 0.4534846663475037
+          },
+          "generation_time_s": {
+            "mean": 87.6699994802475,
+            "median": 87.6699994802475,
+            "p90": 90.93976867198944,
+            "p95": 91.34848982095718
+          },
+          "total_time_s": {
+            "mean": 88.04380798339844,
+            "median": 88.04380798339844,
+            "p90": 91.38608665466309,
+            "p95": 91.80387148857116
+          }
+        }
+      }
+    },
+    "resources": {
+      "cpu_percent_avg": 2.7375,
+      "cpu_percent_max": 3.9,
+      "rss_bytes_avg": 201310208.0,
+      "rss_bytes_max": 429539328,
+      "psutil_available": true
+    }
+  },
+  "plaintext": {
+    "collection_name": "plaintext_documents_lihua_world",
+    "storage_path": "D:\\PycharmProjects\\Graduation-project\\unencrypted\\qdrant_storage_plaintext",
+    "storage_size_bytes": 10641952,
+    "points_count": 2242,
+    "datasets": {
+      "Multi": {
+        "latency": {
+          "n": 2,
+          "ok_rate": 1.0,
+          "retrieval_time_s": {
+            "mean": 0.2657914161682129,
+            "median": 0.2657914161682129,
+            "p90": 0.27173337936401365,
+            "p95": 0.27247612476348876
+          },
+          "generation_time_s": {
+            "mean": 82.08815050125122,
+            "median": 82.08815050125122,
+            "p90": 89.72214059829712,
+            "p95": 90.67638936042786
+          },
+          "total_time_s": {
+            "mean": 82.3570111989975,
+            "median": 82.3570111989975,
+            "p90": 89.9857733488083,
+            "p95": 90.93936861753464
+          }
+        }
+      },
+      "Single": {
+        "latency": {
+          "n": 2,
+          "ok_rate": 1.0,
+          "retrieval_time_s": {
+            "mean": 0.26258134841918945,
+            "median": 0.26258134841918945,
+            "p90": 0.3340287208557129,
+            "p95": 0.3429596424102783
+          },
+          "generation_time_s": {
+            "mean": 76.90061688423157,
+            "median": 76.90061688423157,
+            "p90": 78.43850388526917,
+            "p95": 78.63073976039887
+          },
+          "total_time_s": {
+            "mean": 77.1655867099762,
+            "median": 77.1655867099762,
+            "p90": 78.63204865455627,
+            "p95": 78.81535639762879
+          }
+        }
+      },
+      "Null": {
+        "latency": {
+          "n": 2,
+          "ok_rate": 1.0,
+          "retrieval_time_s": {
+            "mean": 0.5890531539916992,
+            "median": 0.5890531539916992,
+            "p90": 0.6308486938476563,
+            "p95": 0.6360731363296509
+          },
+          "generation_time_s": {
+            "mean": 80.86961138248444,
+            "median": 80.86961138248444,
+            "p90": 88.19495346546174,
+            "p95": 89.1106212258339
+          },
+          "total_time_s": {
+            "mean": 81.46163439750671,
+            "median": 81.46163439750671,
+            "p90": 88.82804446220398,
+            "p95": 89.74884572029114
+          }
+        }
+      }
+    },
+    "resources": {
+      "cpu_percent_avg": 3.275,
+      "cpu_percent_max": 4.2,
+      "rss_bytes_avg": 140108800.0,
+      "rss_bytes_max": 212365312,
+      "psutil_available": true
+    }
+  }
+}
