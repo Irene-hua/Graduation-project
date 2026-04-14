@@ -1,0 +1,92 @@
+[
+  {
+    "type": "Multi",
+    "qid": 1,
+    "question": "Did Adam Smith send a message to Li Hua about the upcoming building maintenance schedule before the administrators announced a temporary change in the construction schedule due to weather conditions?",
+    "gold": "Yes",
+    "prediction": "Answer: Based on the provided context, there is no information indicating that Adam Smith sent a message to Li Hua about the upcoming building maintenance schedule before any temporary changes due to weather conditions. The latest conversation regarding maintenance work was on January 21st, and no subsequent updates were mentioned in the given context.",
+    "error_type": "FN",
+    "judge_method": "abstain"
+  },
+  {
+    "type": "Multi",
+    "qid": 4,
+    "question": "Did Li Hua send a message to Jennifer thanking her for the new training schedule before he requested a change in his training schedule for Thursday?",
+    "gold": "Yes",
+    "prediction": "Answer: I don't know.",
+    "error_type": "FN",
+    "judge_method": "manual_override"
+  },
+  {
+    "type": "Multi",
+    "qid": 5,
+    "question": "Did Li Hua ask Jennifer for advice on how to prevent muscle soreness after an intense workout session before he told her that he feels soreness in his arm muscles after the workout this week?",
+    "gold": "Yes",
+    "prediction": "Answer: No, Li Hua did not ask Jennifer for advice on how to prevent muscle soreness after an intense workout session before he told her that he feels soreness in his arm muscles after the workout this week.",
+    "error_type": "FP",
+    "judge_method": "fast"
+  },
+  {
+    "type": "Multi",
+    "qid": 6,
+    "question": "Did Li Hua send a message to Jennifer asking for her opinion on protein supplements before he consulted her about his daily protein powder consumption?",
+    "gold": "Yes",
+    "prediction": "Answer: I don't know.",
+    "error_type": "FN",
+    "judge_method": "manual_override"
+  },
+  {
+    "type": "Multi",
+    "qid": 8,
+    "question": "Did Li Hua discuss his progress with the fitness plan before he shared a blog post about his recent fitness achievements?",
+    "gold": "Yes",
+    "prediction": "Answer: Based on the provided context, there is no information that suggests Li Hua discussed his progress with the fitness plan before sharing a blog post about his recent fitness achievements. However, it is mentioned in [4] that Li Hua shared his progress with JenniferMoore, but there's no indication of a discussion about a blog post.",
+    "error_type": "FN",
+    "judge_method": "abstain"
+  },
+  {
+    "type": "Multi",
+    "qid": 10,
+    "question": "Did Li Hua ask Yuriko to play music together before Wolfgang proposed to pause playing musical instruments?",
+    "gold": "Yes",
+    "prediction": "Answer: I don't know.",
+    "error_type": "FN",
+    "judge_method": "manual_override"
+  },
+  {
+    "type": "Multi",
+    "qid": 13,
+    "question": "Did Turalyon announce the construction updates and feedback from residents after Illidan Stormrage complained about the construction noise?",
+    "gold": "Yes",
+    "prediction": "Answer: Based on the provided context, there is no direct evidence that Turalyon announced the construction updates and feedback from residents after Illidan Stormrage complained about the construction noise. However, it can be inferred that Turalyon did address concerns about construction noise and shared his plans to limit noisy activities during certain hours (as seen in [5]), which could be considered a form of update regarding the construction progress. But there is no explicit mention of Illidan Stormrage's complaint being the direct cause for this update.",
+    "error_type": "FP",
+    "judge_method": "fast"
+  },
+  {
+    "type": "Multi",
+    "qid": 18,
+    "question": "Did the group members talk about their favorite characters in the TV series Game of Thrones after Emily started a vote on the most hateable character?",
+    "gold": "Yes",
+    "prediction": "Answer: No, the group members did not discuss their favorite characters in the TV series Game of Thrones after Emily started a vote on the most hateable character. The conversation shifted to discussing memorable character arcs and redemption arcs in TV shows instead.",
+    "error_type": "FP",
+    "judge_method": "fast"
+  },
+  {
+    "type": "Multi",
+    "qid": 19,
+    "question": "Did Jennifer remind Li Hua to consume enough protein after the workout before she shared tips with the group members on common mistakes to avoid after an intense workout?",
+    "gold": "Yes",
+    "prediction": "Answer: No, Jennifer did not remind Li Hua to consume enough protein after the workout before she shared tips with the group members on common mistakes to avoid after an intense workout. The conversation about post-workout nutrition occurred in a separate context ([3]).",
+    "error_type": "FP",
+    "judge_method": "fast"
+  },
+  {
+    "type": "Multi",
+    "qid": 21,
+    "question": "Did Jake Watson and Li Hua discuss the classic matches between FC Barcelona and FC Bayern Munich before the group members discussed the classic matches between FC Barcelona and Real Madrid?",
+    "gold": "Yes",
+    "prediction": "Answer: Based on the provided context, there is no information that indicates Jake Watson and Li Hua discussed the classic matches between FC Barcelona and FC Bayern Munich before the group members discussed the classic matches between FC Barcelona and Real Madrid.",
+    "error_type": "FN",
+    "judge_method": "abstain"
+  }
+]

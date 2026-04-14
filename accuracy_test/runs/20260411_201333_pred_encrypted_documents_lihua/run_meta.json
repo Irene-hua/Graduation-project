@@ -1,0 +1,14 @@
+{
+  "stage": "predictions",
+  "timestamp": "20260411_201333",
+  "llm_name": "mistral",
+  "collection_name": "encrypted_documents_lihua",
+  "config_path": "D:\\PycharmProjects\\Graduation-project\\accuracy_test\\runs\\20260411_201333_pred_encrypted_documents_lihua\\config_patched.yaml",
+  "isolated_storage_path": "D:\\PycharmProjects\\Graduation-project\\accuracy_test\\runs\\20260411_201333_pred_encrypted_documents_lihua\\qdrant_storage_copy",
+  "top_k": 5,
+  "temperature": 0.2,
+  "max_tokens": null,
+  "limit": null,
+  "resume": false,
+  "schema_version": "predictions.v1"
+}

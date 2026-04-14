@@ -29,7 +29,7 @@ class VectorStore:
                  port: Optional[int] = None):
         """
         Initialize Qdrant vector store
-        
+
         Args:
             collection_name: Name of the collection
             dimension: Vector dimension
@@ -86,7 +86,21 @@ class VectorStore:
                 ) from e
 
         logger.info(f"Using local Qdrant storage at {self.storage_path}")
-        return QdrantClient(path=self.storage_path)
+        try:
+            return QdrantClient(path=self.storage_path)
+        except RuntimeError as e:
+            # Common on Windows when a previous client crashed leaving the lock for a short time.
+            msg = str(e)
+            if "already accessed" in msg.lower() or "alreadylocked" in msg.lower():
+                logger.warning(
+                    "Local Qdrant storage appears locked by another instance. "
+                    "If no other script is running, this may be a stale lock; retrying once after 1s."
+                )
+                import time
+
+                time.sleep(1)
+                return QdrantClient(path=self.storage_path)
+            raise
 
     def _create_collection_if_not_exists(self):
         """Create collection if it doesn't exist"""
@@ -115,12 +129,12 @@ class VectorStore:
                     metadata: List[Dict] = None) -> List[str]:
         """
         Add vectors with encrypted chunks to database
-        
+
         Args:
             vectors: Numpy array of vectors (shape: [n, dimension])
             encrypted_chunks: List of dicts with 'ciphertext' and 'nonce'
             metadata: Optional additional metadata for each vector
-            
+
         Returns:
             List of assigned point IDs
         """
@@ -270,7 +284,8 @@ class VectorStore:
                 pass
 
         # Common protobuf Value fields
-        for attr in ('string_value', 'text_value', 'integer_value', 'int_value', 'bool_value', 'float_value', 'double_value', 'bytes_value'):
+        for attr in ('string_value', 'text_value', 'integer_value', 'int_value', 'bool_value', 'float_value',
+                     'double_value', 'bytes_value'):
             if hasattr(value, attr):
                 v = getattr(value, attr)
                 if v is not None:
@@ -390,7 +405,8 @@ class VectorStore:
             if hasattr(self.client, 'scroll'):
                 try:
                     logger.info('Using local scroll + local similarity for search (preferred for local storage)')
-                    records = self.client.scroll(collection_name=self.collection_name, limit=10000, with_payload=True, with_vectors=True)
+                    records = self.client.scroll(collection_name=self.collection_name, limit=10000, with_payload=True,
+                                                 with_vectors=True)
                     recs = records[0] if isinstance(records, tuple) else records
 
                     vecs = []
@@ -462,7 +478,8 @@ class VectorStore:
                         if not accepts_vector_kw:
                             try:
                                 results = method(self.collection_name, query_list, top_k)
-                                logger.info(f"Vector search using client.{method_name}(collection, vector, limit) [positional]")
+                                logger.info(
+                                    f"Vector search using client.{method_name}(collection, vector, limit) [positional]")
                                 break
                             except Exception as e:
                                 logger.debug(f"client.{method_name} positional call failed: {e}")
@@ -472,12 +489,14 @@ class VectorStore:
                             break
                         except TypeError:
                             results = method(self.collection_name, query_list, top_k)
-                            logger.info(f"Vector search using client.{method_name}(collection, vector, limit) [positional after TypeError]")
+                            logger.info(
+                                f"Vector search using client.{method_name}(collection, vector, limit) [positional after TypeError]")
                             break
                     except TypeError:
                         try:
                             results = method(self.collection_name, query_list, top_k)
-                            logger.info(f"Vector search using client.{method_name}(collection, vector, limit) [positional in except]")
+                            logger.info(
+                                f"Vector search using client.{method_name}(collection, vector, limit) [positional in except]")
                             break
                         except Exception as e:
                             logger.debug(f"client.{method_name} positional call failed: {e}")
@@ -557,7 +576,8 @@ class VectorStore:
                     keys = list(payload_dict.keys())
                     if 'ciphertext' not in payload_dict or 'nonce' not in payload_dict:
                         logger.info(f"Search result payload keys (missing ciphertext/nonce): {keys}")
-                        preview = {k: (str(v)[:200] + '...') if isinstance(v, (str, bytes)) and len(str(v))>200 else v for k, v in list(payload_dict.items())[:10]}
+                        preview = {k: (str(v)[:200] + '...') if isinstance(v, (str, bytes)) and len(str(v)) > 200 else v
+                                   for k, v in list(payload_dict.items())[:10]}
                         logger.info(f"Payload preview: {preview}")
                     else:
                         logger.debug(f"Parsed payload keys: {keys}")
@@ -583,7 +603,8 @@ class VectorStore:
                 ids = [item.get('id') for item in formatted_results if item.get('id') is not None]
                 if ids:
                     try:
-                        records = self.client.retrieve(collection_name=self.collection_name, ids=ids, with_payload=True, with_vectors=False)
+                        records = self.client.retrieve(collection_name=self.collection_name, ids=ids, with_payload=True,
+                                                       with_vectors=False)
                         formatted_results = []
                         for rec in records:
                             payload = getattr(rec, 'payload', None) or (rec.payload if hasattr(rec, 'payload') else {})
@@ -607,7 +628,8 @@ class VectorStore:
             if not has_cipher:
                 logger.info('Attempting local scan fallback: retrieving vectors and payloads via scroll')
                 try:
-                    records = self.client.scroll(collection_name=self.collection_name, limit=10000, with_payload=True, with_vectors=True)
+                    records = self.client.scroll(collection_name=self.collection_name, limit=10000, with_payload=True,
+                                                 with_vectors=True)
                     recs = records[0] if isinstance(records, tuple) else records
                 except Exception as e:
                     logger.debug(f'client.scroll failed: {e}')
@@ -626,7 +648,7 @@ class VectorStore:
                         payload = getattr(rec, 'payload', None) or (rec.payload if hasattr(rec, 'payload') else {})
                         pd = self._normalize_payload(payload)
                         vecs.append(v)
-                        rec_meta.append((getattr(rec, 'id', None), pd, getattr(rec, 'score', None)))
+                        rec_meta.append((getattr(rec, 'id', None), pd))
                     except Exception:
                         continue
 
@@ -643,17 +665,24 @@ class VectorStore:
                     idxs = np.argsort(-sims)[:top_k]
                     formatted_results = []
                     for ix in idxs:
-                        pid, pd, sc = rec_meta[ix]
+                        pid, pd = rec_meta[ix]
                         formatted_results.append({
                             'id': pid,
-                            'score': float(sims[ix]) if sims is not None else sc,
+                            'score': float(sims[ix]) if sims is not None else None,
                             'ciphertext': pd.get('ciphertext'),
                             'nonce': pd.get('nonce'),
                             'metadata': {k: v for k, v in pd.items() if k not in ['ciphertext', 'nonce']}
                         })
-                    logger.info(f'Local scan fallback selected {len(formatted_results)} results')
+                    logger.info(f'Local scan fallback produced {len(formatted_results)} results')
         except Exception as e:
             logger.debug(f'Local scan fallback failed: {e}')
 
         return formatted_results
 
+    def close(self) -> None:
+        """Close underlying Qdrant client to release local storage lock."""
+        try:
+            if self.client is not None:
+                self.client.close()
+        except Exception:
+            pass

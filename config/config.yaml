@@ -33,6 +33,11 @@ vector_db:
   collection_name: 'encrypted_documents'
   distance_metric: 'Cosine'
   storage_path: './qdrant_storage'
+  # 可选：为避免 Windows 下本地 Qdrant 文件锁（.lock）导致的“AlreadyLocked”，
+  # 你可以在某些脚本中启用“每次运行使用独立存储目录”的策略（会创建新目录）。
+  # - null/不设置：使用 storage_path（默认）
+  # - 'qdrant_storage_runs'：在该目录下为每次运行创建独立子目录
+  per_run_storage_root: null
 
 # Retrieval
 retrieval:
@@ -47,7 +52,10 @@ rerank:
 
 # LLM (Ollama)
 llm:
-  model_name: 'llama2'  # or 'mistral', 'phi'
+  # Baseline model for ablation/comparison (keep installed, do NOT delete).
+  model_name: 'llama2'
+  # Default model used by the main RAG chain (auto-selected after comparison).
+  default_model: 'mistral'
   base_url: 'http://localhost:11434'
   quantization:
     enabled: true
@@ -59,15 +67,26 @@ llm:
 
 # RAG Pipeline
 rag:
+  # Strict prompt shared by all models for fair comparison.
   prompt_template: |
-    Based on the following context, please answer the question.
-    
+    You MUST answer ONLY based on the provided context.
+
+    Precision-first rules (follow strictly):
+    - Do NOT guess or infer missing details.
+    - Do NOT provide partially correct answers.
+    - If you cannot find direct evidence in the context for EVERY required part of the question, answer exactly: "I don't know".
+    - For comparison/temporal questions (before/after/earlier/later/more than N days), only answer if the necessary dates/times are explicitly present in the context.
+    - For multi-condition questions, verify each condition is supported; if any condition is unsupported, answer "I don't know".
+
+    Output format:
+    - Return ONE line only, starting with "Answer:".
+    - Do not add explanations.
+
     Context:
     {context}
-    
-    Question: {question}
-    
-    Answer:
+
+    Question:
+    {question}
   max_context_length: 2000
 
 # Audit Logging

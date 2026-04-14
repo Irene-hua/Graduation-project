@@ -1,0 +1,87 @@
+document_processing:
+  chunk_size: 512
+  chunk_overlap: 50
+  supported_formats:
+  - txt
+  - pdf
+  - docx
+  - md
+encryption:
+  algorithm: AES
+  key_size: 256
+  mode: GCM
+embedding:
+  model_name: sentence-transformers/all-MiniLM-L6-v2
+  dimension: 384
+  batch_size: 32
+  alternative_models:
+  - sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2
+  - sentence-transformers/all-MiniLM-L12-v2
+vector_db:
+  collection_name: encrypted_documents
+  distance_metric: Cosine
+  storage_path: D:\PycharmProjects\Graduation-project\accuracy_test\runs\20260411_201333_pred_encrypted_documents_lihua\qdrant_storage_copy
+  per_run_storage_root: null
+retrieval:
+  top_k_values:
+  - 3
+  - 5
+  - 10
+  - 15
+  default_top_k: 15
+rerank:
+  enabled: true
+  max_candidates: 20
+  min_score: 0.0
+llm:
+  model_name: llama2
+  default_model: mistral
+  base_url: http://localhost:11434
+  quantization:
+    enabled: true
+    bits: 4
+    type: nf4
+  temperature: 0.7
+  max_tokens: 512
+  context_window: 2048
+rag:
+  prompt_template: 'You MUST answer ONLY based on the provided context.
+
+
+    If the answer is not in the context, say "I don''t know".
+
+
+    Do NOT use prior knowledge.
+
+    Do NOT hallucinate.
+
+
+    Context:
+
+    {context}
+
+
+    Question:
+
+    {question}
+
+    '
+  max_context_length: 2000
+audit:
+  enabled: true
+  log_directory: ./logs
+  log_level: INFO
+  integrity_check: true
+  log_rotation: daily
+  max_log_size: 10485760
+evaluation:
+  test_dataset_size: 100
+  metrics:
+  - f1
+  - precision
+  - recall
+  - accuracy
+  benchmark_runs: 3
+performance:
+  enable_caching: true
+  max_workers: 4

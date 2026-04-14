@@ -1,0 +1,83 @@
+{
+  "Single": {
+    "run_tag": "llm_compare_20260401_131033",
+    "generated_at": "20260401_192016",
+    "rows": 60,
+    "wins": {
+      "llama2": 13,
+      "mistral": 18,
+      "tie": 29
+    },
+    "averages": {
+      "llama2": {
+        "correctness": 2.2333333333333334,
+        "faithfulness": 3.683333333333333,
+        "completeness": 2.2333333333333334,
+        "hallucination": 3.216666666666667,
+        "fluency": 3.966666666666667
+      },
+      "mistral": {
+        "correctness": 2.183333333333333,
+        "faithfulness": 3.85,
+        "completeness": 2.1666666666666665,
+        "hallucination": 3.4833333333333334,
+        "fluency": 3.966666666666667
+      }
+    },
+    "overall_better": "mistral"
+  },
+  "Multi": {
+    "run_tag": "llm_compare_20260401_154508",
+    "generated_at": "20260401_202219",
+    "rows": 60,
+    "wins": {
+      "llama2": 16,
+      "mistral": 26,
+      "tie": 18
+    },
+    "averages": {
+      "llama2": {
+        "correctness": 1.35,
+        "faithfulness": 3.85,
+        "completeness": 1.35,
+        "hallucination": 3.283333333333333,
+        "fluency": 3.95
+      },
+      "mistral": {
+        "correctness": 2.216666666666667,
+        "faithfulness": 3.65,
+        "completeness": 2.216666666666667,
+        "hallucination": 3.066666666666667,
+        "fluency": 3.966666666666667
+      }
+    },
+    "overall_better": "mistral"
+  },
+  "Null": {
+    "run_tag": "llm_compare_20260401_184038",
+    "generated_at": "20260402_134514",
+    "rows": 60,
+    "wins": {
+      "llama2": 1,
+      "mistral": 23,
+      "tie": 36
+    },
+    "averages": {
+      "llama2": {
+        "correctness": 2.5833333333333335,
+        "faithfulness": 3.533333333333333,
+        "completeness": 2.5833333333333335,
+        "hallucination": 3.5166666666666666,
+        "fluency": 3.85
+      },
+      "mistral": {
+        "correctness": 4.333333333333333,
+        "faithfulness": 4.583333333333333,
+        "completeness": 4.333333333333333,
+        "hallucination": 4.566666666666666,
+        "fluency": 3.966666666666667
+      }
+    },
+    "overall_better": "mistral"
+  }
+}

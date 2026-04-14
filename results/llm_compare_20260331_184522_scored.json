@@ -1,0 +1,552 @@
+{
+  "summary": {
+    "file": "results/llm_compare_20260331_184522.jsonl",
+    "total": 20,
+    "llama2_correct": 8,
+    "mistral_correct": 10,
+    "llama2_acc": 0.4,
+    "mistral_acc": 0.5
+  },
+  "rows": [
+    {
+      "question": "Did Adam Smith send a message to Li Hua about the upcoming building maintenance schedule before the administrators announced a temporary change in the construction schedule due to weather conditions?",
+      "llama2_answer": "Based on the provided context, Adam Smith did not send a message to Li Hua about the upcoming building maintenance schedule before the administrators announced a temporary change in the construction schedule due to weather conditions. The conversation between Adam and Li Hua takes place on January 21st, while the announcement about the weather-related delay is mentioned on March 30th, which is after the conversation between Adam and Li Hua. Therefore, Adam did not provide any information about the maintenance schedule before the change in the construction schedule was announced.",
+      "mistral_answer": " Based on the provided context, there is no information indicating that Adam Smith sent a message to Li Hua about the upcoming building maintenance schedule after the administrators announced a temporary change in the construction schedule due to weather conditions. Therefore, I don't know if he did or not.",
+      "better_model": "llama2",
+      "reason": "llama2 better: grounded in context; mistral: fallback/non-answer",
+      "error": null,
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        }
+      },
+      "gold": "yes",
+      "llama2_correct": false,
+      "llama2_match_reason": "yes/no mismatch (pred=None)",
+      "mistral_correct": false,
+      "mistral_match_reason": "idk"
+    },
+    {
+      "question": "Did Wolfgang ask Li Hua about watching \"Star Wars: A New Hope\" after he asked Li Hua about going to see \"Overwatch 3\"?",
+      "llama2_answer": "No, Wolfgang did not ask Li Hua about watching \"Star Wars: A New Hope\" after asking Li Hua about going to see \"Overwatch 3\". The conversation between Wolfgang and Li Hua takes place in different time frames, with no mention of \"Star Wars: A New Hope\" in any of the conversations.",
+      "mistral_answer": " No, Wolfgang did not ask Li Hua about watching \"Star Wars: A New Hope\" after he asked her about going to see \"Overwatch 3\". The conversation about Star Wars happened on October 9th, while the conversation about Overwatch 3 happened on January 21st.",
+      "better_model": "tie",
+      "reason": "tie: llama2=grounded in context; mistral=grounded in context",
+      "error": null,
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2010
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2010
+        }
+      },
+      "gold": "no",
+      "llama2_correct": true,
+      "llama2_match_reason": "yes/no match",
+      "mistral_correct": true,
+      "mistral_match_reason": "yes/no match"
+    },
+    {
+      "question": "Did Li Hua agree to go out for dinner after Wolfgang first asked him if he wanted to go out for dinner?",
+      "llama2_answer": "Based on the provided context, Li Hua agreed to go out for dinner after Wolfgang first asked him. The conversation goes as follows:\n\nWolfgang: Hey man! Wanna grab some pizza for dinner after work?\nLiHua: That sounds awesome! What's your favorite place for pizza?\nWolfgang: I'm a fan of that new pizza place downtown. Heard they have some amazing toppings! What do you think?\nLiHua: I've been wanting to try that place! Let's go there then. What time do you",
+      "mistral_answer": " Yes, Li Hua agreed to go out for dinner.",
+      "better_model": "tie",
+      "reason": "tie: llama2=grounded in context; mistral=grounded in context",
+      "error": null,
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2008
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2008
+        }
+      },
+      "gold": "yes",
+      "llama2_correct": false,
+      "llama2_match_reason": "yes/no mismatch (pred=None)",
+      "mistral_correct": true,
+      "mistral_match_reason": "yes/no match"
+    },
+    {
+      "question": "Did Li Hua ask Thane about his opinion on The Last of Us before he asked about Sekiro: Shadows Die Twice?",
+      "llama2_answer": "Based on the provided context, the answer is \"No\". Li Hua does not ask Thane about his opinion on The Last of Us before asking about Sekiro: Shadows Die Twice.",
+      "mistral_answer": " No, Li Hua did not ask Thane about his opinion on The Last of Us before he asked about Sekiro: Shadows Die Twice.",
+      "better_model": "tie",
+      "reason": "tie: llama2=grounded in context; mistral=grounded in context",
+      "error": null,
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2008
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2008
+        }
+      },
+      "gold": "no",
+      "llama2_correct": true,
+      "llama2_match_reason": "yes/no match",
+      "mistral_correct": true,
+      "mistral_match_reason": "yes/no match"
+    },
+    {
+      "question": "What time does Li Hua watch the movie \"Overwatch 3\"?",
+      "llama2_answer": "Based on the context provided, Li Hua watches the movie \"Overwatch 3\" at 7 PM on January 21st, 2026.",
+      "mistral_answer": " The context does not provide information on when Li Hua watches the movie \"Overwatch 3\".",
+      "better_model": "tie",
+      "reason": "tie: llama2=grounded in context; mistral=grounded in context",
+      "error": null,
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        }
+      },
+      "gold": "20260122",
+      "llama2_correct": false,
+      "llama2_match_reason": "date mismatch (pred=None)",
+      "mistral_correct": false,
+      "mistral_match_reason": "date mismatch (pred=None)"
+    },
+    {
+      "question": "Has Wolfgang ever been to Hong Kong?",
+      "llama2_answer": "Based on the provided context, I can answer the question as follows:\n\nYes, Wolfgang has been to Hong Kong. This is evident from his conversation with LiHua, where he mentions that he has just \"touched down\" in Hong Kong and is excited to explore the city.",
+      "mistral_answer": " Yes",
+      "better_model": "llama2",
+      "reason": "llama2 better: grounded in context; mistral: likely hallucination / low overlap with context",
+      "error": null,
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2008
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2008
+        }
+      },
+      "gold": "yes",
+      "llama2_correct": true,
+      "llama2_match_reason": "yes/no match",
+      "mistral_correct": true,
+      "mistral_match_reason": "yes/no match"
+    },
+    {
+      "question": "Who does Li Hua go to watch the movie \"Overwatch 3\" with?",
+      "llama2_answer": "Based on the context provided, LiHua goes to watch the movie \"Overwatch 3\" with WolfgangSchulz.",
+      "mistral_answer": " Li Hua goes to watch the movie \"Overwatch 3\" with WolfgangSchulz.",
+      "better_model": "tie",
+      "reason": "tie: llama2=grounded in context; mistral=grounded in context",
+      "error": null,
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2008
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2008
+        }
+      },
+      "gold": "wolfgang",
+      "llama2_correct": true,
+      "llama2_match_reason": "substring",
+      "mistral_correct": true,
+      "mistral_match_reason": "substring"
+    },
+    {
+      "question": "Who knows about Wolfgang going to Hong Kong?",
+      "llama2_answer": "Based on the provided context, it can be inferred that LiHua knows about Wolfgang going to Hong Kong. The conversation between Wolfgang and LiHua suggests that they are planning to meet up in Hong Kong and that LiHua has recommended some places for Wolfgang to check out while he's there. Therefore, it can be concluded that LiHua is aware of Wolfgang's trip to Hong Kong.",
+      "mistral_answer": " LiHua, YurikoYamamoto, and everyone (implied in the context).",
+      "better_model": "tie",
+      "reason": "tie: llama2=grounded in context; mistral=grounded in context",
+      "error": null,
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2008
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2008
+        }
+      },
+      "gold": "lihua & chae & yuriko",
+      "llama2_correct": false,
+      "llama2_match_reason": "token overlap 0.33",
+      "mistral_correct": false,
+      "mistral_match_reason": "token overlap 0.33"
+    },
+    {
+      "question": "Who wished Li Hua a happy Lunar New Year?",
+      "llama2_answer": "Based on the provided context, the person who wished Li Hua a happy Lunar New Year is:\n\nWolfgangSchulz",
+      "mistral_answer": " WolfgangSchulz, AdamSmith",
+      "better_model": "tie",
+      "reason": "tie: llama2=grounded in context; mistral=grounded in context",
+      "error": null,
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        }
+      },
+      "gold": "adam smith & jennifer moore & wolfgang schulz",
+      "llama2_correct": false,
+      "llama2_match_reason": "token overlap 0.00",
+      "mistral_correct": false,
+      "mistral_match_reason": "token overlap 0.00"
+    },
+    {
+      "question": "How long does it take in total from LiHua planning on getting the air-conditioner to the air-conditioner been installed?",
+      "llama2_answer": "Based on the provided context, the answer to the question \"How long does it take in total from LiHua planning on getting the air-conditioner to the air-conditioner been installed?\" is: 12 days.\n\nHere's how I arrived at this answer:\n\n* On August 3rd, AdamSmith and LiHua discussed the details of the air-conditioner installation, and AdamSmith mentioned that the installation was set for next week (August 9th). So, from the date LiHua planned on getting the air-conditioner to the installation, it took 6",
+      "mistral_answer": " Based on the provided context, it appears that the air-conditioner installation was scheduled for Wednesday next week after Adam Smith's message on 20260809_12:00. However, the exact date is not specified in the context. Therefore, I don't have enough information to determine the total time from when Li Hua planned on getting the air-conditioner to the installation.",
+      "better_model": "tie",
+      "reason": "tie: llama2=grounded in context; mistral=grounded in context",
+      "error": null,
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2008
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2008
+        }
+      },
+      "gold": "about 27 days",
+      "llama2_correct": false,
+      "llama2_match_reason": "token overlap 0.33",
+      "mistral_correct": false,
+      "mistral_match_reason": "token overlap 0.00"
+    },
+    {
+      "question": "Who introduced the bread delivery service and recommend Alice for the delivery?",
+      "llama2_answer": "Based on the provided context, the answer to the question \"Who introduced the bread delivery service and recommended Alice for the delivery?\" is:\n\nHaileyJohnson.\n\nThe context provides several instances of HaileyJohnson mentioning Alice's name and role in delivering fresh bread to customers. For example, in the conversation on April 3rd, HaileyJohnson says \"Alice does such a great job with the deliveries.\" And on May 29th, she mentions that Alice is the one who delivers the bread every Monday and Friday at 8am. Therefore, it can be infer",
+      "mistral_answer": " HaileyJohnson introduced the bread delivery service and recommended Alice for the delivery.",
+      "better_model": "tie",
+      "reason": "tie: llama2=grounded in context; mistral=grounded in context",
+      "error": null,
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2016
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2016
+        }
+      },
+      "gold": "haileyjohnson",
+      "llama2_correct": true,
+      "llama2_match_reason": "substring",
+      "mistral_correct": true,
+      "mistral_match_reason": "substring"
+    },
+    {
+      "question": "What is the opportunity that makes Wolfgang and Yuriko acquaitances?",
+      "llama2_answer": "Based on the context provided, the opportunity that makes Wolfgang and Yuriko acquaintances is their mutual interest in music.",
+      "mistral_answer": " The opportunity that makes Wolfgang and Yuriko acquaintances is LiHua introducing them to each other, as stated in the context on March 19, 2026 at 16:00.",
+      "better_model": "tie",
+      "reason": "tie: llama2=grounded in context; mistral=grounded in context",
+      "error": null,
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2008
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2008
+        }
+      },
+      "gold": "lihuawei introduce them to each other by saying that they can play music together every sunday",
+      "llama2_correct": false,
+      "llama2_match_reason": "token overlap 0.12",
+      "mistral_correct": false,
+      "mistral_match_reason": "token overlap 0.31"
+    },
+    {
+      "question": "What was the content of the first-ever delivery from Hailey to LiHua and what was LiHua's opinion about it?",
+      "llama2_answer": "Based on the provided context, LiHua's first-ever delivery from Hailey was fresh bread, and LiHua loved its freshness.",
+      "mistral_answer": " The context does not provide information about the content of the first-ever delivery from Hailey to LiHua. However, in the provided conversations, LiHua mentions that they love the bread deliveries and find them amazing and fresh, as usual. So, it can be inferred that the first-ever delivery likely included bread.",
+      "better_model": "tie",
+      "reason": "tie: llama2=grounded in context; mistral=grounded in context",
+      "error": null,
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2008
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2008
+        }
+      },
+      "gold": "a fresh sourdough loaf and a bottle of milk and lihua praises hailey's bread and milk",
+      "llama2_correct": false,
+      "llama2_match_reason": "token overlap 0.45",
+      "mistral_correct": false,
+      "mistral_match_reason": "token overlap 0.55"
+    },
+    {
+      "question": "Is the time interval more than 3 days between LiHua confirming that he has received the curtain and Adam asking LiHua if the curtain is all good?",
+      "llama2_answer": "Based on the provided context, the answer to the question is \"Yes\". The time interval between LiHua confirming that he has received the curtain and Adam asking LiHua if the curtain is all good is more than 3 days.",
+      "mistral_answer": " Yes, the time interval is more than 3 days between LiHua confirming that he has received the curtain and Adam asking LiHua if the curtain is all good. The confirmation was on October 12th, and the question was asked on October 19th.",
+      "better_model": "tie",
+      "reason": "tie: llama2=grounded in context; mistral=grounded in context",
+      "error": null,
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        }
+      },
+      "gold": "yes",
+      "llama2_correct": true,
+      "llama2_match_reason": "yes/no match",
+      "mistral_correct": true,
+      "mistral_match_reason": "yes/no match"
+    },
+    {
+      "question": "Is the time interval more than 3 days between LiHua first asking Adam if he can buy a small fridge for the basement and Adam asking LiHua about the size of the fridge?",
+      "llama2_answer": "Yes, the time interval is more than 3 days between LiHua's first request and Adam's response. The conversation takes place over the course of 10 days, with LiHua's initial request on November 10th, Adam's response on November 16th, and subsequent conversations on November 23rd, December 14th, and March 4th.",
+      "mistral_answer": " Yes, the time interval is more than 3 days between LiHua first asking Adam if he can buy a small fridge for the basement and Adam asking LiHua about the size of the fridge. The first conversation was on November 10th, and the second conversation was on November 16th, which is a difference of 6 days.",
+      "better_model": "mistral",
+      "reason": "mistral better: grounded in context; llama2: likely hallucination / low overlap with context",
+      "error": null,
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2008
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2008
+        }
+      },
+      "gold": "yes",
+      "llama2_correct": true,
+      "llama2_match_reason": "yes/no match",
+      "mistral_correct": true,
+      "mistral_match_reason": "yes/no match"
+    },
+    {
+      "question": "What house rule does Adam mention?",
+      "llama2_answer": "Adam mentions that noise should be kept to a minimum during late hours.",
+      "mistral_answer": " Adam mentions that during late hours, one should keep noise to a minimum and take good care of the property.",
+      "better_model": "tie",
+      "reason": "tie: llama2=grounded in context; mistral=grounded in context",
+      "error": null,
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2010
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2010
+        }
+      },
+      "gold": "keep noise to a minimum during late hours and take good care of the property",
+      "llama2_correct": false,
+      "llama2_match_reason": "token overlap 0.43",
+      "mistral_correct": true,
+      "mistral_match_reason": "token overlap 1.00"
+    },
+    {
+      "question": "Where was the first time Li Hua had dinner with Wolfgang this year?",
+      "llama2_answer": "Based on the context provided, the answer to the question \"Where was the first time Li Hua had dinner with Wolfgang this year?\" is:\n\nTime: 20260514_22:00\n\nThe conversation takes place at a restaurant they hit up together, indicating that it was their first dinner together this year.",
+      "mistral_answer": " The first time Li Hua had dinner with Wolfgang this year was at the restaurant they hit up on May 14th.",
+      "better_model": "tie",
+      "reason": "tie: llama2=grounded in context; mistral=grounded in context",
+      "error": null,
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2008
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2008
+        }
+      },
+      "gold": "the cozy café downtown",
+      "llama2_correct": false,
+      "llama2_match_reason": "token overlap 0.25",
+      "mistral_correct": false,
+      "mistral_match_reason": "token overlap 0.25"
+    },
+    {
+      "question": "When was the first time Li Hua had dinner with Wolfgang this year?",
+      "llama2_answer": "Based on the provided context, the answer to the question \"When was the first time Li Hua had dinner with Wolfgang this year?\" is:\n\nTime: 20260514_22:00\n\nThis is the first time Li Hua and Wolfgang are having dinner together in the context provided.",
+      "mistral_answer": " The first time Li Hua had dinner with Wolfgang this year was on May 14th, as mentioned in the conversation at 20260514_22:00.",
+      "better_model": "tie",
+      "reason": "tie: llama2=grounded in context; mistral=grounded in context",
+      "error": null,
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2008
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2008
+        }
+      },
+      "gold": "20260108",
+      "llama2_correct": false,
+      "llama2_match_reason": "date mismatch (pred=None)",
+      "mistral_correct": false,
+      "mistral_match_reason": "date mismatch (pred=None)"
+    },
+    {
+      "question": "What is the name of the gym that Wolfgang recommended LiHua to go to?",
+      "llama2_answer": "Based on the context provided, the name of the gym that Wolfgang recommended LiHua to go to is \"FitZone\".",
+      "mistral_answer": " The name of the gym that Wolfgang recommended LiHua to go to is FitZone.",
+      "better_model": "tie",
+      "reason": "tie: llama2=grounded in context; mistral=grounded in context",
+      "error": null,
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        }
+      },
+      "gold": "fitzone",
+      "llama2_correct": true,
+      "llama2_match_reason": "substring",
+      "mistral_correct": true,
+      "mistral_match_reason": "substring"
+    },
+    {
+      "question": "When does Li Hua plan to celebrate Chinese Lunar New Year?",
+      "llama2_answer": "Based on the provided context, LiHua plans to celebrate Chinese Lunar New Year on January 18th.",
+      "mistral_answer": " Li Hua plans to celebrate Chinese Lunar New Year on January 18th.",
+      "better_model": "tie",
+      "reason": "tie: llama2=grounded in context; mistral=grounded in context",
+      "error": null,
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        }
+      },
+      "gold": "20260118",
+      "llama2_correct": false,
+      "llama2_match_reason": "date mismatch (pred=None)",
+      "mistral_correct": false,
+      "mistral_match_reason": "date mismatch (pred=None)"
+    }
+  ]
+}
