@@ -53,7 +53,9 @@ print('Connected to VectorStore')
 retriever = Retriever(em, vs, enc)
 
 # LLM client (may be unavailable but we still proceed)
-llm_client = OllamaClient(base_url=config['llm']['base_url'], model_name=config['llm']['model_name'])
+llm_name = config.get('llm', {}).get('default_model') or config.get('llm', {}).get('model_name', 'mistral')
+llm_client = OllamaClient(base_url=config['llm']['base_url'], model_name=llm_name)
+print('Using LLM model:', llm_name)
 
 rag = RAGSystem(retriever=retriever, llm_client=llm_client, prompt_template=config['rag']['prompt_template'], max_context_length=config['rag']['max_context_length'])
 
@@ -76,4 +78,3 @@ with open(OUTPUT_FILE, 'w', encoding='utf-8') as out:
             out.write(json.dumps({'query': q, 'error': str(e)}) + '\n')
 
 print('\nBatch run complete. Results saved to', OUTPUT_FILE)
-

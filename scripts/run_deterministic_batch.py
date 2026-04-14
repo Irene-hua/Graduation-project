@@ -16,7 +16,9 @@ enc = AESEncryption(key_size=cfg['encryption']['key_size']); enc.load_key('encry
 em = EmbeddingModel(model_name=cfg['embedding']['model_name'])
 vs = VectorStore(collection_name=cfg['vector_db']['collection_name'], dimension=em.get_dimension(), distance_metric=cfg['vector_db']['distance_metric'], host=cfg['vector_db']['host'], port=cfg['vector_db']['port'])
 retriever = Retriever(em, vs, enc)
-llm = OllamaClient(base_url=cfg['llm']['base_url'], model_name=cfg['llm']['model_name'])
+llm_name = cfg.get('llm', {}).get('default_model') or cfg.get('llm', {}).get('model_name', 'mistral')
+llm = OllamaClient(base_url=cfg['llm']['base_url'], model_name=llm_name)
+print('Using LLM model:', llm_name)
 rag = RAGSystem(retriever=retriever, llm_client=llm, prompt_template=None, max_context_length=cfg['rag']['max_context_length'])
 
 queries = [line.strip() for line in open(QUERIES_FILE,'r',encoding='utf-8') if line.strip()]
@@ -41,4 +43,3 @@ with open(outf,'w',encoding='utf-8') as f:
         f.write(json.dumps(r, ensure_ascii=False)+'\n')
 
 print('\nDone. Results written to',outf)
-

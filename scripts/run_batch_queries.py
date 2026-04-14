@@ -19,15 +19,22 @@ parser.add_argument('--queries_file', type=str, default='data/test_datasets/test
 parser.add_argument('--collection_name', type=str, default=None, help='Override Qdrant collection name for this batch run')
 args = parser.parse_args()
 
+PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 CONFIG_PATH = args.config
+if not os.path.isabs(CONFIG_PATH):
+    CONFIG_PATH = os.path.join(PROJECT_ROOT, CONFIG_PATH)
 KEY_FILE = args.key_file
+if not os.path.isabs(KEY_FILE):
+    KEY_FILE = os.path.join(PROJECT_ROOT, KEY_FILE)
 QUERIES_FILE = args.queries_file
+if not os.path.isabs(QUERIES_FILE):
+    QUERIES_FILE = os.path.join(PROJECT_ROOT, QUERIES_FILE)
 OUTPUT_DIR = 'results'
 OUTPUT_FILE = os.path.join(OUTPUT_DIR, f'batch_results_{datetime.now().strftime("%Y%m%d_%H%M%S")}.jsonl')
 
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
-with open(CONFIG_PATH, 'r') as f:
+with open(CONFIG_PATH, 'r', encoding='utf-8') as f:
     config = yaml.safe_load(f)
 
 # Load encryption
@@ -53,7 +60,9 @@ print('Using collection:', collection_name)
 retriever = Retriever(em, vs, enc)
 
 # LLM client (we'll still try to initialize Ollama client but RAGSystem can work if model not available for testing retrieval)
-llm_client = OllamaClient(base_url=config['llm']['base_url'], model_name=config['llm']['model_name'])
+llm_name = config.get('llm', {}).get('default_model') or config.get('llm', {}).get('model_name', 'mistral')
+llm_client = OllamaClient(base_url=config['llm']['base_url'], model_name=llm_name)
+print('Using LLM model:', llm_name)
 
 rag = RAGSystem(retriever=retriever, llm_client=llm_client, prompt_template=config['rag']['prompt_template'], max_context_length=config['rag']['max_context_length'])
 

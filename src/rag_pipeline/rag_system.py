@@ -4,7 +4,6 @@ RAG System
 
 from __future__ import annotations
 from dataclasses import dataclass
-from datetime import datetime
 from typing import Dict, List, Optional
 
 import argparse
@@ -17,125 +16,25 @@ import yaml
 
 from src.audit import AuditLogger
 from src.encryption import AESEncryption
-from src.embedding import EmbeddingModel
-from src.llm import OllamaClient
+from src.llm import BaseLLM, LLMResult, OllamaLLM
 from src.rag_pipeline.rerank import LocalReranker
 from src.retrieval import Retriever, VectorStore
 
 logger = logging.getLogger(__name__)
 
 
-class QueryType:
-    TEMPORAL = "temporal"
-    COMPARISON = "comparison"
-    YES_NO = "yes_no"
-    FACTOID = "factoid"
-    OPEN = "open"
-
-
-@dataclass(frozen=True)
-class QueryInfo:
-    query_type: str
-    is_yes_no: bool
-
-
-@dataclass(frozen=True)
-class RuleResult:
-    answer: str
-    confidence: float
-    rule_name: str
-
-
-# =========================
-# Query分类
-# =========================
-
-class QueryClassifier:
-
-    def classify(self, question: str) -> QueryInfo:
-        q = (question or "").lower()
-
-        if any(k in q for k in ["before", "after", "earlier", "later"]):
-            return QueryInfo(QueryType.COMPARISON, False)
-
-        if any(k in q for k in ["when", "time", "date"]):
-            return QueryInfo(QueryType.TEMPORAL, False)
-
-        if q.startswith(("is ", "are ", "was ", "were ")):
-            return QueryInfo(QueryType.YES_NO, True)
-
-        return QueryInfo(QueryType.OPEN, False)
-
-
-# =========================
-# Temporal Rule（唯一保留规则）
-# =========================
-
-class TemporalComparisonRule:
-    """
-    泛化时间推理规则（论文核心：非硬编码）
-    """
-
-    name = "temporal_comparison"
-
-    def apply(self, question: str, chunks: List[Dict]) -> Optional[RuleResult]:
-        times = []
-
-        for ch in chunks:
-            text = ch.get("text", "")
-            matches = re.findall(r"\d{4}-\d{2}-\d{2} \d{2}:\d{2}", text)
-            for m in matches:
-                try:
-                    dt = datetime.strptime(m, "%Y-%m-%d %H:%M")
-                    times.append(dt)
-                except Exception:
-                    continue
-
-        if len(times) < 2:
-            return None
-
-        times.sort()
-
-        if "difference" in (question or "").lower():
-            delta = times[-1] - times[0]
-            return RuleResult(
-                answer=f"Time difference is {delta}",
-                confidence=0.7,
-                rule_name=self.name
-            )
-
-        return RuleResult(
-            answer=f"Earliest time is {times[0]}",
-            confidence=0.65,
-            rule_name=self.name
-        )
-
-
-# =========================
-# Rule Engine（只保留一个规则）
-# =========================
-
-class RuleEngine:
-    def __init__(self):
-        self.rule = TemporalComparisonRule()
-
-    def run(self, question, chunks):
-        return self.rule.apply(question, chunks)
-
-
-# =========================
-# Context Builder
-# =========================
-
 class ContextBuilder:
-    """
-    负责上下文构建（论文点：限制长度 + 提高相关性）
-    """
-
-    def __init__(self, max_chars: int = 2000, max_tokens: int = 650, min_rerank_score: float = 0.0):
+    def __init__(
+        self,
+        max_chars: int = 4000,
+        max_tokens: int = 1200,
+        min_rerank_score: float = 0.2,
+        keep_top_n: int = 2,
+    ):
         self.max_chars = int(max_chars)
         self.max_tokens = int(max_tokens)
         self.min_rerank_score = float(min_rerank_score)
+        self.keep_top_n = int(keep_top_n)
 
     @staticmethod
     def _token_estimate(text: str) -> int:
@@ -144,265 +43,367 @@ class ContextBuilder:
             return 0
         return max(1, int(len(t) / 4) + int(len(t.split()) / 2))
 
-    @staticmethod
-    def _looks_temporal(question: str) -> bool:
-        q = (question or "").lower()
-        return any(k in q for k in ["before", "after", "earlier", "later", "when", "time", "date", "difference"])
-
     def build(self, question: str, chunks: List[Dict], top_k: int):
         if not chunks:
             return "", []
 
-        # Prefer higher rerank_score chunks and suppress weak candidates.
         ranked = list(chunks)
         try:
             ranked.sort(key=lambda c: float(c.get("rerank_score", c.get("score", 0.0)) or 0.0), reverse=True)
         except Exception:
             pass
 
-        # For temporal questions, bias toward chunks that actually contain timestamps or header-like evidence.
-        temporal = self._looks_temporal(question)
-        filtered = []
-        for c in ranked:
-            score = float(c.get("rerank_score", c.get("score", 0.0)) or 0.0)
-            if score < self.min_rerank_score:
-                continue
-            text = (c.get("text") or "").strip()
-            if not text:
-                continue
-            if temporal:
-                tl = text.lower()
-                has_time = bool(re.search(r"\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}", tl)) or any(h in tl for h in ("sent:", "date:", "time:", "from:", "to:", "subject:"))
-                if not has_time:
-                    # Keep a small amount of non-temporal support, but prefer evidence-rich chunks.
-                    continue
-            filtered.append({**c, "text": text})
-
-        parts = []
-        used = []
+        parts: List[str] = []
+        used: List[Dict] = []
         total_chars = 0
         total_tokens = 0
+        seen_texts = set()
 
-        for idx, ch in enumerate(filtered[:top_k], 1):
+        limit = max(1, top_k)
+        for idx, ch in enumerate(ranked[:limit], 1):
+            score = float(ch.get("rerank_score", ch.get("score", 0.0)) or 0.0)
+            # Drop low-quality chunks, but always keep the first few top-ranked chunks.
+            if score < self.min_rerank_score and idx > self.keep_top_n:
+                continue
+
+            text = (ch.get("text") or "").strip()
+            if not text:
+                continue
+
+            if text in seen_texts:
+                continue
+            seen_texts.add(text)
+
             md = ch.get("metadata") if isinstance(ch.get("metadata"), dict) else {}
             src = md.get("source_file") or md.get("source") or md.get("source_file_name") or "unknown_source"
             cid = md.get("chunk_id")
             provenance = f"[source: {src}" + (f" chunk_id: {cid}" if cid is not None else "") + "]"
-            block = f"[{idx}] {provenance}\n{ch.get('text', '')}".strip()
+            block = f"[{idx}] {provenance}\n{text}".strip()
 
             block_tokens = self._token_estimate(block)
+            # Prevent truncating away critical evidence: always include the first keep_top_n chunks.
             if parts and (total_chars + len(block) > self.max_chars or total_tokens + block_tokens > self.max_tokens):
+                if idx <= self.keep_top_n:
+                    parts.append(block)
+                    used.append({**ch, "text": text})
                 break
 
             parts.append(block)
-            used.append(ch)
+            used.append({**ch, "text": text})
             total_chars += len(block)
             total_tokens += block_tokens
 
         return "\n\n".join(parts), used
 
 
-# =========================
-# LLM 调用
-# =========================
-
 class LLMCaller:
-
     def __init__(self, client):
         self.client = client
 
-    def generate(self, prompt: str):
+    def generate(self, prompt: str, *, temperature: float = 0.7, max_tokens: Optional[int] = None):
         try:
-            return self.client.generate(prompt=prompt)["response"]
-        except Exception:
-            return "Not found"
+            if isinstance(self.client, BaseLLM):
+                res: LLMResult = self.client.generate(prompt, temperature=temperature, max_tokens=max_tokens)
+                return res.text
+            return self.client.generate(prompt=prompt, temperature=temperature, max_tokens=max_tokens)["response"]
+        except Exception as e:
+            logger.error("LLM generation error: %s", e)
+            return "[ERROR]"
 
 
-# =========================
-# 主RAG系统
-# =========================
+@dataclass
+class RAGContext:
+    """Compact context container for standard result construction."""
+
+    used_chunks: List[Dict]
+    context_chunks: List[Dict]
+    context_length: int
+    retrieve_k: int
+    retrieval_time: float
+
 
 class RAGSystem:
+    LLM_CONFIDENCE_FLOOR = 0.0
 
-    def __init__(self, retriever, llm_client, prompt_template: Optional[str] = None, max_context_length: int = 2000, reranker=None):
+    def __init__(
+        self,
+        retriever,
+        llm_client=None,
+        *,
+        llm_name: str = "mistral",
+        prompt_template: Optional[str] = None,
+        max_context_length: int = 2000,
+        reranker=None,
+        llm_base_url: str = "http://localhost:11434",
+    ):
         self.retriever = retriever
-        self.classifier = QueryClassifier()
         self.context_builder = ContextBuilder()
+        if llm_client is None:
+            llm_client = OllamaLLM(model_name=llm_name, base_url=llm_base_url)
+
         self.llm = LLMCaller(llm_client)
-        self.rule_engine = RuleEngine()
         self.reranker = reranker
         self.prompt_template = prompt_template or self._default_prompt()
         self.max_context_length = max_context_length
+        self.llm_name = llm_name
 
-    # =========================
-    # Prompt设计（论文关键）
-    # =========================
     def _default_prompt(self):
         return (
-            "Answer ONLY using the provided context.\n"
-            "If the answer is not in the context, say 'Not found'.\n\n"
+            "You are a RAG question-answering assistant.\n"
+            "Use the provided context as the primary source. You may reason if needed.\n"
+            "If the context is incomplete, you may use reasonable inference and common sense to connect facts, but do NOT invent unsupported details.\n\n"
+            "When the question asks WHO (people/entities), you MUST list the specific names/entities found in the context.\n"
+            "Do NOT answer with vague phrases like 'all characters', 'everyone', or 'people in the context'.\n\n"
+            "You MUST perform implicit reasoning silently before answering.\n"
+            "If the answer involves a date, number, or entity, give the exact value.\n"
+            "For time questions, you may compute dates/times when the context provides a reference timestamp (e.g., infer a next-day date).\n\n"
+            "If the answer is not explicitly stated:\n"
+            "- You MUST infer the answer using the context\n"
+            "- Use only information that can be logically derived from the context\n"
+            "- Do NOT introduce external facts\n\n"
+            "You MUST attempt inference BEFORE saying \"I don't know\".\n\n"
+            "Only reply with 'I don't know' if absolutely no relevant information exists in the context.\n"
+            "If some relevant information exists, provide the best possible answer.\n\n"
+            "Output format (STRICT):\n"
+            "Answer: <final answer>\n\n"
             "Context:\n{context}\n\n"
-            "Question: {question}\n"
-            "Answer:\n"
+            "Question:\n{question}\n"
         )
 
-    def build_prompt(self, question, context):
+    def build_prompt(self, question: str, context: str) -> str:
+        """Build the final prompt."""
         return self.prompt_template.format(context=context, question=question)
 
     @staticmethod
     def is_valid_answer(answer: str) -> bool:
-        """Filter out weak or non-answers.
-
-        Thesis note: free-form LLMs often produce vague fallback phrases when evidence
-        is insufficient. We explicitly block these to keep the system behavior
-        deterministic and easier to evaluate.
-        """
         if not answer:
             return False
-        a = answer.strip().lower()
-        banned = ("not found", "i don't know", "i do not know", "cannot find", "no information")
-        return not any(b in a for b in banned)
 
-    # =========================
-    # 核心流程（重点改造）
-    # =========================
-    def answer_question(self, question: str, top_k: int = 5, temperature: float = 0.7, max_tokens: Optional[int] = None):
+        a = (answer or "").strip()
+        if not a:
+            return False
+
+        al = re.sub(r"\s+", " ", a.lower()).strip()
+        # Reject only fully-refusing minimal outputs.
+        if al in {"i don't know", "answer: i don't know", "unknown"}:
+            return False
+
+        # Otherwise accept (including partial answers that mention uncertainty).
+        return True
+
+    @staticmethod
+    def _compute_confidence(*, answer_text: str, rerank_top_scores: List[float], weak_answer: bool) -> float:
+        """Compute a lightweight dynamic confidence for downstream evaluation."""
+        top = float(rerank_top_scores[0]) if rerank_top_scores else 0.0
+        conf = (
+            0.6 * top
+            + 0.2 * (1.0 if len((answer_text or "").strip()) > 20 else 0.0)
+            + 0.2 * (1.0 if not weak_answer else 0.0)
+        )
+        return float(max(0.0, min(1.0, conf)))
+
+    @staticmethod
+    def _normalize_to_answer_format(text: str) -> str:
+        """Format-only normalization: keep semantics, enforce single-line 'Answer:' output.
+
+        - If the model returns 'Answer:' plus extra lines (e.g., 'Explanation:'), we keep ONLY the first Answer line.
+        - If the model doesn't prefix with 'Answer:', we wrap the full text into a single Answer line.
+        """
+        t = (text or "").strip()
+        if not t:
+            return "Answer: I don't know"
+
+        if t.lower().startswith("answer:"):
+            lines = [ln.strip() for ln in t.splitlines() if ln.strip()]
+            return lines[0] if lines else "Answer: I don't know"
+
+        # Keep the explanation inline after Answer if the model output already contains it.
+        one_line = re.sub(r"\s+", " ", t).strip()
+        return f"Answer: {one_line}"
+
+    @staticmethod
+    def _looks_like_who_question(question: str) -> bool:
+        q = (question or "").strip().lower()
+        return bool(re.search(r"\bwho\b", q))
+
+    @staticmethod
+    def _has_vague_who_answer(answer: str) -> bool:
+        """Heuristic: detect non-specific answers for WHO questions.
+
+        This doesn't inject any hardcoded names/logic. It only decides whether to re-ask the LLM
+        to be more specific using the same context.
+        """
+        a = (answer or "").lower()
+        if not a.startswith("answer:"):
+            return False
+        vague_markers = [
+            "all the characters",
+            "all characters",
+            "everyone",
+            "everybody",
+            "people in the context",
+            "all of them",
+            "all the people",
+        ]
+        return any(m in a for m in vague_markers)
+
+    def answer_question(self, question: str, top_k: int = 5, temperature: float = 0.2, max_tokens: Optional[int] = None):
         start = time.time()
         rerank_enabled = self.reranker is not None
         rerank_before_top1 = None
         rerank_after_top1 = None
-        # Retrieve is widened to improve recall; rerank then restores precision.
-        retrieve_k = max(top_k * 4, 20)
-        context_length = 0
+        retrieve_k = max(top_k * 6, 30)
         rerank_top_scores: List[float] = []
 
-        # 1️⃣ 检索（Recall first）
-        try:
-            chunks = self.retriever.retrieve(question, top_k=retrieve_k)
-        except Exception as e:
-            return {
-                "answer": "An error occurred while searching for relevant information. Please try again later.",
-                "path": "FAIL",
-                "reasoning_path": "error",
-                "time": time.time() - start,
-                "total_time": time.time() - start,
-                "retrieval_time": 0.0,
-                "generation_time": 0.0,
-                "num_chunks_retrieved": 0,
-                "used_chunks": [],
-                "context_chunks": [],
-                "confidence": 0.0,
-                "error": str(e),
+        def _result(
+            *,
+            answer_text: str,
+            path: str,
+            reasoning_path: str,
+            confidence: float,
+            ctx: RAGContext,
+            generation_time: float = 0.0,
+            weak_answer: bool = False,
+            retrieval_empty: bool = False,
+            error: Optional[str] = None,
+        ) -> Dict:
+            """Build the standard result dict for this pipeline.
+
+            Centralized to avoid drift across early-returns.
+            """
+            now_t = time.time()
+            out = {
+                "answer": answer_text,
+                "path": path,
+                "reasoning_path": reasoning_path,
+                "time": now_t - start,
+                "total_time": now_t - start,
+                "retrieval_time": ctx.retrieval_time,
+                "generation_time": generation_time,
+                "num_chunks_retrieved": len(ctx.context_chunks or []),
+                "used_chunks": ctx.used_chunks,
+                "context_chunks": ctx.context_chunks,
+                "confidence": confidence,
                 "rerank_enabled": rerank_enabled,
                 "rerank_before_top1": rerank_before_top1,
                 "rerank_after_top1": rerank_after_top1,
                 "rerank_top_scores": rerank_top_scores,
-                "context_length": context_length,
-                "retrieve_k": retrieve_k,
+                "context_length": ctx.context_length,
+                "retrieve_k": ctx.retrieve_k,
+                "weak_answer": weak_answer,
+                "retrieval_empty": retrieval_empty,
             }
+            if error is not None:
+                out["error"] = error
+            return out
+
+        try:
+            chunks = self.retriever.retrieve(question, top_k=retrieve_k)
+        except Exception as e:
+            ctx = RAGContext(
+                used_chunks=[],
+                context_chunks=[],
+                context_length=0,
+                retrieve_k=retrieve_k,
+                retrieval_time=0.0,
+            )
+            return _result(
+                answer_text="[ERROR]",
+                path="FAIL",
+                reasoning_path="error",
+                confidence=0.0,
+                ctx=ctx,
+                weak_answer=True,
+                retrieval_empty=True,
+                error=str(e),
+            )
+
         retrieval_time = time.time() - start
 
-        # 1.5️⃣ Rerank（Precision first）
-        # Why rerank: vector retrieval maximizes recall, but the initial ordering is not
-        # always evidence-precise enough for generation. Reranking re-orders candidates so
-        # the context builder sees the most relevant chunks first.
         if self.reranker is not None:
             try:
                 rerank_before_top1 = chunks[0].get("text") if chunks else None
                 chunks = self.reranker.rerank(question, chunks, top_k=retrieve_k)
                 rerank_after_top1 = chunks[0].get("text") if chunks else None
             except Exception as e:
-                logger.debug("Reranker failed, falling back to raw retrieval order: %s", e)
+                logger.debug("Reranker failed, fallback to retrieval order: %s", e)
 
         rerank_top_scores = [float(ch.get("rerank_score", ch.get("score", 0.0)) or 0.0) for ch in (chunks or [])[:3]]
+        retrieval_quality_low = (not rerank_top_scores) or max(rerank_top_scores) < 0.1
 
-        # 2️⃣ 构建上下文
-        # ContextBuilder is responsible for token/character budgeting and for preferring
-        # higher-quality reranked chunks. This prevents noisy evidence from overflowing
-        # the prompt and improves answer stability.
         context, used_chunks = self.context_builder.build(question, chunks, top_k)
         context_length = len(context)
+        ctx = RAGContext(
+            used_chunks=used_chunks,
+            context_chunks=chunks,
+            context_length=context_length,
+            retrieve_k=retrieve_k,
+            retrieval_time=retrieval_time,
+        )
 
-        # 3️⃣ 构建prompt
+        if context_length == 0:
+            answer = "Answer: I don't know"
+            return _result(
+                answer_text=answer,
+                path="FAIL",
+                reasoning_path="no_context",
+                confidence=0.0,
+                ctx=ctx,
+                weak_answer=True,
+                retrieval_empty=True,
+            )
+
         prompt = self.build_prompt(question, context)
 
-        # 4️⃣ LLM生成（主路径）
         gen_start = time.time()
-        answer = self.llm.generate(prompt)
+        answer = self.llm.generate(prompt, temperature=temperature, max_tokens=max_tokens)
+
+        # Format normalization: avoid retries that reduce stability.
+        answer = self._normalize_to_answer_format(answer)
+
+        # If this is a WHO question and the model responded vaguely, retry once with a specificity reminder.
+        if self._looks_like_who_question(question) and self._has_vague_who_answer(answer):
+            specific_prompt = (
+                "IMPORTANT: The question asks WHO. List the exact names/entities from the context. "
+                "If multiple, return a comma-separated list. Do not use vague phrases.\n\n"
+                + prompt
+            )
+            answer_retry = self.llm.generate(specific_prompt, temperature=temperature, max_tokens=max_tokens)
+            answer_retry = self._normalize_to_answer_format(answer_retry)
+            if self.is_valid_answer(answer_retry) and not self._has_vague_who_answer(answer_retry):
+                answer = answer_retry
+
         generation_time = time.time() - gen_start
+        retrieval_empty = (len(chunks) == 0) or (context_length == 0)
 
-        # =========================
-        # ❗ 核心：RAG优先
-        # =========================
         if self.is_valid_answer(answer):
-            return {
-                "answer": answer,
-                "path": "RAG",
-                "reasoning_path": "llm",
-                "time": time.time() - start,
-                "total_time": time.time() - start,
-                "retrieval_time": retrieval_time,
-                "generation_time": generation_time,
-                "num_chunks_retrieved": len(chunks),
-                "used_chunks": used_chunks,
-                "context_chunks": chunks,
-                "confidence": 0.55,
-                "rerank_enabled": rerank_enabled,
-                "rerank_before_top1": rerank_before_top1,
-                "rerank_after_top1": rerank_after_top1,
-                "rerank_top_scores": rerank_top_scores,
-                "context_length": context_length,
-                "retrieve_k": retrieve_k,
-                "weak_answer": False,
-            }
+            # Keep confidence, but reduce its influence to avoid overfitting to heuristics.
+            conf = 0.5 * self._compute_confidence(answer_text=answer, rerank_top_scores=rerank_top_scores, weak_answer=False)
+            return _result(
+                answer_text=answer,
+                path="RAG",
+                reasoning_path="llm",
+                confidence=conf,
+                ctx=ctx,
+                generation_time=generation_time,
+                weak_answer=False,
+                retrieval_empty=retrieval_empty,
+            )
 
-        # =========================
-        # ❗ fallback：规则
-        # =========================
-        rule_result = self.rule_engine.run(question, chunks)
+        out = _result(
+            answer_text="Answer: I don't know",
+            path="FAIL",
+            reasoning_path="llm",
+            confidence=0.0,
+            ctx=ctx,
+            generation_time=generation_time,
+            weak_answer=True,
+            retrieval_empty=retrieval_empty,
+        )
 
-        if rule_result:
-            return {
-                "answer": rule_result.answer,
-                "path": f"RULE:{rule_result.rule_name}",
-                "reasoning_path": f"fallback_rule:{rule_result.rule_name}",
-                "time": time.time() - start,
-                "total_time": time.time() - start,
-                "retrieval_time": retrieval_time,
-                "generation_time": generation_time,
-                "num_chunks_retrieved": len(chunks),
-                "used_chunks": used_chunks,
-                "context_chunks": chunks,
-                "confidence": rule_result.confidence,
-                "rerank_enabled": rerank_enabled,
-                "rerank_before_top1": rerank_before_top1,
-                "rerank_after_top1": rerank_after_top1,
-                "rerank_top_scores": rerank_top_scores,
-                "context_length": context_length,
-                "retrieve_k": retrieve_k,
-                "weak_answer": True,
-            }
-
-        return {
-            "answer": "Not found",
-            "path": "FAIL",
-            "reasoning_path": "llm",
-            "time": time.time() - start,
-            "total_time": time.time() - start,
-            "retrieval_time": retrieval_time,
-            "generation_time": generation_time,
-            "num_chunks_retrieved": len(chunks),
-            "used_chunks": used_chunks,
-            "context_chunks": chunks,
-            "confidence": 0.0,
-            "rerank_enabled": rerank_enabled,
-            "rerank_before_top1": rerank_before_top1,
-            "rerank_after_top1": rerank_after_top1,
-            "rerank_top_scores": rerank_top_scores,
-            "context_length": context_length,
-            "retrieve_k": retrieve_k,
-            "weak_answer": True,
-        }
+        if retrieval_quality_low:
+            out["retrieval_quality_low"] = True
+        return out
 
 
 def _build_parser():
@@ -411,13 +412,18 @@ def _build_parser():
     parser.add_argument('--key_file', type=str, default='encryption.key', help='Path to encryption key file')
     parser.add_argument('--question', type=str, help='Single question to answer (if not provided, runs interactive mode)')
     parser.add_argument('--top_k', type=int, default=5, help='Number of chunks to retrieve')
-    parser.add_argument('--temperature', type=float, default=0.7, help='LLM temperature')
-    parser.add_argument('--exact_extract', action='store_true', help='Prefer deterministic exact extraction for date/time style questions')
+    parser.add_argument('--temperature', type=float, default=0.2, help='LLM temperature')
     parser.add_argument('--collection_name', type=str, default=None, help='Override Qdrant collection name for this run')
+    parser.add_argument('--allow_empty_collection', action='store_true', help='Allow running even if target Qdrant collection has 0 points.')
     return parser
 
 
-def _build_runtime(config_path: str, key_file: str, collection_name: Optional[str] = None):
+def _build_runtime(
+    config_path: str,
+    key_file: str,
+    collection_name: Optional[str] = None,
+    allow_empty_collection: bool = False,
+):
     with open(config_path, 'r', encoding='utf-8') as f:
         config = yaml.safe_load(f)
 
@@ -435,6 +441,8 @@ def _build_runtime(config_path: str, key_file: str, collection_name: Optional[st
         raise FileNotFoundError(f'Encryption key not found: {key_file}')
     encryption.load_key(key_file)
 
+    # Lazy import keeps rag_system importable even in minimal environments and avoids unused top-level imports.
+    from src.embedding import EmbeddingModel
     embedding_model = EmbeddingModel(model_name=config['embedding']['model_name'])
 
     effective_collection = collection_name or config['vector_db']['collection_name']
@@ -447,11 +455,25 @@ def _build_runtime(config_path: str, key_file: str, collection_name: Optional[st
         port=config['vector_db'].get('port')
     )
     info = vector_store.get_collection_info()
-    if info.get('points_count', 0) == 0:
-        raise RuntimeError('Vector database is empty. Please run ingest_documents.py first')
+    if (info.get('points_count', 0) or 0) == 0 and not allow_empty_collection:
+        try:
+            existing = [c.name for c in vector_store.client.get_collections().collections]
+        except Exception:
+            existing = []
+
+        raise RuntimeError(
+            "Vector database collection is empty. "
+            f"Target collection='{effective_collection}' has 0 points.\n\n"
+            "Fix options:\n"
+            f"  python -m scripts.ingest_documents --input_dir data\\single_test1 --collection_name {effective_collection}\n"
+            "  or run without --collection_name to use default config collection.\n"
+            "  or add --allow_empty_collection (debug only).\n\n"
+            f"Existing collections: {existing or 'unknown/unavailable'}"
+        )
 
     retriever = Retriever(embedding_model, vector_store, encryption)
-    llm_client = OllamaClient(base_url=config['llm']['base_url'], model_name=config['llm']['model_name'])
+    llm_name = config.get('llm', {}).get('default_model') or config['llm'].get('model_name', 'mistral')
+    llm_client = OllamaLLM(model_name=llm_name, base_url=config['llm']['base_url'])
     if not llm_client.is_available():
         raise RuntimeError('Ollama server not available. Please start Ollama first: ollama serve')
 
@@ -465,6 +487,7 @@ def _build_runtime(config_path: str, key_file: str, collection_name: Optional[st
     rag_system = RAGSystem(
         retriever=retriever,
         llm_client=llm_client,
+        llm_name=llm_name,
         prompt_template=config['rag']['prompt_template'],
         max_context_length=config['rag']['max_context_length'],
         reranker=reranker
@@ -472,8 +495,7 @@ def _build_runtime(config_path: str, key_file: str, collection_name: Optional[st
     return rag_system, audit_logger
 
 
-def process_question(rag_system, question, top_k, temperature, audit_logger=None, exact_extract=False):
-    del exact_extract
+def process_question(rag_system, question, top_k, temperature, audit_logger=None):
     print(f"\nQuestion: {question}")
     print("-" * 50)
 
@@ -487,7 +509,8 @@ def process_question(rag_system, question, top_k, temperature, audit_logger=None
         model_name = getattr(model_obj, 'model_name', 'unknown-model')
         audit_logger.log_model_invocation(model_name=model_name, inference_time=result['generation_time'])
 
-    print(f"\nAnswer: {result['answer']}")
+    # result['answer'] is already a formatted string (typically starting with 'Answer:')
+    print(f"\n{result['answer']}")
     print(f"\nRetrieved {result['num_chunks_retrieved']} chunks")
     print(f"Retrieval time: {result['retrieval_time']:.3f}s")
     print(f"Generation time: {result['generation_time']:.3f}s")
@@ -506,21 +529,15 @@ def process_question(rag_system, question, top_k, temperature, audit_logger=None
     used = result.get('used_chunks') or result.get('context_chunks') or []
     if used:
         print("\nSources:")
-        try:
-            nchunks = len(used)
-        except Exception:
-            nchunks = 0
-        print(f"  (chunks used for generation: {nchunks})")
+        print(f"  (chunks used for generation: {len(used)})")
         for i, chunk in enumerate(used[:top_k], 1):
             source = chunk.get('metadata', {}).get('source_file', 'unknown')
             score = chunk.get('score', 0)
             chunk_id = chunk.get('metadata', {}).get('chunk_id', 'unknown')
             rerank_score = chunk.get('rerank_score')
-            rerank_reason = chunk.get('rerank_reason')
             preview = (chunk.get('text') or '')[:120].replace('\n', ' ')
             if rerank_score is not None:
                 print(f"  {i}. {source} (score: {score:.3f}, rerank: {rerank_score:.3f}) chunk_id={chunk_id} preview='{preview}...' ")
-                print(f"     rerank_reason: {rerank_reason}")
             else:
                 print(f"  {i}. {source} (score: {score:.3f}) chunk_id={chunk_id} preview='{preview}...' ")
 
@@ -535,11 +552,18 @@ def main(argv=None):
         config_path=args.config,
         key_file=args.key_file,
         collection_name=args.collection_name,
+        allow_empty_collection=args.allow_empty_collection,
     )
     logger.info('RAG system ready!')
 
     if args.question:
-        process_question(rag_system, args.question, args.top_k, args.temperature, audit_logger, args.exact_extract)
+        process_question(
+            rag_system,
+            args.question,
+            args.top_k,
+            args.temperature,
+            audit_logger,
+        )
         return 0
 
     print("\n" + "=" * 50)
@@ -555,7 +579,13 @@ def main(argv=None):
             if question.lower() in ['quit', 'exit', 'q']:
                 print('Goodbye!')
                 break
-            process_question(rag_system, question, args.top_k, args.temperature, audit_logger, args.exact_extract)
+            process_question(
+                rag_system,
+                question,
+                args.top_k,
+                args.temperature,
+                audit_logger,
+            )
         except KeyboardInterrupt:
             print("\n\nGoodbye!")
             break

@@ -77,7 +77,7 @@ def main():
     
     llm_client = OllamaClient(
         base_url=config['llm']['base_url'],
-        model_name=config['llm']['model_name']
+        model_name=(config.get('llm', {}).get('default_model') or config.get('llm', {}).get('model_name', 'mistral'))
     )
     
     rag_system = RAGSystem(

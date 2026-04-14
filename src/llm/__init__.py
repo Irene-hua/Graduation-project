@@ -1,5 +1,13 @@
 """LLM module for local language model deployment"""
-from .ollama_client import OllamaClient
-from .quantized_model import QuantizedModel
 
-__all__ = ['OllamaClient', 'QuantizedModel']
+from .base import BaseLLM, LLMResult
+from .ollama_client import OllamaClient
+from .ollama_llm import OllamaLLM
+
+# Optional: legacy HF+bitsandbytes quantization path (not used in CPU-only Ollama setup).
+try:
+    from .quantized_model import QuantizedModel  # type: ignore
+except Exception:  # pragma: no cover
+    QuantizedModel = None  # type: ignore
+
+__all__ = ['BaseLLM', 'LLMResult', 'OllamaClient', 'OllamaLLM', 'QuantizedModel']

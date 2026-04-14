@@ -1,0 +1,15 @@
+q27_count=1
+
+{'type': 'Single', 'qid': 27, 'question': 'What is Wolfgang looking for in his new drums?', 'gold': 'Something versatile that sounds good for both rock and softer tunes like The Beatles', 'prediction': "Answer: Wolfgang is looking for drums that sound great but won't break the bank.", 'error': None, 'confidence': 0.485, 'weak_answer': False, 'retrieval_empty': False, 'num_chunks_retrieved': 20, 'retrieval_time': 0.1675281524658203, 'generation_time': 69.38973832130432, 'judge_method': 'llm', 'judge_raw': '否', 'tp': 0.0, 'fp': 1.0, 'fn': 0.0, 'precision': 0.0, 'recall': 0.0, 'f1': 0.0, 'abstain': False}
+
+q29_count=1
+
+{'type': 'Single', 'qid': 29, 'question': 'What does Li Hua think about the rosemary focaccia?', 'gold': 'Li Hua thinks the rosemary focaccia is amazing', 'prediction': 'Answer: Li Hua thinks that the rosemary focaccia is amazing and loved the flavor and texture.', 'error': None, 'confidence': 0.5, 'weak_answer': False, 'retrieval_empty': False, 'num_chunks_retrieved': 20, 'retrieval_time': 0.2654991149902344, 'generation_time': 63.885577917099, 'judge_method': 'llm', 'judge_raw': '否', 'tp': 0.0, 'fp': 1.0, 'fn': 0.0, 'precision': 0.0, 'recall': 0.0, 'f1': 0.0, 'abstain': False}
+
+computed_single={"tp": 40.0, "fp": 19.0, "fn": 1.0, "precision": 0.6779661016949152, "recall": 0.975609756097561, "f1": 0.7999999999999999, "n": 60}
+
+computed_overall={"tp": 83.0, "fp": 76.0, "fn": 11.0, "precision": 0.5220125786163522, "recall": 0.8829787234042553, "f1": 0.6561264822134387, "n": 170}
+
+summary_single={"precision": 0.6779661016949152, "recall": 0.975609756097561, "f1": 0.8, "tp": 40.0, "fp": 19.0, "fn": 1.0}
+
+summary_overall={"precision": 0.50625, "recall": 0.8901098901098901, "f1": 0.645418326693227, "tp": 81.0, "fp": 79.0, "fn": 10.0}

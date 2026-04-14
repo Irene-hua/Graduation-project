@@ -174,7 +174,7 @@ python -m src.rag_pipeline.rag_system --question "Your question" --collection_na
 #### 交互模式
 
 ```powershell
-python -m src.rag_pipeline.rag_system --collection_name encrypted_documents_test1
+python -m src.rag_pipeline.rag_system --collection_name encrypted_documents_lihua
 ```
 
 #### 常见组合
@@ -565,3 +565,24 @@ MIT License
 - 带 `CrossEncoder` rerank
 
 该 demo **不符合本项目主设计（AES-256-GCM + Qdrant 持久化/Server + Retriever 解密）**，因此**不被 `scripts/run_rag.py` 使用**。主链路仍以 `src/rag_pipeline/rag_system.py` 中的 `RAGSystem` 为准。
+
+### 5.5 LLM 主模型对比实验（llama2 vs mistral，论文用）
+
+> 注意：如果你的向量库里存的是密文 payload（ciphertext+nonce），对比脚本必须使用**导入/ingest 时同一份** `encryption.key` 才能解密检索结果。
+>
+> - 如果你之前已经完成过 `ingest_documents.py`，请用当时生成/使用的 key 文件路径：`--key_file encryption.key`
+> - **不要**在已有数据集上随意 `--generate_key`，否则新生成的 key 无法解密旧数据（除非你准备重新 ingest）
+
+```powershell
+# 例：使用已有 key（推荐）
+python scripts\run_llm_comparison.py --queries_file data\test_datasets\Lihua-World-queries --limit 20 --key_file encryption.key --collection_name encrypted_documents_lihua
+
+# 例：如果你是全新环境、还没 ingest，且准备随后重新 ingest 文档，可以生成一个新 key
+python scripts\run_llm_comparison.py --queries_file data\test_datasets\Lihua-World-queries --limit 20 --generate_key --key_file encryption.key
+```
+
+对比输出（JSONL）保存在 `results/llm_compare_*.jsonl`，可再用以下脚本按 **>60%** 规则自动选择默认主模型并写回配置：
+
+```powershell
+python scripts\select_default_llm.py --input results\llm_compare_*.jsonl --write
+```

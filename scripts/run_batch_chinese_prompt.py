@@ -55,7 +55,9 @@ retriever = Retriever(em, vs, enc)
 print('Using local-first vector store and retriever')
 
 # LLM client
-llm_client = OllamaClient(base_url=config['llm']['base_url'], model_name=config['llm']['model_name'])
+llm_name = config.get('llm', {}).get('default_model') or config.get('llm', {}).get('model_name', 'mistral')
+llm_client = OllamaClient(base_url=config['llm']['base_url'], model_name=llm_name)
+print('Using LLM model:', llm_name)
 
 # Prompt template: answer in the same language as the question and be concise; do NOT list evidence
 prompt_template = """Please answer the question using only the provided context.

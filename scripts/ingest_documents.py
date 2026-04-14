@@ -166,11 +166,19 @@ def main():
 
     # Step 6: Store in vector database
     logger.info("Storing in vector database")
+
+    storage_path = config['vector_db']['storage_path']
+    per_run_root = config.get('vector_db', {}).get('per_run_storage_root')
+    if per_run_root:
+        run_dir = datetime.now().strftime('%Y%m%d_%H%M%S')
+        storage_path = str((project_root / per_run_root / run_dir).resolve())
+        logger.info(f"per_run_storage_root enabled. Using per-run Qdrant storage: {storage_path}")
+
     vector_store = VectorStore(
         collection_name=collection_name,
         dimension=embedding_model.get_dimension(),
         distance_metric=config['vector_db']['distance_metric'],
-        storage_path=config['vector_db']['storage_path'],
+        storage_path=storage_path,
         host=config['vector_db'].get('host'),
         port=config['vector_db'].get('port')
     )
