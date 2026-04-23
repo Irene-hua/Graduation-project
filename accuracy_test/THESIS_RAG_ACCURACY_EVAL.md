@@ -159,18 +159,32 @@ Null 集的金标准全部为 `Insufficient information`，即不可回答。
 
 ## 7. 结论撰写模板（运行后填充）
 
-> 运行脚本后，请从 `summary.json` 中读取数值并填入本节。
+> 以下数值来自 `accuracy_test/runs/20260411_201333_pred_encrypted_documents_lihua/summary.json`（LLM=mistral，collection=encrypted_documents_lihua，top_k=5，temperature=0.2）。
 
-- Multi（60题）：micro P=__，R=__，F1=__。
-- Single（60题）：micro P=__，R=__，F1=__；Exact Match=__。
-- Null（60题）：拒答率（abstain rate）=__，因此 P=R=F1=__。
-- Overall（180题）：micro P=__，R=__，F1=__。
+- Multi（60题）：micro P=0.622641509434，R=0.6，F1=0.611111111111；TP=33，FP=20，FN=22；macro P=0.58333，R=0.57778，F1=0.58。
+- Single（60题）：micro P=0.716981132075，R=0.716981132075，F1=0.716981132075；TP=38，FP=15，FN=15；macro P=0.66667，R=0.65833，F1=0.66111；Exact Match：未在 summary.json 中直接提供（见逐题 `per_question.*` 以计算）。
+- Null（60题）：micro P=0.916666666667，R=1.0，F1=0.95652173913；TP=55，FP=5，FN=0；macro P=0.91667，R=0.91667，F1=0.91667；null abstain rate=0.38333。
+- Overall（180题）：micro P=0.759036144578，R=0.773006134969，F1=0.765957446809；TP=126，FP=40，FN=37；macro P=0.72222，R=0.71759，F1=0.71926。
 
-分析要点建议（可结合逐题 CSV 举例）：
+- 分析要点建议（结合本次数值）：
 
-1. **Multi 的主要错误模式**通常为召回不足（漏掉部分实体/要点）；
-2. **Single 的主要错误模式**常见于时间表达格式差异、同义改写导致 token-overlap 降低；
-3. **Null 的主要错误模式**是出现“看似合理但缺乏证据”的具体断言（幻觉），可用拒答率衡量。
+1. Multi：micro Recall（0.6）略低于 Precision（0.62264），说明多要点题仍有一定漏答（FN=22），FP=20 表明误报仍存在。建议尝试提高检索覆盖（例如增大 top_k 或改进检索提示），并在生成 prompt 中明确要求列出所有要点，同时在后处理时做严格规范化匹配以减少漏答与错报。
+2. Single：micro P/R 均较中等（P=0.717，R=0.717），说明单事实问题总体可靠但仍有改进空间；FP=15、FN=15。建议对答案字符串做更严格的规范化并考虑软匹配策略。
+3. Null：拒答检测总体表现良好（recall=1.0），但仍需关注 FP=5 的未拒答误报情况，建议增强拒答模板或将高置信度生成与拒答策略结合使用。
+4. Overall：micro F1=0.76596，系统整体表现稳健，但 Precision/Recall 的权衡提示进一步改进检索以提升召回同时控制误报更有价值。
+
+- 运行元信息：
+
+- run timestamp: 20260411_201333
+- llm_name: mistral
+- collection_name: encrypted_documents_lihua
+- top_k: 5
+- temperature: 0.2
+- schema_version: predictions.v1
+- 产出目录（建议引用以便论文附录）：
+  - predictions.jsonl, per_question.csv, per_question.json, summary.json, report.md 位于 `accuracy_test/runs/20260411_201333_pred_encrypted_documents_lihua/`
+
+请注意：Exact Match 指标及逐题示例（用于论文中的错误案例展示）可从 `per_question.csv` 中提取并纳入最终论文表格/附录；如果需要我可以基于该目录再提取并生成一页用于论文的“错误示例表格”（含问题、金标准、预测、诊断字段如 retrieval_time / num_chunks_retrieved / weak_answer）。
 
 ## 8. 局限性与可扩展方向
 

@@ -3,7 +3,7 @@
 Designed for Windows PowerShell usage.
 
 Usage:
-  python scripts/patch_eval_run.py --run_dir accuracy_test/runs/20260411_201333_pred_encrypted_documents_lihua
+  python scripts/patch_eval_run.py --run_dir accuracy_test/runs/test_encrypted_documents_lihua
 
 It will:
   - set Multi qid=48 to forced_fn (tp=0, fn=1, abstain=True)
