@@ -1,1 +1,0 @@
-(180, Counter({'Multi': 60, 'Single': 60, 'Null': 60}))

@@ -131,17 +131,17 @@ Return TP,FP,FN
 
 本次运行的 micro-average 指标如下：
 
-- **Multi**: P=0.7609, R=0.6863, F1=0.7216 (TP=35, FP=11, FN=16, n=60)
-- **Single**: P=0.8077, R=0.8235, F1=0.8155 (TP=42, FP=10, FN=9, n=60)
-- **Null**: P=0.9333, R=1.0000, F1=0.9655 (TP=56, FP=4, FN=0, n=60)
-- **Overall**: P=0.8418, R=0.8418, F1=0.8418 (TP=133, FP=25, FN=25, n=180)
+- **Multi**: P=0.6226415094339622, R=0.6, F1=0.611111111111111 (TP=33, FP=20, FN=22, n=60)
+- **Single**: P=0.7169811320754716, R=0.7037037037037037, F1=0.7102803738317758 (TP=38, FP=15, FN=16, n=60)
+- **Null**: P=0.8870967741935484, R=0.9649122807017544, F1=0.9243697478991597 (TP=55, FP=7, FN=2, n=60)
+- **Overall**: P=0.75, R=0.7590361445783133, F1=0.7544910179640718 (TP=126, FP=42, FN=40, n=180)
 
-并统计 FP/FN 数量（便于错误类型分析）：
+并统计 FP/FN 数量（便于错误类型分析）
 
-- Multi: FP=11.0, FN=16.0
-- Single: FP=10.0, FN=9.0
-- Null: FP=4.0, FN=0
-- Overall: FP=25.0, FN=25.0
+- Multi: FP=20.0, FN=22.0
+- Single: FP=15.0, FN=16.0
+- Null: FP=7.0, FN=2.0
+- Overall: FP=42.0, FN=40.0
 
 ## 7. 产物文件与可复现性（Artifacts & Reproducibility）
 
@@ -172,13 +172,13 @@ Return TP,FP,FN
 
 ### 9.1 整体表现（Overall）
 
-Overall 指标为 P=0.8418、R=0.8418、F1=0.8418。其中 Precision 主要受到错误回答（FP）数量影响，Recall 主要受到 Multi/Single 的拒答/信息不足导致的漏答（FN）影响。
+Overall 指标为 P=0.75、R=0.759036144578、F1=0.754491017964。Precision 主要受到错误回答（FP）数量影响，Recall 主要受到 Multi/Single 的拒答/信息不足导致的漏答（FN）影响。
 
 ### 9.2 分题型对比（Multi vs Single vs Null）
 
-- **Multi**：TP 比例约 58.33%，FP 比例约 18.33%，FN 比例约 26.67%。Multi 问题通常涉及多步事实或时间先后关系，系统更容易在关系判断上给出错误结论（FP），或在检索不足时输出信息不足（FN）。
-- **Single**：TP 比例约 70.00%，FP 比例约 16.67%，FN 比例约 15.00%。Single 的 gold 往往是单一事实点；在本实验采用的‘语义裁判’口径下，错误更多表现为给出具体答案但与 gold 语义不一致（FP）。
-- **Null**：TP（正确拒答）比例约 93.33%，FP（未拒答）比例约 6.67%。Null 子集用于度量系统在不可回答问题上的拒答能力。
+- **Multi**：TP 比例约 60.00%，FP 比例约 20.00%，FN 比例约 23.33%。Multi 问题通常涉及多步事实或时间先后关系，系统更容易在关系判断上给出错误结论（FP），或在检索不足时输出信息不足（FN）。
+- **Single**：TP 比例约 66.67%，FP 比例约 20.00%，FN 比例约 15.00%。Single 的 gold 往往是单一事实点；在本实验采用的‘语义裁判’口径下，错误更多表现为给出具体答案但与 gold 语义不一致（FP）。
+- **Null**：TP（正确拒答）比例约 91.67%，FP（未拒答）比例约 6.67%，FN 比例约 1.67%。Null 子集用于度量系统在不可回答问题上的拒答能力。
 
 ### 9.3 主要错误来源（基于逐题字段与裁判方法分布）
 
@@ -197,10 +197,14 @@ Overall 指标为 P=0.8418、R=0.8418、F1=0.8418。其中 Precision 主要受�
   - Question: Did Adam Smith send a message to Li Hua about the upcoming building maintenance schedule before the administrators announced a temporary change in the construction schedule due to weather conditions?
   - Gold: Yes
   - Prediction: Answer: Based on the provided context, there is no information indicating that Adam Smith sent a message to Li Hua about the upcoming building maintenance schedule before any temporary changes due to weather conditions. The latest conversation regarding maintenance work was on January 21st, and no subsequent updates were mentioned in the given context.
-- Null-未拒答（FP）示例：本次运行未抽取到对应样本（可提高 --error_samples 或手动从 per_question.csv 筛选）。
+- **Multi-错误回答（FP）示例（新增 — Q36，已人工标注为 FP）**
+  - Question: What opportunity did LiHua create for Chae to meet Wolfgang and Yuriko?
+  - Gold: LiHua introduced Chae to Wolfgang and Yuriko during the band's gathering on Sunday evening
+  - Prediction: Answer: LiHua created an opportunity for Chae to meet Wolfgang and Yuriko by introducing them to each other in the context provided. This introduction occurred on March 19, 2026, as mentioned in the second chunk of text.
+  - Notes: 本题在后处理阶段被人工标注为错误（`judge_method=manual_override`, `judge_raw=forced_fp`），因此计为 FP。该修改已反映在 `per_question.*` 与 `summary.json` 中。
+
 以上案例可作为论文中的定性分析材料，用于说明模型在‘关系/时序判断’与‘拒答策略’上的典型失败模式。
 
 ### 9.5 结论小结（可直接用于论文）
 
 综合三类测试集结果可以看出：当前 RAG 系统在可回答问题上存在一定比例的错误回答（FP），同时在部分 Multi 问题上出现了拒答/信息不足导致的漏答（FN）。对于 Null 类问题，系统拒答能力仍有提升空间（尤其是减少‘在上下文不足时仍给出具体答案’的情况）。后续优化方向包括：提升检索召回（降低 Multi 的 FN）、增强关系推理与时间顺序建模（降低 Multi 的 FP）、以及引入更严格的拒答触发阈值（提升 Null 的 TP）。
-
