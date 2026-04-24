@@ -1,8 +1,7 @@
 """LLM module for local language model deployment"""
 
 from .base import BaseLLM, LLMResult
-from .ollama_client import OllamaClient
-from .ollama_llm import OllamaLLM
+from .ollama import OllamaClient, OllamaLLM
 
 # Optional: legacy HF+bitsandbytes quantization path (not used in CPU-only Ollama setup).
 try:

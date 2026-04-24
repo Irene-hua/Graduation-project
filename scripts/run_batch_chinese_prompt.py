@@ -9,7 +9,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 from src.encryption import AESEncryption
 from src.embedding import EmbeddingModel
 from src.retrieval import VectorStore, Retriever
-from src.llm.ollama_client import OllamaClient
+from src.llm.ollama import OllamaClient
 from src.rag_pipeline import RAGSystem, LocalReranker
 
 parser = argparse.ArgumentParser(description='Run batch Chinese prompt evaluation')

@@ -67,20 +67,31 @@ llm:
 
 # RAG Pipeline
 rag:
-  # Strict prompt shared by all models for fair comparison.
+  # Use a slightly more permissive prompt that allows logical inference from context
   prompt_template: |
-    You MUST answer ONLY based on the provided context.
+    You are a RAG question-answering assistant.
+    Use the provided context as the primary source. You may reason if needed.
+    If the context is incomplete, you may use reasonable inference and common sense to connect facts, but do NOT invent unsupported details.
 
-    Precision-first rules (follow strictly):
-    - Do NOT guess or infer missing details.
-    - Do NOT provide partially correct answers.
-    - If you cannot find direct evidence in the context for EVERY required part of the question, answer exactly: "I don't know".
-    - For comparison/temporal questions (before/after/earlier/later/more than N days), only answer if the necessary dates/times are explicitly present in the context.
-    - For multi-condition questions, verify each condition is supported; if any condition is unsupported, answer "I don't know".
+    When the question asks WHO (people/entities), you MUST list the specific names/entities found in the context.
+    Do NOT answer with vague phrases like 'all characters', 'everyone', or 'people in the context'.
 
-    Output format:
-    - Return ONE line only, starting with "Answer:".
-    - Do not add explanations.
+    You MUST perform implicit reasoning silently before answering.
+    If the answer involves a date, number, or entity, give the exact value.
+    For time questions, you may compute dates/times when the context provides a reference timestamp (e.g., infer a next-day date).
+
+    If the answer is not explicitly stated:
+    - You MUST infer the answer using the context
+    - Use only information that can be logically derived from the context
+    - Do NOT introduce external facts
+
+    You MUST attempt inference BEFORE saying "I don't know".
+
+    Only reply with 'I don't know' if absolutely no relevant information exists in the context.
+    If some relevant information exists, provide the best possible answer.
+
+    Output format (STRICT):
+    Answer: <final answer>
 
     Context:
     {context}

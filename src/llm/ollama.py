@@ -1,13 +1,19 @@
-"""
-Ollama Client
-Interface for local LLM deployment using Ollama
+# ...existing code...
+"""Ollama client + adapter merged module.
+
+This module provides both the low-level HTTP client (`OllamaClient`) and the
+`OllamaLLM` adapter that implements the project's `BaseLLM` interface.
 """
 
-import requests
-import json
-from typing import Optional, Dict, List
+from __future__ import annotations
+
 import logging
 import time
+from typing import Any, Dict, List, Optional
+
+import requests
+
+from .base import BaseLLM, LLMResult
 
 logger = logging.getLogger(__name__)
 
@@ -19,22 +25,12 @@ class OllamaClient:
                  base_url: str = 'http://localhost:11434',
                  model_name: str = 'llama2',
                  timeout: int = 300):
-        """
-        Initialize Ollama client
-
-        Args:
-            base_url: Base URL for Ollama API
-            model_name: Name of the model to use
-            timeout: Request timeout in seconds
-        """
         self.base_url = base_url.rstrip('/')
         self.model_name = model_name
         self.timeout = timeout
-
         logger.info(f"Initialized Ollama client for model: {model_name}")
 
     def is_available(self) -> bool:
-        """Check if Ollama server is available"""
         try:
             response = requests.get(f"{self.base_url}/api/tags", timeout=5)
             return response.status_code == 200
@@ -43,7 +39,6 @@ class OllamaClient:
             return False
 
     def list_models(self) -> List[str]:
-        """List available models"""
         try:
             response = requests.get(f"{self.base_url}/api/tags", timeout=5)
             if response.status_code == 200:
@@ -60,19 +55,6 @@ class OllamaClient:
                  max_tokens: Optional[int] = None,
                  stream: bool = False,
                  **kwargs) -> Dict:
-        """
-        Generate text using Ollama
-
-        Args:
-            prompt: Input prompt
-            temperature: Sampling temperature
-            max_tokens: Maximum tokens to generate
-            stream: Whether to stream response
-            **kwargs: Additional generation parameters
-
-        Returns:
-            Dict with 'response' and metadata
-        """
         url = f"{self.base_url}/api/generate"
 
         payload = {
@@ -87,20 +69,16 @@ class OllamaClient:
         if max_tokens:
             payload['options']['num_predict'] = max_tokens
 
-        # Add any additional options
         payload['options'].update(kwargs)
 
         start_time = time.time()
 
         try:
-            # Use non-streaming default for robustness; streaming parsing varies by Ollama version.
             response = requests.post(url, json=payload, timeout=self.timeout)
             response.raise_for_status()
 
             data = response.json()
             inference_time = time.time() - start_time
-
-            # Ollama may return {'response': '...'} or {'output': '...'} depending on version; be flexible.
             resp_text = data.get('response') or data.get('output') or ''
 
             return {
@@ -123,17 +101,6 @@ class OllamaClient:
              messages: List[Dict[str, str]],
              temperature: float = 0.7,
              max_tokens: Optional[int] = None) -> Dict:
-        """
-        Chat completion using Ollama
-
-        Args:
-            messages: List of message dicts with 'role' and 'content'
-            temperature: Sampling temperature
-            max_tokens: Maximum tokens to generate
-
-        Returns:
-            Dict with response
-        """
         url = f"{self.base_url}/api/chat"
 
         payload = {
@@ -168,7 +135,6 @@ class OllamaClient:
             raise
 
     def get_model_info(self) -> Dict:
-        """Get information about the current model"""
         try:
             response = requests.post(
                 f"{self.base_url}/api/show",
@@ -181,3 +147,45 @@ class OllamaClient:
         except Exception as e:
             logger.error(f"Failed to get model info: {e}")
             return {}
+
+
+class OllamaLLM(BaseLLM):
+    """BaseLLM implementation backed by Ollama."""
+
+    def __init__(
+        self,
+        model_name: str,
+        *,
+        base_url: str = "http://localhost:11434",
+        timeout: int = 300,
+    ) -> None:
+        self.model_name = model_name
+        self._client = OllamaClient(base_url=base_url, model_name=model_name, timeout=timeout)
+
+    def is_available(self) -> bool:
+        return self._client.is_available()
+
+    def generate(
+        self,
+        prompt: str,
+        *,
+        temperature: float = 0.7,
+        max_tokens: Optional[int] = None,
+        **kwargs: Any,
+    ) -> LLMResult:
+        data = self._client.generate(
+            prompt=prompt,
+            temperature=temperature,
+            max_tokens=max_tokens,
+            **kwargs,
+        )
+        return LLMResult(
+            text=(data.get("response") or ""),
+            model=str(data.get("model") or self.model_name),
+            raw=data.get("raw"),
+            inference_time=data.get("inference_time"),
+        )
+
+
+__all__ = ["OllamaClient", "OllamaLLM"]
+

@@ -23,7 +23,7 @@ CONTROLLED_REASONING_RAG_PROMPT = (
     "2. Identify time expressions such as \"tomorrow\", \"today\", etc.\n\n"
     "3. Apply the following rules:\n\n"
     "   * \"tomorrow\" = next day of the given date\n"
-    "   * Use the timestamp in the context as the reference date\n\n"
+    "   * Use the timestamp in the context as the reference date (interpret time expressions relative to that timestamp)\n\n"
     "4. Combine the inferred date with the mentioned time (if available).\n\n"
     "5. Output the final answer.\n\n"
     "---\n\n"

@@ -213,6 +213,15 @@ class RAGSystem:
         if not t:
             return "Answer: I don't know"
 
+        # Remove explicit RAG internal references like '(Context: [4] and [5])' that may be appended by some pipelines
+        try:
+            # Remove patterns like 'Context: [4]', 'Context: [4] and [5]', optionally wrapped in parentheses
+            t = re.sub(r"\s*\(?Context:\s*\[[^\]]+\](?:\s*(?:and|,|;)\s*\[[^\]]+\])*\)?", "", t, flags=re.IGNORECASE)
+            # Trim again
+            t = t.strip()
+        except Exception:
+            pass
+
         if t.lower().startswith("answer:"):
             lines = [ln.strip() for ln in t.splitlines() if ln.strip()]
             return lines[0] if lines else "Answer: I don't know"
@@ -295,6 +304,11 @@ class RAGSystem:
             }
             if error is not None:
                 out["error"] = error
+            # Always normalize/sanitize answer text to remove any internal RAG annotations before returning
+            try:
+                out["answer"] = self._normalize_to_answer_format(out.get("answer"))
+            except Exception:
+                pass
             return out
 
         try:
@@ -492,6 +506,22 @@ def _build_runtime(
         max_context_length=config['rag']['max_context_length'],
         reranker=reranker
     )
+
+    # Apply rerank/context thresholds from config to avoid hardcoded defaults filtering out context
+    try:
+        cfg_min_score = float(config.get('rerank', {}).get('min_score', rag_system.context_builder.min_rerank_score))
+        rag_system.context_builder.min_rerank_score = cfg_min_score
+    except Exception:
+        # keep existing default if config value invalid
+        pass
+
+    try:
+        cfg_keep_top = int(config.get('rerank', {}).get('keep_top_n', rag_system.context_builder.keep_top_n))
+        rag_system.context_builder.keep_top_n = cfg_keep_top
+    except Exception:
+        # optional setting; ignore if not present
+        pass
+
     return rag_system, audit_logger
 
 
@@ -510,7 +540,12 @@ def process_question(rag_system, question, top_k, temperature, audit_logger=None
         audit_logger.log_model_invocation(model_name=model_name, inference_time=result['generation_time'])
 
     # result['answer'] is already a formatted string (typically starting with 'Answer:')
-    print(f"\n{result['answer']}")
+    # Sanitize answer to remove any internal RAG context references before printing
+    try:
+        sanitized = rag_system._normalize_to_answer_format(result.get('answer'))
+    except Exception:
+        sanitized = result.get('answer') or ''
+    print(f"\n{sanitized}")
     print(f"\nRetrieved {result['num_chunks_retrieved']} chunks")
     print(f"Retrieval time: {result['retrieval_time']:.3f}s")
     print(f"Generation time: {result['generation_time']:.3f}s")

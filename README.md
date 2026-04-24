@@ -112,22 +112,22 @@ ollama pull llama2
 
 ### 3. 文档导入
 
-推荐采用“一个数据集一个 collection”的方式，这样不同数据集不会互相污染。
+推荐采用“一个数据集一个 collection”的方式，这样不同数据集不会互相污染，便于版本管理与回滚。导入时请以目录为单位传入 `--input_dir`（例如要导入单文件 `data/single_test1/test1.txt`，请把 `--input_dir` 指向 `data/single_test1`）。
 
-命名建议：
+命名建议（示例）：
 - `encrypted_documents_test1`
 - `encrypted_documents_lihua`
 - `encrypted_documents_<dataset_name>`
 
 ```powershell
 # 方案 A：导入到默认 collection（适合单数据集测试）
-python scripts\ingest_documents.py --input_dir data\raw --config config\config.yaml --key_file encryption.key --generate_key --reset_collection
+python -m src.document_processing.ingest --input_dir data\raw --config config\config.yaml --key_file encryption.key --generate_key --reset_collection
 
 # 方案 B：导入到指定 collection（推荐）
-python scripts\ingest_documents.py --input_dir data\single_test1 --config config\config.yaml --key_file encryption.key --collection_name encrypted_documents_test1 --reset_collection --log_file logs\ingest_test1.jsonl
+python -m src.document_processing.ingest --input_dir data\single_test1 --config config\config.yaml --key_file encryption.key --collection_name encrypted_documents_test1 --reset_collection --log_file logs\ingest_test1.jsonl
 
 # 方案 C：保留历史数据，追加导入到另一个独立 collection
-python scripts\ingest_documents.py --input_dir data\lihua_world --config config\config.yaml --key_file encryption.key --collection_name encrypted_documents_lihua --log_file logs\ingest_lihua.jsonl
+python -m src.document_processing.ingest --input_dir data\lihua_world --config config\config.yaml --key_file encryption.key --collection_name encrypted_documents_lihua --log_file logs\ingest_lihua.jsonl
 ```
 
 ### 4. 运行 RAG 系统
@@ -191,10 +191,10 @@ python -m src.rag_pipeline.rag_system --question "Your question" --collection_na
 
 建议按下面的方式组织：
 
-- 导入：`python scripts\ingest_documents.py --input_dir <文档目录> --collection_name <数据集collection> [--reset_collection]`
+- 导入：`python -m src.document_processing.ingest --input_dir <文档目录> --collection_name <数据集collection> [--reset_collection]`
 - 查询：`python -m src.rag_pipeline.rag_system --question "..." --collection_name <数据集collection>`
 - 批量：`python scripts\run_batch_chinese_prompt.py --collection_name <数据集collection>`
-- 诊断：`python scripts\inspect_collection.py --collection_name <数据集collection>`
+- 诊断：`python scripts\inspect_collection.py --collection_name <data set collection>`
 
 规则：
 1. 一个数据集对应一个 collection，避免互相污染。
@@ -517,13 +517,13 @@ Rename-Item qdrant_storage qdrant_storage_backup -ErrorAction SilentlyContinue
 New-Item -ItemType Directory -Path qdrant_storage -Force | Out-Null
 
 # 重新导入文档
-python scripts\ingest_documents.py --input_dir data\single_test1 --config config\config.yaml --key_file encryption.key
+python -m src.document_processing.ingest --input_dir data\single_test1 --config config\config.yaml --key_file encryption.key
 ```
 
 ### 本地问答结果不准确
 ```powershell
 # 推荐的单文件验证流程
-python scripts\ingest_documents.py --input_dir data\single_test1 --config config\config.yaml --key_file encryption.key
+python -m src.document_processing.ingest --input_dir data\single_test1 --config config\config.yaml --key_file encryption.key
 python -m src.rag_pipeline.rag_system --question "What is the date and time that Leslie Hansen responded to Stephanie Panus' email about Wabash and other parties?" --config config\config.yaml --key_file encryption.key --exact_extract
 ```
 
