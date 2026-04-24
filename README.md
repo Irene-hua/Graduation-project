@@ -53,7 +53,7 @@
 
 当前代码的真实问答链路是：
 
-1. **文档处理与加密**：`ingest_documents.py` 将原文切块、生成向量，并把每个 chunk 的密文和元数据写入 Qdrant。
+1. **文档处理与加密**：`src.document_processing.ingest` 将原文切块、生成向量，并把每个 chunk 的密文和元数据写入 Qdrant。
 2. **检索**：`Retriever` 先用本地 Embedding 生成查询向量，再从 Qdrant 检索候选块。
 3. **解密/明文兜底**：如果检索结果带有 `ciphertext + nonce`，则执行 AES 解密；如果结果已包含明文 `text/plaintext/content`，则直接使用，不再强制解密。
 4. **上下文构建**：`RAGSystem` 先把检索到的块拼接成上下文，再交给 LLM 生成答案。
@@ -204,44 +204,50 @@ python -m src.rag_pipeline.rag_system --question "Your question" --collection_na
 
 ## 项目结构
 
-```text
-graduation-design/
-├── src/                          # 源代码
-│   ├── document_processing/      # 文档解析与切块
-│   │   ├── document_parser.py    # 文档解析器
-│   │   └── text_chunker.py       # 文本切块器
-│   ├── encryption/               # 加密模块
-│   │   └── aes_encryption.py     # AES加解密
-│   ├── embedding/                # 向量化模块
-│   │   └── embedding_model.py    # Embedding模型封装
-│   ├── retrieval/                # 检索模块
-│   │   ├── vector_store.py       # 向量数据库
-│   │   └── retriever.py          # 检索器
-│   ├── llm/                      # 语言模型模块
-│   │   ├── ollama_client.py      # Ollama客户端
-│   │   └── quantized_model.py    # 量化模型支持
-│   ├── rag_pipeline/             # RAG流程
-│   │   └── rag_system.py         # RAG系统主类与CLI入口
-│   ├── audit/                    # 审计模块
-│   │   └── audit_logger.py       # 审计日志
-│   └── evaluation/               # 评估模块
-│       ├── metrics.py            # 评估指标
-│       └── benchmarking.py       # 性能基准测试
-├── scripts/                      # 运行脚本
-│   ├── ingest_documents.py       # 文档导入
-│   ├── run_benchmark.py          # 运行基准测试
-│   ├── validate_setup.py         # 环境检查
-│   └── visualize_results.py      # 结果可视化
-├── config/                       # 配置文件
-│   └── config.yaml               # 主配置文件
-├── data/                         # 数据目录
-│   ├── raw/                      # 原始文档
-│   ├── processed/                # 处理后数据
-│   └── test_datasets/            # 测试数据集
-├── tests/                        # 测试代码
-├── requirements.txt              # Python依赖
-└── README.md                     # 本文件
+下面给出当前仓库的精简且可复现的目录组织（仅列出与开发/运行/评估直接相关的顶层目录与关键文件）。此结构旨在帮助读者快速定位源代码、配置、数据与实验输出。
+
 ```
+D:/PycharmProjects/Graduation-project/
+├── src/                          # 源代码（RAG 核心实现）
+│   ├── document_processing/      # 文档解析、切块、导入器（ingest）
+│   │   ├── ingest.py             # 文档导入模块（CLI + 库接口）
+│   │   ├── document_parser.py    # 各类文件解析（txt/pdf/docx/md）
+│   │   └── text_chunker.py       # 文本切块器
+│   ├── encryption/               # 加密模块（AES-GCM 封装）
+│   │   └── aes_encryption.py
+│   ├── embedding/                # Embedding 抽象与模型封装
+│   │   └── embedding_model.py
+│   ├── retrieval/                # 向量存储与检索逻辑（Qdrant 客户端封装）
+│   │   ├── vector_store.py
+│   │   └── retriever.py
+│   ├── llm/                      # 与本地 LLM（Ollama 等）交互的客户端/适配器
+│   │   └── ollama.py
+│   ├── rag_pipeline/             # RAG 流程：Context 构建、Prompt、主入口
+│   │   └── rag_system.py
+│   ├── audit/                    # 审计/日志相关工具
+│   └── evaluation/               # 评估指标与基线实现
+│       └── metrics.py
+├── scripts/                      # 辅助脚本（实验、评估、可视化、环境检查）
+│   ├── inspect_collection.py     # 检查 Qdrant collection 的工具（建议保留用于调试）
+│   ├── run_batch_queries.py      # 批量运行查询/评估脚本（实验用）
+│   └── ...                       # 其它实验/评估脚本（可归档）
+├── config/                       # 配置文件
+│   └── config.yaml               # 主配置
+├── data/                         # 原始与测试数据（不含敏感数据）
+│   ├── raw/
+│   └── test_datasets/
+├── accuracy_test/                # 精确度/拒答评估相关脚本与运行结果
+├── unencrypted/                  # 明文对照实验代码与数据（性能评估用）
+├── results/                      # 持久化的评测结果/对比（LLM 比较、基准等）
+├── logs/                         # 运行与审计日志（保留，不删除）
+├── README.md                     # 本文件
+└── requirements.txt              # 依赖
+```
+
+说明与建议
+- `src/` 下为系统运行时与核心实现，删除或移动其中任意文件会影响主流程（不建议删除）。
+- `scripts/` 下多为实验/评估/可视化脚本，属于工具性质；为保持仓库整洁，可将长期不使用的脚本移动到 `scripts/archive/` 或 `scripts/backup_removed/`。
+- `accuracy_test/` 与 `unencrypted/` 中包含复现实验、评估与对照组代码；这些目录对论文实验可复现性重要，建议保留。
 
 ## 主要功能模块
 
