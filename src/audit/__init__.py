@@ -1,4 +1,4 @@
 """Audit logging module for system monitoring"""
-from .audit_logger import AuditLogger
+from src.utils import AuditLogger
 
 __all__ = ['AuditLogger']

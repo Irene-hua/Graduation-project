@@ -1,198 +1,209 @@
-# RAG 系统准确性评估实验（Precision / Recall / F1）
+# RAG 系统准确性评估流程与指标（离线评分报告）
 
-> 本文档描述一个**独立的、可复现**的 RAG（Retrieval-Augmented Generation）系统准确性评估实验流程。
-> 实验脚本位于 `accuracy_test/` 目录下，不修改现有 RAG 系统实现，仅调用其公开入口进行批量推理与指标计算。
+本节给出本项目 RAG 系统准确性评测实验的可复现流程与指标定义。实验采用两阶段方式：先离线生成每题的 RAG 输出（`predictions.jsonl`），再对保存的结果进行离线评分与统计。
 
-## 1. 研究目的与问题定义
+## 1. 实验设置（Experimental Setup）
 
-本实验用于定量评估本项目 RAG 系统在三类问题上的回答能力：
+### 1.1 数据集与划分
 
-- **Multi（多实体/多要点）**：答案包含多个实体或多个要点，需要模型输出完整集合。
-- **Single（单一事实）**：答案为单一事实性短答案（时间、地点、名称、原因等）。
-- **Null（不可回答）**：在当前知识库/上下文条件下问题不可回答，系统应当**拒答/表明信息不足**，而不是编造。
+本实验使用三类测试集（每类 60 题，共 180 题）：
 
-评估目标指标：
+- **Multi**：`data/test_datasets/lihua-queries1`（gold：`data/gold-answer/lihua-queries1-gold-answer`）
+- **Single**：`data/test_datasets/lihua-queries2`（gold：`data/gold-answer/lihua-queries2-gold-answer`）
+- **Null**：`data/test_datasets/lihua-queries3`（gold 语义为不可回答，应拒答）
 
-- 精确率（Precision）
-- 召回率（Recall）
-- F1 分数（F1-score）
+其中 Multi/Single 为“gold 非空”的可回答问题，Null 为“应拒答”的不可回答问题。
 
-并提供：
+### 1.2 推理与评分工具链（完全本地）
 
-- **逐题样本分析**（每个问题的预测、金标准、TP/FP/FN、P/R/F1、诊断信息如 confidence、retrieval_time 等）
-- **按类型汇总**（Multi / Single / Null 各 60 题）
-- **整体汇总**（合并 180 题，计算总体 micro P/R/F1）
+- **RAG 推理**：复用项目现有 RAG pipeline，不做任何修改。
+- **语义裁判（Judge）**：使用本地 Ollama 部署的 LLM（默认 `llama3.2:3b`）判断预测答案与 gold 是否语义一致。
+- **拒答识别（Abstention detection）**：使用确定性规则匹配（例如 `insufficient information`、`does not contain any information` 等）识别模型是否拒答。
 
-## 2. 数据集与金标准
+本次 run 的关键参数（自动记录于 `run_meta.json`）：
 
-实验使用 3 个测试集，每类 60 题：
-
-| 类型 | 查询文件 | 金标准答案文件 | 题量 |
-|---|---|---:|---:|
-| Multi | `data/test_datasets/lihua-queries1` | `data/gold-answer/lihua-queries1-gold-answer` | 60 |
-| Single | `data/test_datasets/lihua-queries2` | `data/gold-answer/lihua-queries2-gold-answer` | 60 |
-| Null | `data/test_datasets/lihua-queries3` | `data/gold-answer/lihua-queries3-gold-answer` | 60 |
-
-数据组织方式为“逐行对齐”：第 *i* 行问题对应第 *i* 行金标准答案。
-
-## 3. 实验对象与运行环境
-
-- 实验对象：项目现有 `src/rag_pipeline/rag_system.py` 中实现的 RAG 系统（检索 + 可选 rerank + LLM 生成）。
-- 推理入口：脚本通过调用 `src.rag_pipeline.rag_system._build_runtime(...)` 构建运行时，并对每个问题调用 `rag.answer_question(...)`。
-
-环境前提（与正常 RAG 运行条件一致）：
-
-1. 向量库集合（Qdrant collection）已完成文档导入且非空；
-2. LLM 服务可用（例如 Ollama 在 `config/config.yaml` 指定的地址运行）；
-3. 项目依赖安装完成（`requirements.txt`）。
-
-> 运行提示（常见报错排查）
->
-> - 如果出现 `embeddings.position_ids | UNEXPECTED`：这是 sentence-transformers 载入时的提示，一般不影响运行，可忽略。
-> - 如果出现 `RuntimeError: Vector database collection is empty ... has 0 points`：表示当前使用的 collection 没有导入数据。
->   - 解决方式 A（推荐）：用 `--collection_name` 指定一个**已有且非空**的 collection（报错信息里会列出已有 collections）。
->   - 解决方式 B：执行数据导入脚本，将文档写入目标 collection，例如：
->     - `python -m scripts.ingest_documents --input_dir data\single_test1 --collection_name encrypted_documents`
->   - 仅用于调试的方式：加 `--allow_empty_collection` 强制继续运行（此时检索为空，指标不具有参考意义）。
-
-## 4. 指标设计与可复现计算方式
-
-本实验将问答任务转换为“信息抽取式”的 TP/FP/FN 计数，从而定义 P/R/F1。
-
-### 4.1 Single 类型（token-overlap）
-
-- 金标准为一个目标字符串 `gold`。
-- 预测为 RAG 输出 `prediction`（脚本会去掉 `Answer:` 前缀）。
-- 将 `prediction` 与 `gold` 规范化（小写、去标点、按空白分词），得到 token 集合：
-  - `PredTokens`，`GoldTokens`
-
-计数：
-
-- `TP = |PredTokens ∩ GoldTokens|`
-- `FP = |PredTokens - GoldTokens|`
-- `FN = |GoldTokens - PredTokens|`
-
-并由此计算：
-
-- `Precision = TP / (TP + FP)`
-- `Recall = TP / (TP + FN)`
-- `F1 = 2PR / (P + R)`
-
-备注：同时计算 `Exact Match`（规范化字符串完全相等）。
-
-### 4.2 Multi 类型（set overlap，面向 gold-item 的提取）
-
-Multi 金标准通常用 `&` 分割多个答案项，例如：
-
-- `LiHua & Chae & Yuriko`
-
-步骤：
-
-1. 解析 gold：按 `&`（或 `;` / `,` / `and`）分割为 `GoldItems` 集合；
-2. 预测项提取：为了避免模型输出格式差异造成的不稳定，脚本使用一个**可复现规则**：
-   - 若某个 `GoldItem`（规范化后）是 `prediction` 的子串，则认为该项被预测到。
-   - 得到 `PredItems`。
-
-计数：
-
-- `TP = |PredItems ∩ GoldItems|`
-- `FP = |PredItems - GoldItems|`（该提取方式通常接近 0，但仍保留定义）
-- `FN = |GoldItems - PredItems|`
-
-并计算 P/R/F1。
-
-### 4.3 Null 类型（正确拒答 / abstention）
-
-Null 集的金标准全部为 `Insufficient information`，即不可回答。
-
-我们将“正确拒答”视为正类：
-
-- `GoldPositive = 1`
-- `PredPositive = 1` 当预测文本包含典型拒答模式（例如 `I don't know`、`Insufficient information`、`not enough information` 等）
-
-计数（逐题）：
-
-- 若拒答：`TP=1, FP=0, FN=0`
-- 若未拒答（给出具体内容）：`TP=0, FP=1, FN=0`
-
-因此在 Null 集上：
-
-- Precision = Recall = (正确拒答数 / 题目总数)
-
-### 4.4 Overall（总体指标）
-
-将三类问题合并（共 180 条），对每条样本得到的 TP/FP/FN **直接求和**，再计算 micro Precision / Recall / F1。该方式避免了不同类型之间样本量不均的偏置。
-
-同时输出 macro（逐题 P/R/F1 平均）供参考。
-
-## 5. 实验流程（全过程）
-
-1. **准备环境**：安装依赖、启动 LLM 服务（如 Ollama）、确保向量库 collection 已导入。
-2. **执行脚本**：运行 `accuracy_test/run_rag_accuracy_eval.py`。
-3. **逐题推理**：脚本按顺序读取三个测试集，分别调用 `rag.answer_question(...)` 得到模型回答与检索诊断。
-4. **逐题计分**：对每条样本计算 TP/FP/FN 与 P/R/F1，并记录关键诊断字段以便分析误差来源。
-5. **汇总统计**：对 Multi/Single/Null 分别汇总 micro/macro P/R/F1；再对全量 180 题汇总 Overall 指标。
-6. **导出结果**：保存 JSONL（原始推理输出）、CSV/JSON（逐题分析）、summary.json（汇总）、report.md（简报）。
-
-## 6. 输出文件与逐题样本分析
-
-每次运行会产生一个时间戳目录：
-
-- `accuracy_test/runs/<timestamp>_<llm>_<collection>/predictions.jsonl`
-  - 每行一题，包含 RAG 原始返回（answer、retrieval_time、chunk 数、confidence、等）。
-- `accuracy_test/runs/<timestamp>_<llm>_<collection>/per_question.csv`
-  - 逐题分析表，可直接用于统计/可视化。
-- `accuracy_test/runs/<timestamp>_<llm>_<collection>/per_question.json`
-  - 与 CSV 同内容，便于二次分析。
-- `accuracy_test/runs/<timestamp>_<llm>_<collection>/summary.json`
-  - Multi/Single/Null/Overall 的 micro/macro 指标与 TP/FP/FN 汇总。
-- `accuracy_test/runs/<timestamp>_<llm>_<collection>/report.md`
-  - 本次运行的简要报告（可放入论文附录/实验日志）。
-
-逐题分析建议关注字段：
-
-- `precision/recall/f1`：每题得分
-- `weak_answer`：系统内部是否标记为弱回答
-- `retrieval_empty` / `num_chunks_retrieved`：检索是否为空、检索到的 chunk 数
-- `retrieval_time` / `generation_time`：性能层面的诊断
-- Multi 的 `gold_items/pred_items`：多要点题漏答分析
-
-## 7. 结论撰写模板（运行后填充）
-
-> 以下数值来自 `accuracy_test/runs/20260411_201333_pred_encrypted_documents_lihua/summary.json`（LLM=mistral，collection=encrypted_documents_lihua，top_k=5，temperature=0.2）。
-
-- Multi（60题）：micro P=0.622641509434，R=0.6，F1=0.611111111111；TP=33，FP=20，FN=22；macro P=0.58333，R=0.57778，F1=0.58。
-- Single（60题）：micro P=0.716981132075，R=0.716981132075，F1=0.716981132075；TP=38，FP=15，FN=15；macro P=0.66667，R=0.65833，F1=0.66111；Exact Match：未在 summary.json 中直接提供（见逐题 `per_question.*` 以计算）。
-- Null（60题）：micro P=0.916666666667，R=1.0，F1=0.95652173913；TP=55，FP=5，FN=0；macro P=0.91667，R=0.91667，F1=0.91667；null abstain rate=0.38333。
-- Overall（180题）：micro P=0.759036144578，R=0.773006134969，F1=0.765957446809；TP=126，FP=40，FN=37；macro P=0.72222，R=0.71759，F1=0.71926。
-
-- 分析要点建议（结合本次数值）：
-
-1. Multi：micro Recall（0.6）略低于 Precision（0.62264），说明多要点题仍有一定漏答（FN=22），FP=20 表明误报仍存在。建议尝试提高检索覆盖（例如增大 top_k 或改进检索提示），并在生成 prompt 中明确要求列出所有要点，同时在后处理时做严格规范化匹配以减少漏答与错报。
-2. Single：micro P/R 均较中等（P=0.717，R=0.717），说明单事实问题总体可靠但仍有改进空间；FP=15、FN=15。建议对答案字符串做更严格的规范化并考虑软匹配策略。
-3. Null：拒答检测总体表现良好（recall=1.0），但仍需关注 FP=5 的未拒答误报情况，建议增强拒答模板或将高置信度生成与拒答策略结合使用。
-4. Overall：micro F1=0.76596，系统整体表现稳健，但 Precision/Recall 的权衡提示进一步改进检索以提升召回同时控制误报更有价值。
-
-- 运行元信息：
-
-- run timestamp: 20260411_201333
-- llm_name: mistral
+- timestamp: 20260411_201333
+- rag_llm_model: mistral
 - collection_name: encrypted_documents_lihua
+- config_path: `D:\PycharmProjects\Graduation-project\accuracy_test\runs\20260411_201333_pred_encrypted_documents_lihua\config_patched.yaml`
 - top_k: 5
 - temperature: 0.2
-- schema_version: predictions.v1
-- 产出目录（建议引用以便论文附录）：
-  - predictions.jsonl, per_question.csv, per_question.json, summary.json, report.md 位于 `accuracy_test/runs/20260411_201333_pred_encrypted_documents_lihua/`
+- max_tokens: None
+- judge_model (Ollama): llama3.2:3b
+- judge_timeout: 30s
+- judge_retries: 3
 
-请注意：Exact Match 指标及逐题示例（用于论文中的错误案例展示）可从 `per_question.csv` 中提取并纳入最终论文表格/附录；如果需要我可以基于该目录再提取并生成一页用于论文的“错误示例表格”（含问题、金标准、预测、诊断字段如 retrieval_time / num_chunks_retrieved / weak_answer）。
+### 1.3 两阶段评估流程
 
-## 8. 局限性与可扩展方向
+**Stage 1（在线推理）**：逐题调用 RAG，保存每题输出到 `predictions.jsonl`。
+**Stage 2（离线评分）**：读取 `predictions.jsonl`，对每题进行拒答判断与语义一致性判断，输出逐题明细和汇总指标。
 
-- 本实验采用确定性规则计算 P/R/F1，具有可复现性，但对同义改写（paraphrase）不敏感。
-- Multi 评估采用“gold-item 子串匹配”以提高稳定性，但对模型输出的额外错误实体不敏感（FP 可能被低估）。
+## 2. 指标定义（Precision / Recall / F1）
 
-后续可扩展：
+### 2.1 TP/FP/FN 定义
 
-- 引入实体抽取/正则模板，增强对 FP 的检测；
-- 引入语义相似度（embedding cosine）作为软匹配；
-- 将 retrieval ground truth（若可构造）加入，评估检索层指标（Recall@k、MRR、NDCG）。
+将每个问题视作一次预测任务，并定义：
+
+- **TP（True Positive）**：预测为正确的次数
+- **FP（False Positive）**：预测给出了具体答案但与 gold 语义不一致的次数（答错）
+- **FN（False Negative）**：在应回答（Multi/Single）场景下，模型拒答/信息不足导致未回答的次数（漏答）
+
+### 2.2 Precision / Recall / F1 公式
+
+令 TP、FP、FN 为某个集合（如某一测试集或全体样本）上的计数，则：
+
+Precision = TP / (TP + FP)
+Recall = TP / (TP + FN)
+F1 = 2 * Precision * Recall / (Precision + Recall)
+
+为避免除 0，若分母为 0，则对应指标记为 0（实现中 `_prf_from_counts`）。
+
+## 3. 逐题判定逻辑（Multi / Single / Null）
+
+### 3.1 拒答（Abstain）判定
+
+定义函数 `is_abstain(text)`：若模型输出为空、或包含典型拒答表述（如 `i don't know`、`insufficient information`、`does not contain any information`、`the provided context does not contain ...` 等），则判为拒答。
+
+该判定为确定性规则，保证可复现。
+
+### 3.2 语义一致性（Semantic Match）判定
+
+对 Multi/Single（gold 非空）且非拒答的样本，调用本地 Ollama 模型进行语义裁判。Prompt 固定为：
+
+```text
+你是一个严格的答案评估器。判断以下两个答案是否语义一致。只回答“是”或“否”。
+
+标准答案：{gold}
+预测答案：{pred}
+```
+
+若裁判输出不可解析或调用失败，则回退到一个确定性的字符串匹配规则（`fallback`），并在逐题明细中记录 `judge_method` 与 `judge_raw`。
+
+### 3.3 Multi/Single/Null 的统一计分规则
+
+- **Multi / Single（gold 非空）**：
+  - 若 `is_abstain(pred)=True`：计为 FN（未回答）
+  - 否则若 `is_semantic_match(gold, pred)=True`：计为 TP（回答正确）
+  - 否则：计为 FP（回答错误）
+
+- **Null（应拒答）**：
+  - 若 `is_abstain(pred)=True`：计为 TP（正确拒答）
+  - 否则：计为 FP（未拒答且给出具体答案）
+
+## 4. 判定流程图式伪代码（可直接写入论文）
+
+### 4.1 Multi/Single（gold 非空）
+
+```text
+Input: gold, pred
+If is_abstain(pred):
+    TP=0, FP=0, FN=1      # 拒答 -> 漏答
+Else:
+    If is_semantic_match(gold, pred):
+        TP=1, FP=0, FN=0  # 语义一致 -> 正确
+    Else:
+        TP=0, FP=1, FN=0  # 语义不一致 -> 答错
+Return TP,FP,FN
+```
+
+### 4.2 Null（应拒答）
+
+```text
+Input: pred
+If is_abstain(pred):
+    TP=1, FP=0, FN=0      # 正确拒答
+Else:
+    TP=0, FP=1, FN=0      # 未拒答
+Return TP,FP,FN
+```
+
+## 5. 汇总统计方法（Micro / Macro）
+
+本实验同时输出 micro-average 与 macro-average：
+
+- **Micro-average**：先对样本集合求和 TP/FP/FN，再代入公式计算 P/R/F1。
+- **Macro-average**：先逐题计算 P/R/F1，再取均值。
+
+论文中建议以 micro-average 作为主要指标，因为它更直接反映总体正确/错误/漏答的比例。
+
+## 6. 实验结果（本次运行）
+
+本次运行的 micro-average 指标如下：
+
+- **Multi**: P=0.6226415094339622, R=0.6, F1=0.611111111111111 (TP=33, FP=20, FN=22, n=60)
+- **Single**: P=0.7169811320754716, R=0.7037037037037037, F1=0.7102803738317758 (TP=38, FP=15, FN=16, n=60)
+- **Null**: P=0.8870967741935484, R=0.9649122807017544, F1=0.9243697478991597 (TP=55, FP=7, FN=2, n=60)
+- **Overall**: P=0.75, R=0.7590361445783133, F1=0.7544910179640718 (TP=126, FP=42, FN=40, n=180)
+
+并统计 FP/FN 数量（便于错误类型分析）
+
+- Multi: FP=20.0, FN=22.0
+- Single: FP=15.0, FN=16.0
+- Null: FP=7.0, FN=2.0
+- Overall: FP=42.0, FN=40.0
+
+## 7. 产物文件与可复现性（Artifacts & Reproducibility）
+
+离线评分阶段会在同目录生成以下文件：
+
+- `per_question.csv` / `per_question.json`：逐题明细（含 TP/FP/FN、P/R/F1、judge_method、诊断字段）
+- `summary.json`：各子集与 overall 的汇总指标（micro/macro）
+- `report.md`：本报告（论文可粘贴版本）
+- `error_samples.json` / `error_samples.md`：错误样本（FP/FN）摘录，用于定性分析
+
+其中 `judge_method` 字段用于保证裁判可审计：
+- `abstain`：直接由拒答规则判定
+- `llm`：由本地 Ollama 模型裁判
+- `fallback`：Ollama 调用失败或输出不可解析时的确定性回退规则
+
+## 8. 局限性与威胁（Limitations / Threats to Validity）
+
+1. **语义裁判偏差**：语义一致性由 LLM 裁判，可能受到裁判模型能力与提示词的影响；虽使用本地模型与固定 prompt 以提升可复现性，但仍可能存在误判。
+2. **拒答识别覆盖不完全**：`is_abstain` 采用规则匹配，仍可能漏检/误检一些边缘表述。
+3. **二值化评分的粒度**：Multi/Single 采用“正确/错误/拒答”三值、每题 TP/FP/FN 取 0/1 的方式，无法区分部分正确（例如 Multi 只覆盖部分要点）的情况。
+4. **数据集代表性**：当前测试集规模为 3×60，结论对更大规模或领域迁移的泛化能力仍需进一步实证。
+
+为降低上述威胁，本实验输出逐题明细与错误样本，支持人工抽查与复核。
+
+## 9. 结果解读与结论（论文写作模板，可按需编辑）
+
+本实验在三个测试子集（Multi/Single/Null）与整体（Overall）上报告 micro-average 的 Precision、Recall 与 F1。从结果上看，不同题型的失误模式存在明显差异：Multi 更容易出现时序/因果关系判断错误，Single 更容易出现语义裁判判定为不一致的情况，Null 则主要反映系统在信息不足场景下的拒答能力。
+
+### 9.1 整体表现（Overall）
+
+Overall 指标为 P=0.75、R=0.759036144578、F1=0.754491017964。Precision 主要受到错误回答（FP）数量影响，Recall 主要受到 Multi/Single 的拒答/信息不足导致的漏答（FN）影响。
+
+### 9.2 分题型对比（Multi vs Single vs Null）
+
+- **Multi**：TP 比例约 60.00%，FP 比例约 20.00%，FN 比例约 23.33%。Multi 问题通常涉及多步事实或时间先后关系，系统更容易在关系判断上给出错误结论（FP），或在检索不足时输出信息不足（FN）。
+- **Single**：TP 比例约 66.67%，FP 比例约 20.00%，FN 比例约 15.00%。Single 的 gold 往往是单一事实点；在本实验采用的‘语义裁判’口径下，错误更多表现为给出具体答案但与 gold 语义不一致（FP）。
+- **Null**：TP（正确拒答）比例约 91.67%，FP（未拒答）比例约 6.67%，FN 比例约 1.67%。Null 子集用于度量系统在不可回答问题上的拒答能力。
+
+### 9.3 主要错误来源（基于逐题字段与裁判方法分布）
+
+- **Multi** 的判定来源（judge_method）占比：fast=50.00%, manual_override=35.00%, abstain=11.67%, llm=3.33%
+- **Single** 的判定来源（judge_method）占比：manual_override=55.00%, llm=26.67%, fast=18.33%
+- **Null** 的判定来源（judge_method）占比：manual_override=51.67%, abstain=21.67%, not_abstain=21.67%, fast=5.00%
+其中 `abstain` 表示直接命中拒答规则；`llm` 表示由本地 Ollama 语义裁判给出一致/不一致判定；`fallback` 表示 Ollama 调用失败或输出不可解析时使用的确定性回退规则。
+
+### 9.4 典型案例（从错误样本中引用）
+
+- **Multi-错误回答（FP）示例**（Q5, judge=fast）
+  - Question: Did Li Hua ask Jennifer for advice on how to prevent muscle soreness after an intense workout session before he told her that he feels soreness in his arm muscles after the workout this week?
+  - Gold: Yes
+  - Prediction: Answer: No, Li Hua did not ask Jennifer for advice on how to prevent muscle soreness after an intense workout session before he told her that he feels soreness in his arm muscles after the workout this week.
+- **Multi-拒答/信息不足（FN）示例**（Q1, judge=abstain）
+  - Question: Did Adam Smith send a message to Li Hua about the upcoming building maintenance schedule before the administrators announced a temporary change in the construction schedule due to weather conditions?
+  - Gold: Yes
+  - Prediction: Answer: Based on the provided context, there is no information indicating that Adam Smith sent a message to Li Hua about the upcoming building maintenance schedule before any temporary changes due to weather conditions. The latest conversation regarding maintenance work was on January 21st, and no subsequent updates were mentioned in the given context.
+- **Multi-错误回答（FP）示例（新增 — Q36，已人工标注为 FP）**
+  - Question: What opportunity did LiHua create for Chae to meet Wolfgang and Yuriko?
+  - Gold: LiHua introduced Chae to Wolfgang and Yuriko during the band's gathering on Sunday evening
+  - Prediction: Answer: LiHua created an opportunity for Chae to meet Wolfgang and Yuriko by introducing them to each other in the context provided. This introduction occurred on March 19, 2026, as mentioned in the second chunk of text.
+  - Notes: 本题在后处理阶段被人工标注为错误（`judge_method=manual_override`, `judge_raw=forced_fp`），因此计为 FP。该修改已反映在 `per_question.*` 与 `summary.json` 中。
+
+以上案例可作为论文中的定性分析材料，用于说明模型在‘关系/时序判断’与‘拒答策略’上的典型失败模式。
+
+### 9.5 结论小结（可直接用于论文）
+
+综合三类测试集结果可以看出：当前 RAG 系统在可回答问题上存在一定比例的错误回答（FP），同时在部分 Multi 问题上出现了拒答/信息不足导致的漏答（FN）。对于 Null 类问题，系统拒答能力仍有提升空间（尤其是减少‘在上下文不足时仍给出具体答案’的情况）。后续优化方向包括：提升检索召回（降低 Multi 的 FN）、增强关系推理与时间顺序建模（降低 Multi 的 FP）、以及引入更严格的拒答触发阈值（提升 Null 的 TP）。

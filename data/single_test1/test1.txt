@@ -1,34 +1,42 @@
-Subject: Theres Still Time for Holiday eCards at BlueMountain.com!
-Sender: yourfriends@maildb.bluemountainarts.com
-Recipients: ['stephanie.panus@enron.com']
-File: phanis-s/deleted_items/1.
+Subject: RE: East Power Meeting
+Sender: m..presto@enron.com
+Recipients: ['jeffrey.miller@enron.com', 'lisa.burnett@enron.com', 'dana.davis@enron.com', 'jim.fallon@enron.com']
+File: phanis-s/inbox/10.
 =====================================
-Say Happy Holidays with the World's Most Popular eCards:
+I believe Wabash has also terminated.
+
+Don,
+As you know, we had a meeting like this the week prior to Christmas and had an accurate list at that time. Our group can do nothing about delays between actual termination notification by the counterparty and communication to trading that termination has occurred. I think the meeting is warranted, however, we are not going to completely eliminate the timing issues.
+
+I will see you on Wednesday at 2:00 pm.
+
+-----Original Message-----
+From: Miller, Don (Asset Mktg)
+Sent: Fri 12/28/2001 3:12 PM
+To: Presto, Kevin M.; Davis, Mark Dana; Burnett, Lisa; Miller, Jeffrey; Reeves, Leslie; Evans, Casey; White, Stacey W.; Gilbert, Gerald; Bentley, Corry; Sager, Elizabeth; Nettelton, Marcus; Bradford, William S.; Sacks, Edward; Portz, David; Choate, Jason; Sturm, Fletcher J.; Racicot, Paul; Panus, Stephanie; Murphy, Harlan
+Cc: Fallon, Jim
+Subject: East Power Meeting
 
 
-Christmas Bear
-http://maildb.bluemountainarts.com/cgi-bin11/flo?y=eCs30E7EZP0iI0wMp0AT
 
-Christmas Sing-A-Long
-http://maildb.bluemountainarts.com/cgi-bin11/flo?y=eCs30E7EZP0iI0wMa0AE
+We need to meet on Wednesday, the 2nd, at 2:00 pm (in the big conference on the sixth floor in ECS) to go back through the East Power contracts that we will continue to serve either through the pools or under bilateral deals. Given the drill we went through today in preparing for the January schedules in PJM and NEPOOL, it became apparent we need to get all the team members on the same page and make sure we have a good system for notifying all relevant parties of terminations, changes, etc.
 
-The All -Weather Snowman Kit
-http://maildb.bluemountainarts.com/cgi-bin11/flo?y=eCs30E7EZP0iI0wMs0AW
+Bill/Ed - Can you please run the most recent DPR for non-terminated East Power contracts.
 
-Patriotic Christmas
-http://maildb.bluemountainarts.com/cgi-bin11/flo?y=eCs30E7EZP0iI0wMj0AN
+Casey and Stacey - will you please update the spreadsheet that you ran for Kevin last week.
 
+Let's make sure we all agree on contracts that have been terminated. As most of you probably have seen, a number of terminations have been received in the past several days (see below).
 
-BlueMountain.com...For Everything You Want to Say.
+United Illuminating - effective January 1, 2002
+HQ Energy Services - effective January 1, 2002
+First Energy Solutions - effective January 2, 2002
+Old Dominion - effective January 10, 2002 - we should schedule in PJM through the 10th of January (do we have any other positions with Old Dominion).
 
+Ameren Energy
+GPU Energy - effective January 21, 2002 - we should schedule in PJM through the 21st of January (they may push back, but we should remind them that they will be subject to LDs).
 
-BlueMountain.com values your privacy. This message was sent to
-you by BlueMountain.com. We will not sell or share your personal
-information with another company without your permission. To view our privacy policy, visit: http://maildb.bluemountainarts.com/cgi-bin11/flo?y=eCs30E7EZP0iI0wJp0AQ
+Thanks,
 
-If you prefer not to receive promotional email from
-BlueMountain, please send a message to:
-unsubscribe_bma@maildb.bluemountainarts.com and type "Remove"
-in the subject field. This system is automated and must be
-contacted from the email address you wish to have removed.
+Don
+3-0492
 =====================================
