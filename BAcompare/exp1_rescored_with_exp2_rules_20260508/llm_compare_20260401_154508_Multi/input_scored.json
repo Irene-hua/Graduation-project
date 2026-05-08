@@ -1,0 +1,3186 @@
+{
+  "meta": {
+    "run_tag": "llm_compare_20260401_154508",
+    "generated_at": "20260401_202219",
+    "compare_jsonl": "D:\\PycharmProjects\\Graduation-project\\results\\llm_compare_20260401_154508.jsonl",
+    "queries": "D:\\PycharmProjects\\Graduation-project\\data\\test_datasets\\lihua-queries1",
+    "gold": "D:\\PycharmProjects\\Graduation-project\\data\\gold-answer\\lihua-queries1-gold-answer",
+    "type": "Multi",
+    "dimensions": [
+      "correctness",
+      "faithfulness",
+      "completeness",
+      "hallucination",
+      "fluency"
+    ],
+    "rows": 60,
+    "queries_lines": 60,
+    "gold_lines": 60
+  },
+  "wins": {
+    "llama2": 16,
+    "mistral": 26,
+    "tie": 18
+  },
+  "averages": {
+    "llama2": {
+      "correctness": 1.35,
+      "faithfulness": 3.85,
+      "completeness": 1.35,
+      "hallucination": 3.283333333333333,
+      "fluency": 3.95
+    },
+    "mistral": {
+      "correctness": 2.216666666666667,
+      "faithfulness": 3.65,
+      "completeness": 2.216666666666667,
+      "hallucination": 3.066666666666667,
+      "fluency": 3.966666666666667
+    }
+  },
+  "overall_better": "mistral",
+  "items": [
+    {
+      "idx": 1,
+      "type": "Multi",
+      "question": "Did Adam Smith send a message to Li Hua about the upcoming building maintenance schedule before the administrators announced a temporary change in the construction schedule due to weather conditions?",
+      "ground_truth": "Yes",
+      "llama2": {
+        "answer": "Based on the provided context, Adam Smith did not send a message to Li Hua about the upcoming building maintenance schedule before the administrators announced a temporary change in the construction schedule due to weather conditions. The conversation between Adam and Li Hua takes place on January 21st, while the announcement about the weather-related delay is mentioned on March 30th, which is after the conversation between Adam and Li Hua. Therefore, Adam did not provide any information about the maintenance schedule before the change in the construction schedule was announced.",
+        "scores": {
+          "correctness": 0,
+          "faithfulness": 3,
+          "completeness": 0,
+          "hallucination": 2,
+          "fluency": 3
+        },
+        "reason": "Does not match ground truth; likely contains fabricated/ungrounded details.",
+        "debug": {
+          "gold_type": "yesno",
+          "pred_yesno": "no",
+          "hedging": false
+        }
+      },
+      "mistral": {
+        "answer": " Based on the provided context, there is no information indicating that Adam Smith sent a message to Li Hua about the upcoming building maintenance schedule after the administrators announced a temporary change in the construction schedule due to weather conditions. Therefore, I don't know if he did or not.",
+        "scores": {
+          "correctness": 0,
+          "faithfulness": 5,
+          "completeness": 0,
+          "hallucination": 5,
+          "fluency": 4
+        },
+        "reason": "Model answered 'I don't know' (non-informative but avoids fabrication).",
+        "debug": {}
+      },
+      "better_model": "mistral",
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        }
+      }
+    },
+    {
+      "idx": 2,
+      "type": "Multi",
+      "question": "Did Wolfgang ask Li Hua about watching \"Star Wars: A New Hope\" after he asked Li Hua about going to see \"Overwatch 3\"?",
+      "ground_truth": "Yes",
+      "llama2": {
+        "answer": "No, Wolfgang did not ask Li Hua about watching \"Star Wars: A New Hope\" after asking Li Hua about going to see \"Overwatch 3\". The conversation between Wolfgang and Li Hua takes place in different time frames, with no mention of \"Star Wars: A New Hope\" in any of the conversations.",
+        "scores": {
+          "correctness": 0,
+          "faithfulness": 3,
+          "completeness": 0,
+          "hallucination": 2,
+          "fluency": 4
+        },
+        "reason": "Does not match ground truth; likely contains fabricated/ungrounded details.",
+        "debug": {
+          "gold_type": "yesno",
+          "pred_yesno": "no",
+          "hedging": false
+        }
+      },
+      "mistral": {
+        "answer": " No, Wolfgang did not ask Li Hua about watching \"Star Wars: A New Hope\" after he asked her about going to see \"Overwatch 3\". The conversation about Star Wars happened on October 9th, while the conversation about Overwatch 3 happened on January 21st.",
+        "scores": {
+          "correctness": 0,
+          "faithfulness": 3,
+          "completeness": 0,
+          "hallucination": 2,
+          "fluency": 4
+        },
+        "reason": "Does not match ground truth; likely contains fabricated/ungrounded details.",
+        "debug": {
+          "gold_type": "yesno",
+          "pred_yesno": "no",
+          "hedging": false
+        }
+      },
+      "better_model": "tie",
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2010
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2010
+        }
+      }
+    },
+    {
+      "idx": 3,
+      "type": "Multi",
+      "question": "Did Li Hua agree to go out for dinner after Wolfgang first asked him if he wanted to go out for dinner?",
+      "ground_truth": "Yes",
+      "llama2": {
+        "answer": "Based on the provided context, Li Hua agreed to go out for dinner after Wolfgang first asked him. The conversation goes as follows:\n\nWolfgang: Hey man! Wanna grab some pizza for dinner after work?\nLiHua: That sounds awesome! What's your favorite place for pizza?\nWolfgang: I'm a fan of that new pizza place downtown. Heard they have some amazing toppings! What do you think?\nLiHua: I've been wanting to try that place! Let's go there then. What time do you",
+        "scores": {
+          "correctness": 0,
+          "faithfulness": 3,
+          "completeness": 0,
+          "hallucination": 2,
+          "fluency": 4
+        },
+        "reason": "Does not match ground truth; likely contains fabricated/ungrounded details.",
+        "debug": {
+          "gold_type": "yesno",
+          "pred_yesno": null,
+          "hedging": false
+        }
+      },
+      "mistral": {
+        "answer": " Yes, Li Hua agreed to go out for dinner.",
+        "scores": {
+          "correctness": 5,
+          "faithfulness": 4,
+          "completeness": 5,
+          "hallucination": 4,
+          "fluency": 4
+        },
+        "reason": "Matches ground truth.",
+        "debug": {
+          "gold_type": "yesno",
+          "pred_yesno": "yes",
+          "hedging": false
+        }
+      },
+      "better_model": "mistral",
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2008
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2008
+        }
+      }
+    },
+    {
+      "idx": 4,
+      "type": "Multi",
+      "question": "Did Li Hua send a message to Jennifer thanking her for the new training schedule before he requested a change in his training schedule for Thursday?",
+      "ground_truth": "Yes",
+      "llama2": {
+        "answer": "Based on the provided context, the answer is \"I don't know.\" There is no indication in the conversation that Li Hua sent a message to Jennifer thanking her for the new training schedule.",
+        "scores": {
+          "correctness": 0,
+          "faithfulness": 5,
+          "completeness": 0,
+          "hallucination": 5,
+          "fluency": 4
+        },
+        "reason": "Model answered 'I don't know' (non-informative but avoids fabrication).",
+        "debug": {}
+      },
+      "mistral": {
+        "answer": " No, Li Hua did not send a message to Jennifer thanking her for the new training schedule before requesting a change in his training schedule for Thursday. The conversation provided does not show any such exchange.",
+        "scores": {
+          "correctness": 0,
+          "faithfulness": 3,
+          "completeness": 0,
+          "hallucination": 2,
+          "fluency": 4
+        },
+        "reason": "Does not match ground truth; likely contains fabricated/ungrounded details.",
+        "debug": {
+          "gold_type": "yesno",
+          "pred_yesno": "no",
+          "hedging": false
+        }
+      },
+      "better_model": "llama2",
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        }
+      }
+    },
+    {
+      "idx": 5,
+      "type": "Multi",
+      "question": "Did Li Hua ask Jennifer for advice on how to prevent muscle soreness after an intense workout session before he told her that he feels soreness in his arm muscles after the workout this week?",
+      "ground_truth": "Yes",
+      "llama2": {
+        "answer": "Based on the provided context, the answer is \"No\". Li Hua did not ask Jennifer for advice on how to prevent muscle soreness before he mentioned feeling soreness in his arm muscles after the workout this week.",
+        "scores": {
+          "correctness": 0,
+          "faithfulness": 3,
+          "completeness": 0,
+          "hallucination": 2,
+          "fluency": 4
+        },
+        "reason": "Does not match ground truth; likely contains fabricated/ungrounded details.",
+        "debug": {
+          "gold_type": "yesno",
+          "pred_yesno": "no",
+          "hedging": false
+        }
+      },
+      "mistral": {
+        "answer": " No, Li Hua did not ask Jennifer for advice on how to prevent muscle soreness after an intense workout session before he told her that he feels soreness in his arm muscles after the workout this week.",
+        "scores": {
+          "correctness": 0,
+          "faithfulness": 3,
+          "completeness": 0,
+          "hallucination": 2,
+          "fluency": 4
+        },
+        "reason": "Does not match ground truth; likely contains fabricated/ungrounded details.",
+        "debug": {
+          "gold_type": "yesno",
+          "pred_yesno": "no",
+          "hedging": false
+        }
+      },
+      "better_model": "tie",
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        }
+      }
+    },
+    {
+      "idx": 6,
+      "type": "Multi",
+      "question": "Did Li Hua send a message to Jennifer asking for her opinion on protein supplements before he consulted her about his daily protein powder consumption?",
+      "ground_truth": "Yes",
+      "llama2": {
+        "answer": "Based on the provided context, the answer is \"No\". Li Hua does not ask Jennifer for her opinion on protein supplements before consulting her about his daily protein powder consumption.",
+        "scores": {
+          "correctness": 0,
+          "faithfulness": 3,
+          "completeness": 0,
+          "hallucination": 2,
+          "fluency": 4
+        },
+        "reason": "Does not match ground truth; likely contains fabricated/ungrounded details.",
+        "debug": {
+          "gold_type": "yesno",
+          "pred_yesno": "no",
+          "hedging": false
+        }
+      },
+      "mistral": {
+        "answer": " No, Li Hua did not send a message to Jennifer asking for her opinion on protein supplements before consulting her about his daily protein powder consumption. The conversation between them only discussed the new line of high-protein breads and Li Hua's interest in trying them.",
+        "scores": {
+          "correctness": 0,
+          "faithfulness": 3,
+          "completeness": 0,
+          "hallucination": 2,
+          "fluency": 4
+        },
+        "reason": "Does not match ground truth; likely contains fabricated/ungrounded details.",
+        "debug": {
+          "gold_type": "yesno",
+          "pred_yesno": "no",
+          "hedging": false
+        }
+      },
+      "better_model": "tie",
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        }
+      }
+    },
+    {
+      "idx": 7,
+      "type": "Multi",
+      "question": "Did Yuriko ask Li Hua for help with her studio's homepage before she booked a seat at the \"Central Perk\" cafe?",
+      "ground_truth": "Yes",
+      "llama2": {
+        "answer": "Based on the provided context, the answer is NO. Yuriko did not ask Li Hua for help with her studio's homepage before booking a seat at Central Perk. The conversation only mentions their meeting at Central Perk to brainstorm ideas for Yuriko's studio homepage.",
+        "scores": {
+          "correctness": 0,
+          "faithfulness": 3,
+          "completeness": 0,
+          "hallucination": 2,
+          "fluency": 4
+        },
+        "reason": "Does not match ground truth; likely contains fabricated/ungrounded details.",
+        "debug": {
+          "gold_type": "yesno",
+          "pred_yesno": "no",
+          "hedging": false
+        }
+      },
+      "mistral": {
+        "answer": " Based on the provided context, it is not explicitly stated that Yuriko asked Li Hua for help with her studio's homepage before booking a seat at Central Perk. However, their conversation about meeting up to discuss ideas for her homepage suggests that they were planning to do so after their initial meeting at Central Perk. Therefore, I don't know if Yuriko specifically asked Li Hua for help with her studio's homepage before booking the seat at Central Perk.",
+        "scores": {
+          "correctness": 0,
+          "faithfulness": 5,
+          "completeness": 0,
+          "hallucination": 5,
+          "fluency": 4
+        },
+        "reason": "Model answered 'I don't know' (non-informative but avoids fabrication).",
+        "debug": {}
+      },
+      "better_model": "mistral",
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2008
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2008
+        }
+      }
+    },
+    {
+      "idx": 8,
+      "type": "Multi",
+      "question": "Did Li Hua discuss his progress with the fitness plan before he shared a blog post about his recent fitness achievements?",
+      "ground_truth": "Yes",
+      "llama2": {
+        "answer": "Based on the provided context, the answer to the question is \"I don't know.\" Li Hua does not mention discussing his progress with Jennifer or anyone else before sharing his recent fitness achievements in the blog post.",
+        "scores": {
+          "correctness": 0,
+          "faithfulness": 5,
+          "completeness": 0,
+          "hallucination": 5,
+          "fluency": 4
+        },
+        "reason": "Model answered 'I don't know' (non-informative but avoids fabrication).",
+        "debug": {}
+      },
+      "mistral": {
+        "answer": " Based on the provided context, there is no information that suggests Li Hua discussed his progress with the fitness plan before sharing a blog post about his recent fitness achievements.",
+        "scores": {
+          "correctness": 0,
+          "faithfulness": 5,
+          "completeness": 0,
+          "hallucination": 5,
+          "fluency": 4
+        },
+        "reason": "Model answered 'I don't know' (non-informative but avoids fabrication).",
+        "debug": {}
+      },
+      "better_model": "tie",
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        }
+      }
+    },
+    {
+      "idx": 9,
+      "type": "Multi",
+      "question": "Did Li Hua send a message to Jennifer asking if he can turn the Thursday class to Friday after he requested a change in his training schedule for Thursday?",
+      "ground_truth": "Yes",
+      "llama2": {
+        "answer": "Based on the provided context, the answer is \"No\". Li Hua did not send a message to Jennifer asking if he can turn the Thursday class to Friday.",
+        "scores": {
+          "correctness": 0,
+          "faithfulness": 3,
+          "completeness": 0,
+          "hallucination": 2,
+          "fluency": 4
+        },
+        "reason": "Does not match ground truth; likely contains fabricated/ungrounded details.",
+        "debug": {
+          "gold_type": "yesno",
+          "pred_yesno": "no",
+          "hedging": false
+        }
+      },
+      "mistral": {
+        "answer": " Yes, based on the provided context, Li Hua did send a message to Jennifer asking if he can switch his class from Thursday to Friday. This request was made on 20260211_19:00.",
+        "scores": {
+          "correctness": 5,
+          "faithfulness": 4,
+          "completeness": 5,
+          "hallucination": 3,
+          "fluency": 4
+        },
+        "reason": "Matches ground truth.",
+        "debug": {
+          "gold_type": "yesno",
+          "pred_yesno": "yes",
+          "hedging": false
+        }
+      },
+      "better_model": "mistral",
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2008
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2008
+        }
+      }
+    },
+    {
+      "idx": 10,
+      "type": "Multi",
+      "question": "Did Li Hua ask Yuriko to play music together before Wolfgang proposed to pause playing musical instruments?",
+      "ground_truth": "Yes",
+      "llama2": {
+        "answer": "Based on the provided context, the answer is \"No\". Li Hua did not ask Yuriko to play music together before Wolfgang proposed to pause playing musical instruments. The conversation between the three individuals only started with them introducing themselves and expressing their excitement to get to know each other better. There was no mention of playing music together until Wolfgang suggested it as a fun activity for everyone to enjoy.",
+        "scores": {
+          "correctness": 0,
+          "faithfulness": 3,
+          "completeness": 0,
+          "hallucination": 2,
+          "fluency": 4
+        },
+        "reason": "Does not match ground truth; likely contains fabricated/ungrounded details.",
+        "debug": {
+          "gold_type": "yesno",
+          "pred_yesno": "no",
+          "hedging": false
+        }
+      },
+      "mistral": {
+        "answer": " No, Li Hua did not ask Yuriko to play music together before Wolfgang proposed to pause playing musical instruments. The conversation about a jam session occurred after Wolfgang's suggestion to pause their discussion.",
+        "scores": {
+          "correctness": 0,
+          "faithfulness": 3,
+          "completeness": 0,
+          "hallucination": 2,
+          "fluency": 4
+        },
+        "reason": "Does not match ground truth; likely contains fabricated/ungrounded details.",
+        "debug": {
+          "gold_type": "yesno",
+          "pred_yesno": "no",
+          "hedging": false
+        }
+      },
+      "better_model": "tie",
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        }
+      }
+    },
+    {
+      "idx": 11,
+      "type": "Multi",
+      "question": "Did Wolfgang Schulz recommend the band learns \"Viva la Vida\" by Coldplay after he and Li Hua discussed what song to play this Sunday?",
+      "ground_truth": "Yes",
+      "llama2": {
+        "answer": "Based on the provided context, Wolfgang Schulz did not recommend that the band learn \"Viva la Vida\" by Coldplay. The conversation between Wolfgang Schulz and Li Hua took place on April 5th, and they discussed the possibility of playing the song \"Come Together\" by The Beatles during their upcoming practice. There is no mention of \"Viva la Vida\" in their conversation. Therefore, I cannot confirm whether Wolfgang Schulz recommended learning that particular song or not.",
+        "scores": {
+          "correctness": 0,
+          "faithfulness": 3,
+          "completeness": 0,
+          "hallucination": 2,
+          "fluency": 4
+        },
+        "reason": "Does not match ground truth; likely contains fabricated/ungrounded details.",
+        "debug": {
+          "gold_type": "yesno",
+          "pred_yesno": "no",
+          "hedging": false
+        }
+      },
+      "mistral": {
+        "answer": " Yes",
+        "scores": {
+          "correctness": 5,
+          "faithfulness": 4,
+          "completeness": 5,
+          "hallucination": 4,
+          "fluency": 4
+        },
+        "reason": "Matches ground truth.",
+        "debug": {
+          "gold_type": "yesno",
+          "pred_yesno": "yes",
+          "hedging": false
+        }
+      },
+      "better_model": "mistral",
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2008
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2008
+        }
+      }
+    },
+    {
+      "idx": 12,
+      "type": "Multi",
+      "question": "Did Wolfgang's promotion announcement occur before he invited Li Hua for dinner on 20260430?",
+      "ground_truth": "Yes",
+      "llama2": {
+        "answer": "Based on the provided context, the answer is \"I don't know\". The text does not provide enough information to determine whether Wolfgang's promotion announcement occurred before or after he invited Li Hua for dinner on 20260430.",
+        "scores": {
+          "correctness": 0,
+          "faithfulness": 5,
+          "completeness": 0,
+          "hallucination": 5,
+          "fluency": 4
+        },
+        "reason": "Model answered 'I don't know' (non-informative but avoids fabrication).",
+        "debug": {}
+      },
+      "mistral": {
+        "answer": " Yes, Wolfgang's promotion announcement occurred before he invited Li Hua for dinner on 20260430. The conversation about the dinner took place on 20260428, while the promotion was announced earlier on the same day.",
+        "scores": {
+          "correctness": 5,
+          "faithfulness": 4,
+          "completeness": 5,
+          "hallucination": 3,
+          "fluency": 4
+        },
+        "reason": "Matches ground truth.",
+        "debug": {
+          "gold_type": "yesno",
+          "pred_yesno": "yes",
+          "hedging": false
+        }
+      },
+      "better_model": "mistral",
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        }
+      }
+    },
+    {
+      "idx": 13,
+      "type": "Multi",
+      "question": "Did Turalyon announce the construction updates and feedback from residents after Illidan Stormrage complained about the construction noise?",
+      "ground_truth": "Yes",
+      "llama2": {
+        "answer": "Based on the provided context, the answer is \"No.\" There is no mention of Turalyon announcing construction updates and feedback from residents after Illidan Stormrage complained about the construction noise.",
+        "scores": {
+          "correctness": 0,
+          "faithfulness": 3,
+          "completeness": 0,
+          "hallucination": 2,
+          "fluency": 4
+        },
+        "reason": "Does not match ground truth; likely contains fabricated/ungrounded details.",
+        "debug": {
+          "gold_type": "yesno",
+          "pred_yesno": "no",
+          "hedging": false
+        }
+      },
+      "mistral": {
+        "answer": " No, Turalyon did not announce the construction updates and feedback from residents after Illidan Stormrage complained about the construction noise. The conversation between TirionFordring, ArthasMenethil, LiHua, and MuradinBronzebeard discussed ways to manage noise during construction, but there was no mention of Turalyon announcing updates or feedback from residents after Illidan's complaint. The conversation about new noise reduction measures occurred later between AdamSmith and MalfurionStormrage.",
+        "scores": {
+          "correctness": 0,
+          "faithfulness": 3,
+          "completeness": 0,
+          "hallucination": 2,
+          "fluency": 3
+        },
+        "reason": "Does not match ground truth; likely contains fabricated/ungrounded details.",
+        "debug": {
+          "gold_type": "yesno",
+          "pred_yesno": "no",
+          "hedging": false
+        }
+      },
+      "better_model": "llama2",
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        }
+      }
+    },
+    {
+      "idx": 14,
+      "type": "Multi",
+      "question": "Did Hailey announce the new line of high-protein breads before inviting Li Hua to the special bakery event?",
+      "ground_truth": "Yes",
+      "llama2": {
+        "answer": "Based on the provided context, the answer is \"I don't know\". Hailey does not mention anything about announcing a new line of high-protein breads before inviting Li Hua to the special bakery event.",
+        "scores": {
+          "correctness": 0,
+          "faithfulness": 5,
+          "completeness": 0,
+          "hallucination": 5,
+          "fluency": 4
+        },
+        "reason": "Model answered 'I don't know' (non-informative but avoids fabrication).",
+        "debug": {}
+      },
+      "mistral": {
+        "answer": " Yes, Hailey announced the new line of high-protein breads before inviting Li Hua to the special bakery event.",
+        "scores": {
+          "correctness": 5,
+          "faithfulness": 4,
+          "completeness": 5,
+          "hallucination": 4,
+          "fluency": 4
+        },
+        "reason": "Matches ground truth.",
+        "debug": {
+          "gold_type": "yesno",
+          "pred_yesno": "yes",
+          "hedging": false
+        }
+      },
+      "better_model": "mistral",
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        }
+      }
+    },
+    {
+      "idx": 15,
+      "type": "Multi",
+      "question": "Did Chae tell Li Hua that taking a warm shower before sleeping can improve the sleep quality before sharing the neuroscience article with her?",
+      "ground_truth": "No",
+      "llama2": {
+        "answer": "Based on the provided context, the answer is \"I don't know.\" Chae does not mention telling Li Hua about the benefits of taking a warm shower before sleeping. The conversation focuses on the neuroscience article and its findings related to sleep quality.",
+        "scores": {
+          "correctness": 0,
+          "faithfulness": 5,
+          "completeness": 0,
+          "hallucination": 5,
+          "fluency": 4
+        },
+        "reason": "Model answered 'I don't know' (non-informative but avoids fabrication).",
+        "debug": {}
+      },
+      "mistral": {
+        "answer": " No, Chae did not tell Li Hua that taking a warm shower before sleeping can improve the sleep quality before sharing the neuroscience article with her. The conversation about the warm shower happened separately from the discussion about the neuroscience article.",
+        "scores": {
+          "correctness": 5,
+          "faithfulness": 3,
+          "completeness": 5,
+          "hallucination": 2,
+          "fluency": 4
+        },
+        "reason": "Matches ground truth; likely contains fabricated/ungrounded details.",
+        "debug": {
+          "gold_type": "yesno",
+          "pred_yesno": "no",
+          "hedging": false
+        }
+      },
+      "better_model": "mistral",
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        }
+      }
+    },
+    {
+      "idx": 16,
+      "type": "Multi",
+      "question": "Did Li Hua ask Jennifer Moore for book recommendations on fitness nutrition before she announced the special guest speaker at the gym?",
+      "ground_truth": "No",
+      "llama2": {
+        "answer": "Based on the provided context, the answer is \"No\". Li Hua does not ask Jennifer Moore for book recommendations on fitness nutrition before she announces the special guest speaker at the gym. The conversation takes place in different time frames, and there is no mention of Li Hua asking for book recommendations before the talk is announced.",
+        "scores": {
+          "correctness": 5,
+          "faithfulness": 3,
+          "completeness": 5,
+          "hallucination": 2,
+          "fluency": 4
+        },
+        "reason": "Matches ground truth; likely contains fabricated/ungrounded details.",
+        "debug": {
+          "gold_type": "yesno",
+          "pred_yesno": "no",
+          "hedging": false
+        }
+      },
+      "mistral": {
+        "answer": " No, Li Hua did not ask Jennifer Moore for book recommendations on fitness nutrition before she announced the special guest speaker at the gym. The conversation about book recommendations occurred later, on 20260831_19:00.",
+        "scores": {
+          "correctness": 5,
+          "faithfulness": 4,
+          "completeness": 5,
+          "hallucination": 3,
+          "fluency": 4
+        },
+        "reason": "Matches ground truth.",
+        "debug": {
+          "gold_type": "yesno",
+          "pred_yesno": "no",
+          "hedging": false
+        }
+      },
+      "better_model": "mistral",
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        }
+      }
+    },
+    {
+      "idx": 17,
+      "type": "Multi",
+      "question": "Did Jennifer remind Li Hua about proper nutrition and hydration before Jake shared his tips for staying hydrated during the match?",
+      "ground_truth": "Yes",
+      "llama2": {
+        "answer": "Based on the provided context, the answer is \"I don't know.\" Jennifer does not mention anything about reminding Li Hua about proper nutrition and hydration before Jake shared his tips.",
+        "scores": {
+          "correctness": 0,
+          "faithfulness": 5,
+          "completeness": 0,
+          "hallucination": 5,
+          "fluency": 4
+        },
+        "reason": "Model answered 'I don't know' (non-informative but avoids fabrication).",
+        "debug": {}
+      },
+      "mistral": {
+        "answer": " No, Jennifer did not remind Li Hua about proper nutrition and hydration before Jake shared his tips for staying hydrated during the match. The conversation between Jennifer and Li Hua was about a talk on nutrition for athletes that would take place in the future, while Jake's reminder was related to a specific upcoming match.",
+        "scores": {
+          "correctness": 0,
+          "faithfulness": 3,
+          "completeness": 0,
+          "hallucination": 2,
+          "fluency": 4
+        },
+        "reason": "Does not match ground truth; likely contains fabricated/ungrounded details.",
+        "debug": {
+          "gold_type": "yesno",
+          "pred_yesno": "no",
+          "hedging": false
+        }
+      },
+      "better_model": "llama2",
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        }
+      }
+    },
+    {
+      "idx": 18,
+      "type": "Multi",
+      "question": "Did the group members talk about their favorite characters in the TV series Game of Thrones after Emily started a vote on the most hateable character?",
+      "ground_truth": "Yes",
+      "llama2": {
+        "answer": "Based on the provided context, the answer is \"yes\". The group members did talk about their favorite characters in the TV series Game of Thrones after Emily started a vote on the most hateable character.",
+        "scores": {
+          "correctness": 5,
+          "faithfulness": 4,
+          "completeness": 5,
+          "hallucination": 3,
+          "fluency": 4
+        },
+        "reason": "Matches ground truth.",
+        "debug": {
+          "gold_type": "yesno",
+          "pred_yesno": "yes",
+          "hedging": false
+        }
+      },
+      "mistral": {
+        "answer": " No, the group members did not talk about their favorite characters in the TV series Game of Thrones after Emily started a vote on the most hateable character. The conversation remained focused on the most hateable characters.",
+        "scores": {
+          "correctness": 0,
+          "faithfulness": 3,
+          "completeness": 0,
+          "hallucination": 2,
+          "fluency": 4
+        },
+        "reason": "Does not match ground truth; likely contains fabricated/ungrounded details.",
+        "debug": {
+          "gold_type": "yesno",
+          "pred_yesno": "no",
+          "hedging": false
+        }
+      },
+      "better_model": "llama2",
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        }
+      }
+    },
+    {
+      "idx": 19,
+      "type": "Multi",
+      "question": "Did Jennifer remind Li Hua to consume enough protein after the workout before she shared tips with the group members on common mistakes to avoid after an intense workout?",
+      "ground_truth": "Yes",
+      "llama2": {
+        "answer": "Based on the provided context, the answer is \"I don't know.\" The conversation does not provide any information about Jennifer reminding Li Hua to consume enough protein after their workout before sharing tips with the group members.",
+        "scores": {
+          "correctness": 0,
+          "faithfulness": 5,
+          "completeness": 0,
+          "hallucination": 5,
+          "fluency": 4
+        },
+        "reason": "Model answered 'I don't know' (non-informative but avoids fabrication).",
+        "debug": {}
+      },
+      "mistral": {
+        "answer": " No, Jennifer did not remind Li Hua to consume enough protein after the workout before sharing tips with the group members on common mistakes to avoid after an intense workout. The conversation about protein consumption occurred in a separate context.",
+        "scores": {
+          "correctness": 0,
+          "faithfulness": 3,
+          "completeness": 0,
+          "hallucination": 2,
+          "fluency": 4
+        },
+        "reason": "Does not match ground truth; likely contains fabricated/ungrounded details.",
+        "debug": {
+          "gold_type": "yesno",
+          "pred_yesno": "no",
+          "hedging": false
+        }
+      },
+      "better_model": "llama2",
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2008
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2008
+        }
+      }
+    },
+    {
+      "idx": 20,
+      "type": "Multi",
+      "question": "Did Li Hua ask Thane about his opinion on The Last of Us before he asked about Sekiro: Shadows Die Twice?",
+      "ground_truth": "No",
+      "llama2": {
+        "answer": "Based on the provided context, the answer is \"No\". Li Hua does not ask Thane about his opinion on The Last of Us before asking about Sekiro: Shadows Die Twice.",
+        "scores": {
+          "correctness": 5,
+          "faithfulness": 4,
+          "completeness": 5,
+          "hallucination": 4,
+          "fluency": 4
+        },
+        "reason": "Matches ground truth.",
+        "debug": {
+          "gold_type": "yesno",
+          "pred_yesno": "no",
+          "hedging": false
+        }
+      },
+      "mistral": {
+        "answer": " No, Li Hua did not ask Thane about his opinion on The Last of Us before he asked about Sekiro: Shadows Die Twice.",
+        "scores": {
+          "correctness": 5,
+          "faithfulness": 4,
+          "completeness": 5,
+          "hallucination": 4,
+          "fluency": 4
+        },
+        "reason": "Matches ground truth.",
+        "debug": {
+          "gold_type": "yesno",
+          "pred_yesno": "no",
+          "hedging": false
+        }
+      },
+      "better_model": "tie",
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2008
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2008
+        }
+      }
+    },
+    {
+      "idx": 21,
+      "type": "Multi",
+      "question": "Did Jake Watson and Li Hua discuss the classic matches between FC Barcelona and FC Bayern Munich before the group members discussed the classic matches between FC Barcelona and Real Madrid?",
+      "ground_truth": "Yes",
+      "llama2": {
+        "answer": "I don't know. The conversation does not mention any discussion of FC Barcelona and FC Bayern Munich matches.",
+        "scores": {
+          "correctness": 0,
+          "faithfulness": 5,
+          "completeness": 0,
+          "hallucination": 5,
+          "fluency": 4
+        },
+        "reason": "Model answered 'I don't know' (non-informative but avoids fabrication).",
+        "debug": {}
+      },
+      "mistral": {
+        "answer": " No, Jake Watson and Li Hua did not discuss the classic matches between FC Barcelona and FC Bayern Munich before the group members discussed the classic matches between FC Barcelona and Real Madrid.",
+        "scores": {
+          "correctness": 0,
+          "faithfulness": 3,
+          "completeness": 0,
+          "hallucination": 2,
+          "fluency": 4
+        },
+        "reason": "Does not match ground truth; likely contains fabricated/ungrounded details.",
+        "debug": {
+          "gold_type": "yesno",
+          "pred_yesno": "no",
+          "hedging": false
+        }
+      },
+      "better_model": "llama2",
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        }
+      }
+    },
+    {
+      "idx": 22,
+      "type": "Multi",
+      "question": "Did the group members debate about the best football manager in the Premier League history after they debated if Pep Guardiola is the greatest soccer manager in football history?",
+      "ground_truth": "Yes",
+      "llama2": {
+        "answer": "Based on the provided context, the answer to the question is \"Yes.\" The group members did debate about the best football manager in the Premier League history after they discussed whether Pep Guardiola is the greatest soccer manager in football history.",
+        "scores": {
+          "correctness": 5,
+          "faithfulness": 4,
+          "completeness": 5,
+          "hallucination": 3,
+          "fluency": 4
+        },
+        "reason": "Matches ground truth.",
+        "debug": {
+          "gold_type": "yesno",
+          "pred_yesno": "yes",
+          "hedging": false
+        }
+      },
+      "mistral": {
+        "answer": " Yes, based on the provided context, it appears that the group members did debate about the best football manager in the Premier League history after initially discussing whether Pep Guardiola is the greatest soccer manager in football history.",
+        "scores": {
+          "correctness": 5,
+          "faithfulness": 4,
+          "completeness": 5,
+          "hallucination": 3,
+          "fluency": 4
+        },
+        "reason": "Matches ground truth.",
+        "debug": {
+          "gold_type": "yesno",
+          "pred_yesno": "yes",
+          "hedging": false
+        }
+      },
+      "better_model": "tie",
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        }
+      }
+    },
+    {
+      "idx": 23,
+      "type": "Multi",
+      "question": "Did the discussion about Jaime Lannister's character occur after the discussion about Cersei Lannister's character?",
+      "ground_truth": "Yes",
+      "llama2": {
+        "answer": "Based on the provided context, the answer is yes. The discussion about Jaime Lannister's character occurred after the discussion about Cersei Lannister's character.",
+        "scores": {
+          "correctness": 5,
+          "faithfulness": 4,
+          "completeness": 5,
+          "hallucination": 3,
+          "fluency": 4
+        },
+        "reason": "Matches ground truth.",
+        "debug": {
+          "gold_type": "yesno",
+          "pred_yesno": "yes",
+          "hedging": false
+        }
+      },
+      "mistral": {
+        "answer": " Yes, the discussion about Jaime Lannister's character occurred after the discussion about Cersei Lannister's character.",
+        "scores": {
+          "correctness": 5,
+          "faithfulness": 4,
+          "completeness": 5,
+          "hallucination": 4,
+          "fluency": 4
+        },
+        "reason": "Matches ground truth.",
+        "debug": {
+          "gold_type": "yesno",
+          "pred_yesno": "yes",
+          "hedging": false
+        }
+      },
+      "better_model": "mistral",
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2008
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2008
+        }
+      }
+    },
+    {
+      "idx": 24,
+      "type": "Multi",
+      "question": "Did Wolfgang ask Li Hua if she wants to have pizza for dinner after work today before he wondered if she wanted to have Sichuan hot pot for dinner tonight?",
+      "ground_truth": "No",
+      "llama2": {
+        "answer": "I don't know. The context does not provide enough information to determine whether Wolfgang asked Li Hua about having pizza for dinner after work on a specific day.",
+        "scores": {
+          "correctness": 0,
+          "faithfulness": 5,
+          "completeness": 0,
+          "hallucination": 5,
+          "fluency": 4
+        },
+        "reason": "Model answered 'I don't know' (non-informative but avoids fabrication).",
+        "debug": {}
+      },
+      "mistral": {
+        "answer": " No, Wolfgang did not ask Li Hua if she wants to have pizza for dinner after work today before he wondered if they should have Sichuan hot pot for dinner tonight. The conversation about pizza happened on October 15th, while the conversation about hot pot was on September 30th.",
+        "scores": {
+          "correctness": 5,
+          "faithfulness": 3,
+          "completeness": 5,
+          "hallucination": 2,
+          "fluency": 4
+        },
+        "reason": "Matches ground truth; likely contains fabricated/ungrounded details.",
+        "debug": {
+          "gold_type": "yesno",
+          "pred_yesno": "no",
+          "hedging": false
+        }
+      },
+      "better_model": "mistral",
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        }
+      }
+    },
+    {
+      "idx": 25,
+      "type": "Multi",
+      "question": "Did Jennifer challenge Li Hua to do 60 pull-ups in a training session after she challenged him to do 100 pushups?",
+      "ground_truth": "Yes",
+      "llama2": {
+        "answer": "Based on the provided context, the answer is \"I don't know.\" There is no information in the given text that suggests Jennifer challenged Li Hua to do 60 pull-ups.",
+        "scores": {
+          "correctness": 0,
+          "faithfulness": 5,
+          "completeness": 0,
+          "hallucination": 5,
+          "fluency": 4
+        },
+        "reason": "Model answered 'I don't know' (non-informative but avoids fabrication).",
+        "debug": {}
+      },
+      "mistral": {
+        "answer": " No, Jennifer did not challenge Li Hua to do 60 pull-ups in a training session after she challenged him to do 100 pushups. The conversation about the 60 pull-up challenge occurred on a different date and time.",
+        "scores": {
+          "correctness": 0,
+          "faithfulness": 3,
+          "completeness": 0,
+          "hallucination": 2,
+          "fluency": 4
+        },
+        "reason": "Does not match ground truth; likely contains fabricated/ungrounded details.",
+        "debug": {
+          "gold_type": "yesno",
+          "pred_yesno": "no",
+          "hedging": false
+        }
+      },
+      "better_model": "llama2",
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        }
+      }
+    },
+    {
+      "idx": 26,
+      "type": "Multi",
+      "question": "Did Jake share common knowledge about offside in soccer with Li Hua before he passed practical techniques to Li Hua on how to avoid offside for a forward?",
+      "ground_truth": "Yes",
+      "llama2": {
+        "answer": "Based on the provided context, the answer is \"Yes\". Jake shared common knowledge about offside in soccer with Li Hua before passing practical techniques to Li Hua on how to avoid offside as a forward.",
+        "scores": {
+          "correctness": 5,
+          "faithfulness": 4,
+          "completeness": 5,
+          "hallucination": 3,
+          "fluency": 4
+        },
+        "reason": "Matches ground truth.",
+        "debug": {
+          "gold_type": "yesno",
+          "pred_yesno": "yes",
+          "hedging": false
+        }
+      },
+      "mistral": {
+        "answer": " Yes, Jake shared common knowledge about offside in soccer with Li Hua before passing practical techniques to Li Hua on how to avoid offside for a forward.",
+        "scores": {
+          "correctness": 5,
+          "faithfulness": 4,
+          "completeness": 5,
+          "hallucination": 4,
+          "fluency": 4
+        },
+        "reason": "Matches ground truth.",
+        "debug": {
+          "gold_type": "yesno",
+          "pred_yesno": "yes",
+          "hedging": false
+        }
+      },
+      "better_model": "mistral",
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        }
+      }
+    },
+    {
+      "idx": 27,
+      "type": "Multi",
+      "question": "Did Wolfgang arrive in Hong Kong after he informed Li Hua about his upcoming trip?",
+      "ground_truth": "Yes",
+      "llama2": {
+        "answer": "Based on the provided context, Wolfgang arrived in Hong Kong after he informed Li Hua about his upcoming trip. The conversation takes place in the evening of December 19th, and Wolfgang mentions that he is off to Hong Kong for a couple of days next week, which means he will arrive in Hong Kong sometime after that date.",
+        "scores": {
+          "correctness": 0,
+          "faithfulness": 3,
+          "completeness": 0,
+          "hallucination": 2,
+          "fluency": 4
+        },
+        "reason": "Does not match ground truth; likely contains fabricated/ungrounded details.",
+        "debug": {
+          "gold_type": "yesno",
+          "pred_yesno": null,
+          "hedging": false
+        }
+      },
+      "mistral": {
+        "answer": " Yes",
+        "scores": {
+          "correctness": 5,
+          "faithfulness": 4,
+          "completeness": 5,
+          "hallucination": 4,
+          "fluency": 4
+        },
+        "reason": "Matches ground truth.",
+        "debug": {
+          "gold_type": "yesno",
+          "pred_yesno": "yes",
+          "hedging": false
+        }
+      },
+      "better_model": "mistral",
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2008
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2008
+        }
+      }
+    },
+    {
+      "idx": 28,
+      "type": "Multi",
+      "question": "What time does Li Hua watch the movie \"Overwatch 3\"?",
+      "ground_truth": "20260122",
+      "llama2": {
+        "answer": "Based on the context provided, Li Hua watches the movie \"Overwatch 3\" at 7 PM on January 21st, 2026.",
+        "scores": {
+          "correctness": 0,
+          "faithfulness": 3,
+          "completeness": 0,
+          "hallucination": 2,
+          "fluency": 4
+        },
+        "reason": "Does not match ground truth; likely contains fabricated/ungrounded details.",
+        "debug": {
+          "gold_type": "free",
+          "token_overlap": 0.0,
+          "hedging": false
+        }
+      },
+      "mistral": {
+        "answer": " The context does not provide information on when Li Hua watches the movie \"Overwatch 3\".",
+        "scores": {
+          "correctness": 0,
+          "faithfulness": 3,
+          "completeness": 0,
+          "hallucination": 2,
+          "fluency": 4
+        },
+        "reason": "Does not match ground truth; likely contains fabricated/ungrounded details.",
+        "debug": {
+          "gold_type": "free",
+          "token_overlap": 0.0,
+          "hedging": false
+        }
+      },
+      "better_model": "tie",
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        }
+      }
+    },
+    {
+      "idx": 29,
+      "type": "Multi",
+      "question": "Who does Li Hua go to watch the movie \"Overwatch 3\" with?",
+      "ground_truth": "Wolfgang",
+      "llama2": {
+        "answer": "Based on the context provided, LiHua goes to watch the movie \"Overwatch 3\" with WolfgangSchulz.",
+        "scores": {
+          "correctness": 5,
+          "faithfulness": 4,
+          "completeness": 5,
+          "hallucination": 4,
+          "fluency": 4
+        },
+        "reason": "Matches ground truth.",
+        "debug": {
+          "gold_type": "free",
+          "token_overlap": 0.0,
+          "hedging": false
+        }
+      },
+      "mistral": {
+        "answer": " Li Hua goes to watch the movie \"Overwatch 3\" with WolfgangSchulz.",
+        "scores": {
+          "correctness": 5,
+          "faithfulness": 4,
+          "completeness": 5,
+          "hallucination": 4,
+          "fluency": 4
+        },
+        "reason": "Matches ground truth.",
+        "debug": {
+          "gold_type": "free",
+          "token_overlap": 0.0,
+          "hedging": false
+        }
+      },
+      "better_model": "tie",
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2008
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2008
+        }
+      }
+    },
+    {
+      "idx": 30,
+      "type": "Multi",
+      "question": "Has Wolfgang ever been to Hong Kong?",
+      "ground_truth": "Yes",
+      "llama2": {
+        "answer": "Based on the provided context, I can answer the question as follows:\n\nYes, Wolfgang has been to Hong Kong. This is evident from his conversation with LiHua, where he mentions that he has just \"touched down\" in Hong Kong and is excited to explore the city.",
+        "scores": {
+          "correctness": 5,
+          "faithfulness": 4,
+          "completeness": 5,
+          "hallucination": 3,
+          "fluency": 4
+        },
+        "reason": "Matches ground truth.",
+        "debug": {
+          "gold_type": "yesno",
+          "pred_yesno": "yes",
+          "hedging": false
+        }
+      },
+      "mistral": {
+        "answer": " Yes",
+        "scores": {
+          "correctness": 5,
+          "faithfulness": 4,
+          "completeness": 5,
+          "hallucination": 4,
+          "fluency": 4
+        },
+        "reason": "Matches ground truth.",
+        "debug": {
+          "gold_type": "yesno",
+          "pred_yesno": "yes",
+          "hedging": false
+        }
+      },
+      "better_model": "mistral",
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2008
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2008
+        }
+      }
+    },
+    {
+      "idx": 31,
+      "type": "Multi",
+      "question": "Who knows about Wolfgang going to Hong Kong?",
+      "ground_truth": "LiHua & Chae & Yuriko",
+      "llama2": {
+        "answer": "Based on the provided context, it can be inferred that LiHua knows about Wolfgang going to Hong Kong. The conversation between Wolfgang and LiHua suggests that they are planning to meet up in Hong Kong and that LiHua has recommended some places for Wolfgang to check out while he's there. Therefore, it can be concluded that LiHua is aware of Wolfgang's trip to Hong Kong.",
+        "scores": {
+          "correctness": 1,
+          "faithfulness": 3,
+          "completeness": 1,
+          "hallucination": 2,
+          "fluency": 4
+        },
+        "reason": "Does not match ground truth; evaluated as Multi list overlap; likely contains fabricated/ungrounded details.",
+        "debug": {
+          "gold_type": "multi_list",
+          "gold_items": [
+            "lihua",
+            "chae",
+            "yuriko"
+          ],
+          "precision": 0.3333333333333333,
+          "recall": 0.3333333333333333,
+          "f1": 0.3333333333333333,
+          "hedging": false
+        }
+      },
+      "mistral": {
+        "answer": " LiHua, YurikoYamamoto, and everyone (implied in the context).",
+        "scores": {
+          "correctness": 3,
+          "faithfulness": 4,
+          "completeness": 3,
+          "hallucination": 4,
+          "fluency": 4
+        },
+        "reason": "Partially matches ground truth; evaluated as Multi list overlap.",
+        "debug": {
+          "gold_type": "multi_list",
+          "gold_items": [
+            "lihua",
+            "chae",
+            "yuriko"
+          ],
+          "precision": 0.6666666666666666,
+          "recall": 0.6666666666666666,
+          "f1": 0.6666666666666666,
+          "hedging": false
+        }
+      },
+      "better_model": "mistral",
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2008
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2008
+        }
+      }
+    },
+    {
+      "idx": 32,
+      "type": "Multi",
+      "question": "Who wished Li Hua a happy Lunar New Year?",
+      "ground_truth": "Adam Smith & Jennifer Moore & Wolfgang Schulz",
+      "llama2": {
+        "answer": "Based on the provided context, the person who wished Li Hua a happy Lunar New Year is:\n\nWolfgangSchulz",
+        "scores": {
+          "correctness": 1,
+          "faithfulness": 4,
+          "completeness": 1,
+          "hallucination": 4,
+          "fluency": 4
+        },
+        "reason": "Does not match ground truth; evaluated as Multi list overlap.",
+        "debug": {
+          "gold_type": "multi_list",
+          "gold_items": [
+            "adam smith",
+            "jennifer moore",
+            "wolfgang schulz"
+          ],
+          "precision": 0.5,
+          "recall": 0.3333333333333333,
+          "f1": 0.4,
+          "hedging": false
+        }
+      },
+      "mistral": {
+        "answer": " WolfgangSchulz, AdamSmith",
+        "scores": {
+          "correctness": 3,
+          "faithfulness": 4,
+          "completeness": 3,
+          "hallucination": 4,
+          "fluency": 4
+        },
+        "reason": "Partially matches ground truth; evaluated as Multi list overlap.",
+        "debug": {
+          "gold_type": "multi_list",
+          "gold_items": [
+            "adam smith",
+            "jennifer moore",
+            "wolfgang schulz"
+          ],
+          "precision": 1.0,
+          "recall": 0.6666666666666666,
+          "f1": 0.8,
+          "hedging": false
+        }
+      },
+      "better_model": "mistral",
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        }
+      }
+    },
+    {
+      "idx": 33,
+      "type": "Multi",
+      "question": "Who introduced the bread delivery service and recommend Alice for the delivery?",
+      "ground_truth": "HaileyJohnson",
+      "llama2": {
+        "answer": "Based on the provided context, the answer to the question \"Who introduced the bread delivery service and recommended Alice for the delivery?\" is:\n\nHaileyJohnson.\n\nThe context provides several instances of HaileyJohnson mentioning Alice's name and role in delivering fresh bread to customers. For example, in the conversation on April 3rd, HaileyJohnson says \"Alice does such a great job with the deliveries.\" And on May 29th, she mentions that Alice is the one who delivers the bread every Monday and Friday at 8am. Therefore, it can be infer",
+        "scores": {
+          "correctness": 5,
+          "faithfulness": 4,
+          "completeness": 5,
+          "hallucination": 4,
+          "fluency": 3
+        },
+        "reason": "Matches ground truth.",
+        "debug": {
+          "gold_type": "free",
+          "token_overlap": 1.0,
+          "hedging": false
+        }
+      },
+      "mistral": {
+        "answer": " HaileyJohnson introduced the bread delivery service and recommended Alice for the delivery.",
+        "scores": {
+          "correctness": 5,
+          "faithfulness": 4,
+          "completeness": 5,
+          "hallucination": 4,
+          "fluency": 4
+        },
+        "reason": "Matches ground truth.",
+        "debug": {
+          "gold_type": "free",
+          "token_overlap": 1.0,
+          "hedging": false
+        }
+      },
+      "better_model": "mistral",
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2016
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2016
+        }
+      }
+    },
+    {
+      "idx": 34,
+      "type": "Multi",
+      "question": "What is the opportunity that makes Wolfgang and Yuriko acquaitances?",
+      "ground_truth": "LiHua introduce them to each other by saying that they can play music together every Sunday",
+      "llama2": {
+        "answer": "Based on the context provided, the opportunity that makes Wolfgang and Yuriko acquaintances is their mutual interest in music.",
+        "scores": {
+          "correctness": 0,
+          "faithfulness": 3,
+          "completeness": 0,
+          "hallucination": 2,
+          "fluency": 4
+        },
+        "reason": "Does not match ground truth; likely contains fabricated/ungrounded details.",
+        "debug": {
+          "gold_type": "free",
+          "token_overlap": 0.125,
+          "hedging": false
+        }
+      },
+      "mistral": {
+        "answer": " The opportunity that makes Wolfgang and Yuriko acquaintances is LiHua introducing them to each other, as stated in the context on March 19, 2026 at 16:00.",
+        "scores": {
+          "correctness": 1,
+          "faithfulness": 4,
+          "completeness": 1,
+          "hallucination": 4,
+          "fluency": 4
+        },
+        "reason": "Does not match ground truth.",
+        "debug": {
+          "gold_type": "free",
+          "token_overlap": 0.375,
+          "hedging": false
+        }
+      },
+      "better_model": "mistral",
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2008
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2008
+        }
+      }
+    },
+    {
+      "idx": 35,
+      "type": "Multi",
+      "question": "What was the content of the first-ever delivery from Hailey to LiHua and what was LiHua's opinion about it?",
+      "ground_truth": "a fresh sourdough loaf and a bottle of milk and LiHua praises Hailey's bread and milk",
+      "llama2": {
+        "answer": "Based on the provided context, LiHua's first-ever delivery from Hailey was fresh bread, and LiHua loved its freshness.",
+        "scores": {
+          "correctness": 1,
+          "faithfulness": 4,
+          "completeness": 1,
+          "hallucination": 4,
+          "fluency": 4
+        },
+        "reason": "Does not match ground truth.",
+        "debug": {
+          "gold_type": "free",
+          "token_overlap": 0.45454545454545453,
+          "hedging": false
+        }
+      },
+      "mistral": {
+        "answer": " The context does not provide information about the content of the first-ever delivery from Hailey to LiHua. However, in the provided conversations, LiHua mentions that they love the bread deliveries and find them amazing and fresh, as usual. So, it can be inferred that the first-ever delivery likely included bread.",
+        "scores": {
+          "correctness": 1,
+          "faithfulness": 4,
+          "completeness": 1,
+          "hallucination": 4,
+          "fluency": 4
+        },
+        "reason": "Does not match ground truth.",
+        "debug": {
+          "gold_type": "free",
+          "token_overlap": 0.5454545454545454,
+          "hedging": false
+        }
+      },
+      "better_model": "tie",
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2008
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2008
+        }
+      }
+    },
+    {
+      "idx": 36,
+      "type": "Multi",
+      "question": "What opportunity did LiHua create for Chae to meet Wolfgang and Yuriko?",
+      "ground_truth": "LiHua introduced Chae to Wolfgang and Yuriko during the band's gathering on Sunday evening",
+      "llama2": {
+        "answer": "Based on the provided context, the opportunity created by LiHua for Chae to meet Wolfgang and Yuriko is to attend a jam session together.",
+        "scores": {
+          "correctness": 1,
+          "faithfulness": 4,
+          "completeness": 1,
+          "hallucination": 4,
+          "fluency": 4
+        },
+        "reason": "Does not match ground truth.",
+        "debug": {
+          "gold_type": "free",
+          "token_overlap": 0.5714285714285714,
+          "hedging": false
+        }
+      },
+      "mistral": {
+        "answer": " LiHua created an opportunity for Chae to meet Wolfgang by introducing them on March 19, 2026.",
+        "scores": {
+          "correctness": 1,
+          "faithfulness": 4,
+          "completeness": 1,
+          "hallucination": 4,
+          "fluency": 4
+        },
+        "reason": "Does not match ground truth.",
+        "debug": {
+          "gold_type": "free",
+          "token_overlap": 0.35714285714285715,
+          "hedging": false
+        }
+      },
+      "better_model": "tie",
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        }
+      }
+    },
+    {
+      "idx": 37,
+      "type": "Multi",
+      "question": "What special offerings did Hailey have for her backery shop in the month of May?",
+      "ground_truth": "a special Mother's Day bakery promotion & a special summer promotion on ice cream & a free baking class at the end of May & banana durian cheesecake",
+      "llama2": {
+        "answer": "Based on the context provided, Hailey offered a special promotion on ice cream and pastries in May.",
+        "scores": {
+          "correctness": 1,
+          "faithfulness": 4,
+          "completeness": 1,
+          "hallucination": 4,
+          "fluency": 4
+        },
+        "reason": "Does not match ground truth; evaluated as Multi list overlap.",
+        "debug": {
+          "gold_type": "multi_list",
+          "gold_items": [
+            "a special mother's day bakery promotion",
+            "a special summer promotion on ice cream",
+            "a free baking class at the end of may",
+            "banana durian cheesecake"
+          ],
+          "precision": 0.5,
+          "recall": 0.25,
+          "f1": 0.3333333333333333,
+          "hedging": false
+        }
+      },
+      "mistral": {
+        "answer": " In the month of May, Hailey had a special summer promotion on ice cream and pastries, and a special Mother's Day promotion.",
+        "scores": {
+          "correctness": 1,
+          "faithfulness": 4,
+          "completeness": 1,
+          "hallucination": 4,
+          "fluency": 4
+        },
+        "reason": "Does not match ground truth; evaluated as Multi list overlap.",
+        "debug": {
+          "gold_type": "multi_list",
+          "gold_items": [
+            "a special mother's day bakery promotion",
+            "a special summer promotion on ice cream",
+            "a free baking class at the end of may",
+            "banana durian cheesecake"
+          ],
+          "precision": 0.6666666666666666,
+          "recall": 0.5,
+          "f1": 0.5714285714285715,
+          "hedging": false
+        }
+      },
+      "better_model": "tie",
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2008
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2008
+        }
+      }
+    },
+    {
+      "idx": 38,
+      "type": "Multi",
+      "question": "What feedbacks does Hailey ask from LiHua in July?",
+      "ground_truth": "feedback on the bread delivery service & customer feedback on a new line of artisanal donuts",
+      "llama2": {
+        "answer": "Based on the provided context, Hailey asks LiHua for feedback on the bread delivery in April. Therefore, the answer to the question \"What feedbacks does Hailey ask from LiHua in July?\" is \"None.\" Hailey does not ask LiHua for any feedback in July.",
+        "scores": {
+          "correctness": 1,
+          "faithfulness": 4,
+          "completeness": 1,
+          "hallucination": 3,
+          "fluency": 4
+        },
+        "reason": "Does not match ground truth; evaluated as Multi list overlap.",
+        "debug": {
+          "gold_type": "multi_list",
+          "gold_items": [
+            "feedback on the bread delivery service",
+            "customer feedback on a new line of artisanal donuts"
+          ],
+          "precision": 0.3333333333333333,
+          "recall": 0.5,
+          "f1": 0.4,
+          "hedging": false
+        }
+      },
+      "mistral": {
+        "answer": " Hailey asks for feedback about the bread delivery that occurred in July.",
+        "scores": {
+          "correctness": 3,
+          "faithfulness": 4,
+          "completeness": 3,
+          "hallucination": 4,
+          "fluency": 4
+        },
+        "reason": "Partially matches ground truth; evaluated as Multi list overlap.",
+        "debug": {
+          "gold_type": "multi_list",
+          "gold_items": [
+            "feedback on the bread delivery service",
+            "customer feedback on a new line of artisanal donuts"
+          ],
+          "precision": 1.0,
+          "recall": 0.5,
+          "f1": 0.6666666666666666,
+          "hedging": false
+        }
+      },
+      "better_model": "mistral",
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2008
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2008
+        }
+      }
+    },
+    {
+      "idx": 39,
+      "type": "Multi",
+      "question": "How long does it take in total from LiHua planning on getting the air-conditioner to the air-conditioner been installed?",
+      "ground_truth": "about 27 days",
+      "llama2": {
+        "answer": "Based on the provided context, the answer to the question \"How long does it take in total from LiHua planning on getting the air-conditioner to the air-conditioner been installed?\" is: 12 days.\n\nHere's how I arrived at this answer:\n\n* On August 3rd, AdamSmith and LiHua discussed the details of the air-conditioner installation, and AdamSmith mentioned that the installation was set for next week (August 9th). So, from the date LiHua planned on getting the air-conditioner to the installation, it took 6",
+        "scores": {
+          "correctness": 0,
+          "faithfulness": 3,
+          "completeness": 0,
+          "hallucination": 2,
+          "fluency": 3
+        },
+        "reason": "Does not match ground truth; likely contains fabricated/ungrounded details.",
+        "debug": {
+          "gold_type": "free",
+          "token_overlap": 0.3333333333333333,
+          "hedging": false
+        }
+      },
+      "mistral": {
+        "answer": " Based on the provided context, it appears that the air-conditioner installation was scheduled for Wednesday next week after Adam Smith's message on 20260809_12:00. However, the exact date is not specified in the context. Therefore, I don't have enough information to determine the total time from when Li Hua planned on getting the air-conditioner to the installation.",
+        "scores": {
+          "correctness": 0,
+          "faithfulness": 3,
+          "completeness": 0,
+          "hallucination": 2,
+          "fluency": 4
+        },
+        "reason": "Does not match ground truth; likely contains fabricated/ungrounded details.",
+        "debug": {
+          "gold_type": "free",
+          "token_overlap": 0.0,
+          "hedging": false
+        }
+      },
+      "better_model": "mistral",
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2008
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2008
+        }
+      }
+    },
+    {
+      "idx": 40,
+      "type": "Multi",
+      "question": "Did it take more than 3 weeks from LiHua planning on getting the air-conditioner to the air-conditioner been actually installed?",
+      "ground_truth": "Yes",
+      "llama2": {
+        "answer": "Based on the provided context, the answer is \"I don't know.\" The time frame for the installation of the air conditioner is not specified in the given dialogue.",
+        "scores": {
+          "correctness": 0,
+          "faithfulness": 5,
+          "completeness": 0,
+          "hallucination": 5,
+          "fluency": 4
+        },
+        "reason": "Model answered 'I don't know' (non-informative but avoids fabrication).",
+        "debug": {}
+      },
+      "mistral": {
+        "answer": " Based on the provided context, it took more than 3 weeks from when LiHua first inquired about adding an air-conditioner (on July 16) to when Adam Smith informed her that the installation was set for next week (on August 9). However, the exact number of days is not specified, so we cannot definitively say if it took exactly 23 days or more than 23 days.",
+        "scores": {
+          "correctness": 0,
+          "faithfulness": 4,
+          "completeness": 0,
+          "hallucination": 3,
+          "fluency": 4
+        },
+        "reason": "Does not match ground truth; uses hedging/uncertainty phrasing.",
+        "debug": {
+          "gold_type": "yesno",
+          "pred_yesno": "no",
+          "hedging": true
+        }
+      },
+      "better_model": "llama2",
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2008
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2008
+        }
+      }
+    },
+    {
+      "idx": 41,
+      "type": "Multi",
+      "question": "Did it take more than a week from Adam asking LiHua about the ideal installation date to Adam reminding LiHua about the contractor team installing air-conditioner at 18:00?",
+      "ground_truth": "Yes",
+      "llama2": {
+        "answer": "Based on the provided context, the answer is \"No\". It took exactly one week (7 days) from when Adam asked LiHua about the ideal installation date to when Adam reminded LiHua about the contractor team installing the air-conditioner at 18:00.",
+        "scores": {
+          "correctness": 0,
+          "faithfulness": 3,
+          "completeness": 0,
+          "hallucination": 2,
+          "fluency": 4
+        },
+        "reason": "Does not match ground truth; likely contains fabricated/ungrounded details.",
+        "debug": {
+          "gold_type": "yesno",
+          "pred_yesno": "no",
+          "hedging": false
+        }
+      },
+      "mistral": {
+        "answer": " Yes, it took more than a week from Adam asking LiHua about the ideal installation date to Adam reminding LiHua about the contractor team installing air-conditioner at 18:00. The conversation where Adam asked LiHua about the ideal installation date was on August 9th, and the reminder was on August 12th.",
+        "scores": {
+          "correctness": 5,
+          "faithfulness": 3,
+          "completeness": 5,
+          "hallucination": 2,
+          "fluency": 4
+        },
+        "reason": "Matches ground truth; likely contains fabricated/ungrounded details.",
+        "debug": {
+          "gold_type": "yesno",
+          "pred_yesno": "yes",
+          "hedging": false
+        }
+      },
+      "better_model": "mistral",
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2008
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2008
+        }
+      }
+    },
+    {
+      "idx": 42,
+      "type": "Multi",
+      "question": "Who does LiHua want to invite to the photo exhibition and who goes with him (during August)?",
+      "ground_truth": "Wolfgang",
+      "llama2": {
+        "answer": "Based on the provided context, LiHua wants to invite WolfgangSchulz to the photography exhibition in August. Therefore, the answer is WolfgangSchulz.",
+        "scores": {
+          "correctness": 5,
+          "faithfulness": 4,
+          "completeness": 5,
+          "hallucination": 4,
+          "fluency": 4
+        },
+        "reason": "Matches ground truth.",
+        "debug": {
+          "gold_type": "free",
+          "token_overlap": 0.0,
+          "hedging": false
+        }
+      },
+      "mistral": {
+        "answer": " LiHua wants to invite WolfgangSchulz to the photography exhibition, and he goes with him during August.",
+        "scores": {
+          "correctness": 5,
+          "faithfulness": 4,
+          "completeness": 5,
+          "hallucination": 4,
+          "fluency": 4
+        },
+        "reason": "Matches ground truth.",
+        "debug": {
+          "gold_type": "free",
+          "token_overlap": 0.0,
+          "hedging": false
+        }
+      },
+      "better_model": "tie",
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        }
+      }
+    },
+    {
+      "idx": 43,
+      "type": "Multi",
+      "question": "Is the time interval between LiHua asking JakeWatson to help him with dribbling skills and Li Hua asking the group about classic must-watch UCL matches more than 2 days (restrict your search within August)?",
+      "ground_truth": "Yes",
+      "llama2": {
+        "answer": "Based on the provided context, the answer is NO. The time interval between LiHua asking JakeWatson to help him with dribbling skills and Li Hua asking the group about classic must-watch UCL matches is less than 2 days (August 19th and August 21st respectively).",
+        "scores": {
+          "correctness": 0,
+          "faithfulness": 3,
+          "completeness": 0,
+          "hallucination": 2,
+          "fluency": 4
+        },
+        "reason": "Does not match ground truth; likely contains fabricated/ungrounded details.",
+        "debug": {
+          "gold_type": "yesno",
+          "pred_yesno": "no",
+          "hedging": false
+        }
+      },
+      "mistral": {
+        "answer": " Based on the provided context, there is no information given about the exact number of days between LiHua asking JakeWatson for help with dribbling skills and LiHua asking the group about classic must-watch UCL matches. However, since the conversation with JakeWatson happened on August 19th, and the conversation with Giselle was about practicing soccer \"this week\", it is likely that less than 2 days have passed between the two conversations. Therefore, I don't know if the time interval is more than 2 days (restricting the search within August).",
+        "scores": {
+          "correctness": 0,
+          "faithfulness": 5,
+          "completeness": 0,
+          "hallucination": 5,
+          "fluency": 3
+        },
+        "reason": "Model answered 'I don't know' (non-informative but avoids fabrication).",
+        "debug": {}
+      },
+      "better_model": "mistral",
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        }
+      }
+    },
+    {
+      "idx": 44,
+      "type": "Multi",
+      "question": "Is the time interval more than 3 days between LiHua asking Adam to help him install a curtain on the basement window and Adam asking LiHua to measure the size of the window?",
+      "ground_truth": "Yes",
+      "llama2": {
+        "answer": "Based on the provided context, the answer is \"No\". The time interval between LiHua asking Adam to help him install a curtain on the basement window and Adam asking LiHua to measure the size of the window is less than 3 days. The conversations take place on the following dates and times:\n\n* Time: 20260921_16:00 - LiHua asks Adam for help with installing a curtain on the basement window.\n* Time: 20260928_10:00 - Adam asks Li",
+        "scores": {
+          "correctness": 0,
+          "faithfulness": 3,
+          "completeness": 0,
+          "hallucination": 2,
+          "fluency": 4
+        },
+        "reason": "Does not match ground truth; likely contains fabricated/ungrounded details.",
+        "debug": {
+          "gold_type": "yesno",
+          "pred_yesno": "no",
+          "hedging": false
+        }
+      },
+      "mistral": {
+        "answer": " Yes, the time interval is more than 3 days between LiHua asking Adam to help him install a curtain on the basement window and Adam asking LiHua to measure the size of the window. The first interaction was on September 21st, and the second interaction was on September 28th, which is a difference of 7 days.",
+        "scores": {
+          "correctness": 5,
+          "faithfulness": 3,
+          "completeness": 5,
+          "hallucination": 2,
+          "fluency": 4
+        },
+        "reason": "Matches ground truth; likely contains fabricated/ungrounded details.",
+        "debug": {
+          "gold_type": "yesno",
+          "pred_yesno": "yes",
+          "hedging": false
+        }
+      },
+      "better_model": "mistral",
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2008
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2008
+        }
+      }
+    },
+    {
+      "idx": 45,
+      "type": "Multi",
+      "question": "Is the time interval more than 7 days between Adam asking LiHua to measure the size of the window and Adam informing Li Hua that he has booked the curtain of the right size?",
+      "ground_truth": "Yes",
+      "llama2": {
+        "answer": "Based on the provided context, the answer is \"No\". The time interval between Adam's request for LiHua to measure the size of the window and Adam informing LiHua that he has booked the curtain of the right size is less than 7 days. Specifically, it is 6 days (from September 28th to October 19th).",
+        "scores": {
+          "correctness": 0,
+          "faithfulness": 3,
+          "completeness": 0,
+          "hallucination": 2,
+          "fluency": 4
+        },
+        "reason": "Does not match ground truth; likely contains fabricated/ungrounded details.",
+        "debug": {
+          "gold_type": "yesno",
+          "pred_yesno": "no",
+          "hedging": false
+        }
+      },
+      "mistral": {
+        "answer": " Yes, based on the provided context, the time interval between Adam asking LiHua to measure the size of the window (20260928_10:00) and Adam informing Li Hua that he has booked the curtain of the right size (20261007_12:00) is more than 7 days.",
+        "scores": {
+          "correctness": 5,
+          "faithfulness": 4,
+          "completeness": 5,
+          "hallucination": 3,
+          "fluency": 4
+        },
+        "reason": "Matches ground truth.",
+        "debug": {
+          "gold_type": "yesno",
+          "pred_yesno": "yes",
+          "hedging": false
+        }
+      },
+      "better_model": "mistral",
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2008
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2008
+        }
+      }
+    },
+    {
+      "idx": 46,
+      "type": "Multi",
+      "question": "Is the time interval more than 3 days between LiHua confirming that he has received the curtain and Adam asking LiHua if the curtain is all good?",
+      "ground_truth": "Yes",
+      "llama2": {
+        "answer": "Based on the provided context, the answer to the question is \"Yes\". The time interval between LiHua confirming that he has received the curtain and Adam asking LiHua if the curtain is all good is more than 3 days.",
+        "scores": {
+          "correctness": 5,
+          "faithfulness": 4,
+          "completeness": 5,
+          "hallucination": 3,
+          "fluency": 4
+        },
+        "reason": "Matches ground truth.",
+        "debug": {
+          "gold_type": "yesno",
+          "pred_yesno": "yes",
+          "hedging": false
+        }
+      },
+      "mistral": {
+        "answer": " Yes, the time interval is more than 3 days between LiHua confirming that he has received the curtain and Adam asking LiHua if the curtain is all good. The confirmation was on October 12th, and the question was asked on October 19th.",
+        "scores": {
+          "correctness": 5,
+          "faithfulness": 4,
+          "completeness": 5,
+          "hallucination": 3,
+          "fluency": 4
+        },
+        "reason": "Matches ground truth.",
+        "debug": {
+          "gold_type": "yesno",
+          "pred_yesno": "yes",
+          "hedging": false
+        }
+      },
+      "better_model": "tie",
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        }
+      }
+    },
+    {
+      "idx": 47,
+      "type": "Multi",
+      "question": "Is the time interval more than 3 days between LiHua first asking Adam if he can buy a small fridge for the basement and Adam asking LiHua about the size of the fridge?",
+      "ground_truth": "Yes",
+      "llama2": {
+        "answer": "Yes, the time interval is more than 3 days between LiHua's first request and Adam's response. The conversation takes place over the course of 10 days, with LiHua's initial request on November 10th, Adam's response on November 16th, and subsequent conversations on November 23rd, December 14th, and March 4th.",
+        "scores": {
+          "correctness": 5,
+          "faithfulness": 3,
+          "completeness": 5,
+          "hallucination": 2,
+          "fluency": 4
+        },
+        "reason": "Matches ground truth; likely contains fabricated/ungrounded details.",
+        "debug": {
+          "gold_type": "yesno",
+          "pred_yesno": "yes",
+          "hedging": false
+        }
+      },
+      "mistral": {
+        "answer": " Yes, the time interval is more than 3 days between LiHua first asking Adam if he can buy a small fridge for the basement and Adam asking LiHua about the size of the fridge. The first conversation was on November 10th, and the second conversation was on November 16th, which is a difference of 6 days.",
+        "scores": {
+          "correctness": 5,
+          "faithfulness": 3,
+          "completeness": 5,
+          "hallucination": 2,
+          "fluency": 4
+        },
+        "reason": "Matches ground truth; likely contains fabricated/ungrounded details.",
+        "debug": {
+          "gold_type": "yesno",
+          "pred_yesno": "yes",
+          "hedging": false
+        }
+      },
+      "better_model": "tie",
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2008
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2008
+        }
+      }
+    },
+    {
+      "idx": 48,
+      "type": "Multi",
+      "question": "Is the time interval more than 7 days between Adam asking LiHua about the size of the fridge and Adam informing LiHua that the fridge will be delivered at 4pm next day?",
+      "ground_truth": "Yes",
+      "llama2": {
+        "answer": "Yes, the time interval is more than 7 days between Adam asking LiHua about the size of the fridge and Adam informing LiHua that the fridge will be delivered at 4pm next day. The conversation takes place over a period of 13 days, with the following dates mentioned:\n\n* 20261116 (Thursday)\n* 20261110 (Tuesday)\n* 20260304 (Friday)\n* 20260219 (Saturday)",
+        "scores": {
+          "correctness": 5,
+          "faithfulness": 3,
+          "completeness": 5,
+          "hallucination": 2,
+          "fluency": 4
+        },
+        "reason": "Matches ground truth; likely contains fabricated/ungrounded details.",
+        "debug": {
+          "gold_type": "yesno",
+          "pred_yesno": "yes",
+          "hedging": false
+        }
+      },
+      "mistral": {
+        "answer": " Based on the provided context, there is no information available to determine if the time interval between Adam asking Li Hua about the size of the fridge and Adam informing Li Hua that the fridge will be delivered is more than 7 days. Therefore, I don't know.",
+        "scores": {
+          "correctness": 0,
+          "faithfulness": 5,
+          "completeness": 0,
+          "hallucination": 5,
+          "fluency": 4
+        },
+        "reason": "Model answered 'I don't know' (non-informative but avoids fabrication).",
+        "debug": {}
+      },
+      "better_model": "llama2",
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2008
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2008
+        }
+      }
+    },
+    {
+      "idx": 49,
+      "type": "Multi",
+      "question": "Wolfgang suddenly becomes very concerned about good body shape and healthy food choices in December. What are the two conversations he had with LiHua in December that reflect this?",
+      "ground_truth": "20261202_14:00 & 20261209_19:00",
+      "llama2": {
+        "answer": "Based on the provided context, the two conversations Wolfgang had with LiHua in December that reflect his concern for good body shape and healthy food choices are:\n\n1. Time: 20261228_10:00 - Wolfgang expresses his desire to share some \"amazing pics\" he took in Hong Kong, and mentions that they can grab some food beforehand. This suggests that he is thinking about food and wants to enjoy it together with LiHua.\n2. Time: 20261228_10:00 -",
+        "scores": {
+          "correctness": 0,
+          "faithfulness": 3,
+          "completeness": 0,
+          "hallucination": 2,
+          "fluency": 4
+        },
+        "reason": "Does not match ground truth; likely contains fabricated/ungrounded details.",
+        "debug": {
+          "gold_type": "datetime",
+          "pred_datetime": "20261228_10:00",
+          "gold_datetime": "20261202_14:00",
+          "hedging": false
+        }
+      },
+      "mistral": {
+        "answer": " The two conversations in December where Wolfgang shows concern about good body shape and healthy food choices are as follows:\n\n1. Time: 20261228_10:00\n   WolfgangSchulz: Hey! Do you have some time after work today? I want to share some awesome pics I took in Hong Kong! 😊\n   LiHua: Hey! That sounds amazing! I'd love to see those pictures. What time were you thinking?\n   WolfgangSchulz: How about 7 pm? We can grab some food and",
+        "scores": {
+          "correctness": 0,
+          "faithfulness": 3,
+          "completeness": 0,
+          "hallucination": 2,
+          "fluency": 4
+        },
+        "reason": "Does not match ground truth; likely contains fabricated/ungrounded details.",
+        "debug": {
+          "gold_type": "datetime",
+          "pred_datetime": "20261228_10:00",
+          "gold_datetime": "20261202_14:00",
+          "hedging": false
+        }
+      },
+      "better_model": "tie",
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        }
+      }
+    },
+    {
+      "idx": 50,
+      "type": "Multi",
+      "question": "Did Li Hua agree to have dinner with Wolfgang after he told Wolfgang about the lunch arrangement?",
+      "ground_truth": "Yes",
+      "llama2": {
+        "answer": "Based on the context provided, it seems that Li Hua agreed to have dinner with Wolfgang. In the conversation, Wolfgang mentions that they will go to the Italian place they love for dinner, and Li Hua responds by saying \"7 works great for me! Can’t wait to dig in and catch up!\" This suggests that Li Hua is interested in going to dinner with Wolfgang.",
+        "scores": {
+          "correctness": 0,
+          "faithfulness": 3,
+          "completeness": 0,
+          "hallucination": 2,
+          "fluency": 4
+        },
+        "reason": "Does not match ground truth; likely contains fabricated/ungrounded details.",
+        "debug": {
+          "gold_type": "yesno",
+          "pred_yesno": null,
+          "hedging": false
+        }
+      },
+      "mistral": {
+        "answer": " Yes, Li Hua agreed to have dinner with Wolfgang. The conversation about dinner is from the context dated 20260523_14:00, where Li Hua says \"Sounds perfect! I’m craving their pasta!\" and later agrees to go at 7 PM.",
+        "scores": {
+          "correctness": 5,
+          "faithfulness": 4,
+          "completeness": 5,
+          "hallucination": 3,
+          "fluency": 4
+        },
+        "reason": "Matches ground truth.",
+        "debug": {
+          "gold_type": "yesno",
+          "pred_yesno": "yes",
+          "hedging": false
+        }
+      },
+      "better_model": "mistral",
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2010
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2010
+        }
+      }
+    },
+    {
+      "idx": 51,
+      "type": "Multi",
+      "question": "Did Li Hua ask Wolfgang Schulz for a recommendation on a gym or fitness center before asking Jennifer Moore for book recommendations on fitness nutrition?",
+      "ground_truth": "Yes",
+      "llama2": {
+        "answer": "Based on the provided context, the answer is \"No\". Li Hua does not ask Wolfgang Schulz for a recommendation on a gym or fitness center before asking Jennifer Moore for book recommendations on fitness nutrition. The conversation takes place between Li Hua and Jennifer Moore, with no mention of Wolfgang Schulz.",
+        "scores": {
+          "correctness": 0,
+          "faithfulness": 3,
+          "completeness": 0,
+          "hallucination": 2,
+          "fluency": 4
+        },
+        "reason": "Does not match ground truth; likely contains fabricated/ungrounded details.",
+        "debug": {
+          "gold_type": "yesno",
+          "pred_yesno": "no",
+          "hedging": false
+        }
+      },
+      "mistral": {
+        "answer": " No, Li Hua did not ask Wolfgang Schulz for a recommendation on a gym or fitness center before asking Jennifer Moore for book recommendations on fitness nutrition.",
+        "scores": {
+          "correctness": 0,
+          "faithfulness": 3,
+          "completeness": 0,
+          "hallucination": 2,
+          "fluency": 4
+        },
+        "reason": "Does not match ground truth; likely contains fabricated/ungrounded details.",
+        "debug": {
+          "gold_type": "yesno",
+          "pred_yesno": "no",
+          "hedging": false
+        }
+      },
+      "better_model": "tie",
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        }
+      }
+    },
+    {
+      "idx": 52,
+      "type": "Multi",
+      "question": "Did Li Hua ask Wolfgang Schulz if he wants to go to the gym together before Jennifer reminded Li Hua to participate in the gym's membership feedback activity?",
+      "ground_truth": "Yes",
+      "llama2": {
+        "answer": "Based on the provided context, the answer is \"I don't know.\" There is no mention of Li Hua asking Wolfgang Schulz if he wants to go to the gym together before Jennifer reminded Li Hua to participate in the gym's membership feedback activity.",
+        "scores": {
+          "correctness": 0,
+          "faithfulness": 5,
+          "completeness": 0,
+          "hallucination": 5,
+          "fluency": 4
+        },
+        "reason": "Model answered 'I don't know' (non-informative but avoids fabrication).",
+        "debug": {}
+      },
+      "mistral": {
+        "answer": " No, Li Hua did not ask Wolfgang Schulz if they want to go to the gym together before Jennifer reminded Li Hua to participate in the gym's membership feedback activity.",
+        "scores": {
+          "correctness": 0,
+          "faithfulness": 3,
+          "completeness": 0,
+          "hallucination": 2,
+          "fluency": 4
+        },
+        "reason": "Does not match ground truth; likely contains fabricated/ungrounded details.",
+        "debug": {
+          "gold_type": "yesno",
+          "pred_yesno": "no",
+          "hedging": false
+        }
+      },
+      "better_model": "llama2",
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        }
+      }
+    },
+    {
+      "idx": 53,
+      "type": "Multi",
+      "question": "Did Li Hua send a message to Wolfgang Schulz saying that he has prepared all the delicious food for tonight's Chinese Lunar New Year before Wolfgang sent a message to Li Hua wishing him a happy Lunar New Year?",
+      "ground_truth": "Yes",
+      "llama2": {
+        "answer": "Based on the provided context, the answer is \"I don't know.\" There is no information in the given dialogue to suggest that Li Hua prepared food for the Chinese Lunar New Year before Wolfgang sent his message wishing Li Hua a happy Lunar New Year.",
+        "scores": {
+          "correctness": 0,
+          "faithfulness": 5,
+          "completeness": 0,
+          "hallucination": 5,
+          "fluency": 4
+        },
+        "reason": "Model answered 'I don't know' (non-informative but avoids fabrication).",
+        "debug": {}
+      },
+      "mistral": {
+        "answer": " No, Li Hua did not send a message to Wolfgang Schulz saying that he has prepared all the delicious food for tonight's Chinese Lunar New Year before Wolfgang sent a message to Li Hua wishing him a happy Lunar New Year.",
+        "scores": {
+          "correctness": 0,
+          "faithfulness": 3,
+          "completeness": 0,
+          "hallucination": 2,
+          "fluency": 4
+        },
+        "reason": "Does not match ground truth; likely contains fabricated/ungrounded details.",
+        "debug": {
+          "gold_type": "yesno",
+          "pred_yesno": "no",
+          "hedging": false
+        }
+      },
+      "better_model": "llama2",
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2008
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2008
+        }
+      }
+    },
+    {
+      "idx": 54,
+      "type": "Multi",
+      "question": "Did Li Hua provide feedback to Jennifer Moore on his new meal plan before he asked her for advice on a healthy meal plan?",
+      "ground_truth": "No",
+      "llama2": {
+        "answer": "Based on the provided context, the answer is \"I don't know.\" The conversation does not provide any information about Li Hua providing feedback on a new meal plan to Jennifer Moore before asking for advice on a healthy meal plan.",
+        "scores": {
+          "correctness": 0,
+          "faithfulness": 5,
+          "completeness": 0,
+          "hallucination": 5,
+          "fluency": 4
+        },
+        "reason": "Model answered 'I don't know' (non-informative but avoids fabrication).",
+        "debug": {}
+      },
+      "mistral": {
+        "answer": " No, Li Hua did not provide feedback to Jennifer Moore on his new meal plan before he asked her for advice on a healthy meal plan.",
+        "scores": {
+          "correctness": 5,
+          "faithfulness": 4,
+          "completeness": 5,
+          "hallucination": 4,
+          "fluency": 4
+        },
+        "reason": "Matches ground truth.",
+        "debug": {
+          "gold_type": "yesno",
+          "pred_yesno": "no",
+          "hedging": false
+        }
+      },
+      "better_model": "mistral",
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        }
+      }
+    },
+    {
+      "idx": 55,
+      "type": "Multi",
+      "question": "Did Li Hua's complaint about the customer who modifies their requirements occur before Wolfgang comforted him?",
+      "ground_truth": "No",
+      "llama2": {
+        "answer": "Based on the provided context, the answer to your question is \"No\". Li Hua's complaint about the customer who modifies their requirements occurred after Wolfgang comforted him. The conversation between Li Hua and WolfgangSchulz takes place at 20260123_17:30 and 20260131_14:00, respectively. Therefore, the complaint about the customer occurs after the second conversation with Wolfgang.",
+        "scores": {
+          "correctness": 5,
+          "faithfulness": 3,
+          "completeness": 5,
+          "hallucination": 2,
+          "fluency": 4
+        },
+        "reason": "Matches ground truth; likely contains fabricated/ungrounded details.",
+        "debug": {
+          "gold_type": "yesno",
+          "pred_yesno": "no",
+          "hedging": false
+        }
+      },
+      "mistral": {
+        "answer": " Based on the provided context, Li Hua's complaint about the customer who modifies their requirements occurred after Wolfgang comforted her. The first conversation between them was on January 23rd, and Li Hua's complaint about the customer was on January 31st.",
+        "scores": {
+          "correctness": 0,
+          "faithfulness": 3,
+          "completeness": 0,
+          "hallucination": 2,
+          "fluency": 4
+        },
+        "reason": "Does not match ground truth; likely contains fabricated/ungrounded details.",
+        "debug": {
+          "gold_type": "yesno",
+          "pred_yesno": null,
+          "hedging": false
+        }
+      },
+      "better_model": "llama2",
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2008
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2008
+        }
+      }
+    },
+    {
+      "idx": 56,
+      "type": "Multi",
+      "question": "Did Adam Smith send Li Hua a reminder about the upcoming rent due date before Li Hua sent a message about having already transferred the rent on 20260301?",
+      "ground_truth": "Yes",
+      "llama2": {
+        "answer": "Based on the provided context, the answer is \"I don't know.\" There is no information in the context to suggest that Adam Smith sent a reminder about the upcoming rent due date before Li Hua sent a message about having already transferred the rent on 20260301.",
+        "scores": {
+          "correctness": 0,
+          "faithfulness": 5,
+          "completeness": 0,
+          "hallucination": 5,
+          "fluency": 4
+        },
+        "reason": "Model answered 'I don't know' (non-informative but avoids fabrication).",
+        "debug": {}
+      },
+      "mistral": {
+        "answer": " No, Adam Smith did not send a reminder about the upcoming rent due date before Li Hua sent a message about having already transferred the rent on 20260301. The last conversation between them regarding rent was on 20260130_10:00 when Li Hua informed Adam that she had already transferred the rent through bank transfer.",
+        "scores": {
+          "correctness": 0,
+          "faithfulness": 3,
+          "completeness": 0,
+          "hallucination": 2,
+          "fluency": 4
+        },
+        "reason": "Does not match ground truth; likely contains fabricated/ungrounded details.",
+        "debug": {
+          "gold_type": "yesno",
+          "pred_yesno": "no",
+          "hedging": false
+        }
+      },
+      "better_model": "llama2",
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2008
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2008
+        }
+      }
+    },
+    {
+      "idx": 57,
+      "type": "Multi",
+      "question": "Did Li Hua share a blog post about his recent fitness achievements after Jennifer sent him a motivational message?",
+      "ground_truth": "Yes",
+      "llama2": {
+        "answer": "Based on the provided context, the answer is \"I don't know.\" Li Hua does not mention sharing a blog post about his recent fitness achievements in any of the conversations.",
+        "scores": {
+          "correctness": 0,
+          "faithfulness": 5,
+          "completeness": 0,
+          "hallucination": 5,
+          "fluency": 4
+        },
+        "reason": "Model answered 'I don't know' (non-informative but avoids fabrication).",
+        "debug": {}
+      },
+      "mistral": {
+        "answer": " No, Li Hua did not share a blog post about his recent fitness achievements after Jennifer sent him a motivational message. The context does not indicate that Li Hua shared a blog post in response to any of the messages exchanged.",
+        "scores": {
+          "correctness": 0,
+          "faithfulness": 3,
+          "completeness": 0,
+          "hallucination": 2,
+          "fluency": 4
+        },
+        "reason": "Does not match ground truth; likely contains fabricated/ungrounded details.",
+        "debug": {
+          "gold_type": "yesno",
+          "pred_yesno": "no",
+          "hedging": false
+        }
+      },
+      "better_model": "llama2",
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        }
+      }
+    },
+    {
+      "idx": 58,
+      "type": "Multi",
+      "question": "Did Li Hua send a follow-up message to Jennifer before she asked him about his latest sleeping schedule?",
+      "ground_truth": "Yes",
+      "llama2": {
+        "answer": "Based on the provided context, the answer is \"I don't know.\" There is no indication in the conversation that Li Hua sent a follow-up message to Jennifer before she asked him about his latest sleeping schedule.",
+        "scores": {
+          "correctness": 0,
+          "faithfulness": 5,
+          "completeness": 0,
+          "hallucination": 5,
+          "fluency": 4
+        },
+        "reason": "Model answered 'I don't know' (non-informative but avoids fabrication).",
+        "debug": {}
+      },
+      "mistral": {
+        "answer": " No, Li Hua did not send a follow-up message to Jennifer Moore about her latest sleeping schedule before asking Emily about the Silicon Valley series finale.",
+        "scores": {
+          "correctness": 0,
+          "faithfulness": 3,
+          "completeness": 0,
+          "hallucination": 2,
+          "fluency": 4
+        },
+        "reason": "Does not match ground truth; likely contains fabricated/ungrounded details.",
+        "debug": {
+          "gold_type": "yesno",
+          "pred_yesno": "no",
+          "hedging": false
+        }
+      },
+      "better_model": "llama2",
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2008
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2008
+        }
+      }
+    },
+    {
+      "idx": 59,
+      "type": "Multi",
+      "question": "Did Li Hua ask Adam Smith about placing potted plants in the basement before he asked about decorating the basement?",
+      "ground_truth": "No",
+      "llama2": {
+        "answer": "Based on the provided context, the answer is \"No\". Li Hua did not ask Adam Smith about placing potted plants in the basement before asking about decorating the basement. The first mention of adding plants to the basement is in the conversation on February 19th, 2026 at 20:00, when Li Hua asks Adam Smith if he thinks it's a good idea to add some sound-insulating pads to the basement.",
+        "scores": {
+          "correctness": 5,
+          "faithfulness": 3,
+          "completeness": 5,
+          "hallucination": 2,
+          "fluency": 4
+        },
+        "reason": "Matches ground truth; likely contains fabricated/ungrounded details.",
+        "debug": {
+          "gold_type": "yesno",
+          "pred_yesno": "no",
+          "hedging": false
+        }
+      },
+      "mistral": {
+        "answer": " Yes",
+        "scores": {
+          "correctness": 0,
+          "faithfulness": 3,
+          "completeness": 0,
+          "hallucination": 2,
+          "fluency": 4
+        },
+        "reason": "Does not match ground truth; likely contains fabricated/ungrounded details.",
+        "debug": {
+          "gold_type": "yesno",
+          "pred_yesno": "yes",
+          "hedging": false
+        }
+      },
+      "better_model": "llama2",
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2008
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2008
+        }
+      }
+    },
+    {
+      "idx": 60,
+      "type": "Multi",
+      "question": "Did Li Hua ask Wolfgang for advice on renovating the basement before he invited Adam Smith to check the progress of the basement renovation?",
+      "ground_truth": "Yes",
+      "llama2": {
+        "answer": "Based on the context provided, the answer is \"I don't know.\" There is no information in the conversation that suggests Li Hua asked Wolfgang for advice on renovating the basement before inviting Adam Smith to check the progress.",
+        "scores": {
+          "correctness": 0,
+          "faithfulness": 5,
+          "completeness": 0,
+          "hallucination": 5,
+          "fluency": 4
+        },
+        "reason": "Model answered 'I don't know' (non-informative but avoids fabrication).",
+        "debug": {}
+      },
+      "mistral": {
+        "answer": " Based on the provided context, there is no information that suggests Li Hua asked Wolfgang for advice on renovating the basement before inviting Adam Smith.",
+        "scores": {
+          "correctness": 0,
+          "faithfulness": 5,
+          "completeness": 0,
+          "hallucination": 5,
+          "fluency": 4
+        },
+        "reason": "Model answered 'I don't know' (non-informative but avoids fabrication).",
+        "debug": {}
+      },
+      "better_model": "tie",
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        }
+      }
+    }
+  ]
+}

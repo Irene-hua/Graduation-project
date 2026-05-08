@@ -1,0 +1,92 @@
+[
+  {
+    "type": "Null",
+    "qid": 1,
+    "question": "What time will Li Hua and Wolfgang meet for breakfast on the morning of the 9th?",
+    "gold": "Insufficient information",
+    "prediction": " I don't know. The context does not provide information about any plans for breakfast on the 9th.",
+    "error_type": "FP",
+    "judge_method": "not_abstain"
+  },
+  {
+    "type": "Null",
+    "qid": 3,
+    "question": "What type of exercise does Li Hua prefer to do at the gym, and what time does Wolfgang usually go to the gym?",
+    "gold": "Insufficient information",
+    "prediction": " Li Hua prefers to do a combination of cardio exercises like treadmill or bike, followed by strength training at the gym. Wolfgang Schulz doesn't have a specific mentioned time for going to the gym in the provided context.",
+    "error_type": "FP",
+    "judge_method": "not_abstain"
+  },
+  {
+    "type": "Null",
+    "qid": 4,
+    "question": "What type of traditional games did Wolfgang Schulz play with Li Hua during the Lunar New Year celebration?",
+    "gold": "Insufficient information",
+    "prediction": " The context does not provide information about any traditional games played by Wolfgang Schulz and Li Hua during their Lunar New Year celebration.",
+    "error_type": "FP",
+    "judge_method": "not_abstain"
+  },
+  {
+    "type": "Null",
+    "qid": 5,
+    "question": "What did Li Hua eat for dinner on January 20, 2026?",
+    "gold": "Insufficient information",
+    "prediction": " The context does not provide information about what Li Hua ate for dinner on January 20, 2026.",
+    "error_type": "FP",
+    "judge_method": "not_abstain"
+  },
+  {
+    "type": "Null",
+    "qid": 7,
+    "question": "What movie did Li Hua and Wolfgang decide to watch together on New Year's Eve 2026?",
+    "gold": "Insufficient information",
+    "prediction": " I don't know. The provided context does not mention any plans for a movie night on New Year's Eve 2026 between Li Hua and Wolfgang.",
+    "error_type": "FP",
+    "judge_method": "not_abstain"
+  },
+  {
+    "type": "Null",
+    "qid": 8,
+    "question": "What dish did Li Hua order for dessert after having Sichuan hot pot with Wolfgang Schulz?",
+    "gold": "Insufficient information",
+    "prediction": " I don't know. The provided context does not mention what dessert Li Hua ordered after having Sichuan hot pot with Wolfgang Schulz.",
+    "error_type": "FP",
+    "judge_method": "not_abstain"
+  },
+  {
+    "type": "Null",
+    "qid": 9,
+    "question": "What were the specific requirements that the customers modified and how did Li Hua respond to each change?",
+    "gold": "Insufficient information",
+    "prediction": " The context does not provide specific details about the modifications made to the customer's requirements by the clients. However, it is mentioned that the clients frequently change their requirements, which causes frustration for Li Hua. In response to these changes, Li Hua decides to keep a log of all the requests and tries to be more proactive about setting clear expectations with the clients.",
+    "error_type": "FP",
+    "judge_method": "not_abstain"
+  },
+  {
+    "type": "Null",
+    "qid": 10,
+    "question": "What payment method did Li Hua use to purchase groceries from the store on April 15, 2026?",
+    "gold": "Insufficient information",
+    "prediction": " I don't know. The context does not provide information about Li Hua purchasing groceries on April 15, 2026.",
+    "error_type": "FP",
+    "judge_method": "not_abstain"
+  },
+  {
+    "type": "Null",
+    "qid": 13,
+    "question": "What type of diet is Li Hua following to support his training regimen and sleep schedule?",
+    "gold": "Insufficient information",
+    "prediction": " Based on the provided context, it is not explicitly stated what specific type of diet Li Hua is following. However, it can be inferred that he is focusing on a balanced diet with an emphasis on healthy foods such as quinoa, fruits, vegetables, nuts, and lean proteins, as suggested by Jennifer Moore. He also mentions the importance of staying hydrated.",
+    "error_type": "FP",
+    "judge_method": "not_abstain"
+  },
+  {
+    "type": "Null",
+    "qid": 15,
+    "question": "What specific brand of protein supplement does Jennifer recommend for Li Hua's weight loss journey?",
+    "gold": "Insufficient information",
+    "prediction": " I don't know. The provided context does not mention any specific brand of protein supplement that Jennifer recommends for Li Hua's weight loss journey.",
+    "error_type": "FP",
+    "judge_method": "not_abstain"
+  }
+]

@@ -1,0 +1,92 @@
+[
+  {
+    "type": "Multi",
+    "qid": 1,
+    "question": "Did Adam Smith send a message to Li Hua about the upcoming building maintenance schedule before the administrators announced a temporary change in the construction schedule due to weather conditions?",
+    "gold": "Yes",
+    "prediction": " Based on the provided context, there is no information indicating that Adam Smith sent a message to Li Hua about the upcoming building maintenance schedule after the administrators announced a temporary change in the construction schedule due to weather conditions. Therefore, I don't know if he did or not.",
+    "error_type": "FN",
+    "judge_method": "abstain"
+  },
+  {
+    "type": "Multi",
+    "qid": 2,
+    "question": "Did Wolfgang ask Li Hua about watching \"Star Wars: A New Hope\" after he asked Li Hua about going to see \"Overwatch 3\"?",
+    "gold": "Yes",
+    "prediction": " No, Wolfgang did not ask Li Hua about watching \"Star Wars: A New Hope\" after he asked her about going to see \"Overwatch 3\". The conversation about Star Wars happened on October 9th, while the conversation about Overwatch 3 happened on January 21st.",
+    "error_type": "FP",
+    "judge_method": "fast"
+  },
+  {
+    "type": "Multi",
+    "qid": 4,
+    "question": "Did Li Hua send a message to Jennifer thanking her for the new training schedule before he requested a change in his training schedule for Thursday?",
+    "gold": "Yes",
+    "prediction": " No, Li Hua did not send a message to Jennifer thanking her for the new training schedule before requesting a change in his training schedule for Thursday. The conversation provided does not show any such exchange.",
+    "error_type": "FP",
+    "judge_method": "fast"
+  },
+  {
+    "type": "Multi",
+    "qid": 5,
+    "question": "Did Li Hua ask Jennifer for advice on how to prevent muscle soreness after an intense workout session before he told her that he feels soreness in his arm muscles after the workout this week?",
+    "gold": "Yes",
+    "prediction": " No, Li Hua did not ask Jennifer for advice on how to prevent muscle soreness after an intense workout session before he told her that he feels soreness in his arm muscles after the workout this week.",
+    "error_type": "FP",
+    "judge_method": "fast"
+  },
+  {
+    "type": "Multi",
+    "qid": 6,
+    "question": "Did Li Hua send a message to Jennifer asking for her opinion on protein supplements before he consulted her about his daily protein powder consumption?",
+    "gold": "Yes",
+    "prediction": " No, Li Hua did not send a message to Jennifer asking for her opinion on protein supplements before consulting her about his daily protein powder consumption. The conversation between them only discussed the new line of high-protein breads and Li Hua's interest in trying them.",
+    "error_type": "FP",
+    "judge_method": "fast"
+  },
+  {
+    "type": "Multi",
+    "qid": 7,
+    "question": "Did Yuriko ask Li Hua for help with her studio's homepage before she booked a seat at the \"Central Perk\" cafe?",
+    "gold": "Yes",
+    "prediction": " Based on the provided context, it is not explicitly stated that Yuriko asked Li Hua for help with her studio's homepage before booking a seat at Central Perk. However, their conversation about meeting up to discuss ideas for her homepage suggests that they were planning to do so after their initial meeting at Central Perk. Therefore, I don't know if Yuriko specifically asked Li Hua for help with her studio's homepage before booking the seat at Central Perk.",
+    "error_type": "FP",
+    "judge_method": "fast"
+  },
+  {
+    "type": "Multi",
+    "qid": 8,
+    "question": "Did Li Hua discuss his progress with the fitness plan before he shared a blog post about his recent fitness achievements?",
+    "gold": "Yes",
+    "prediction": " Based on the provided context, there is no information that suggests Li Hua discussed his progress with the fitness plan before sharing a blog post about his recent fitness achievements.",
+    "error_type": "FN",
+    "judge_method": "abstain"
+  },
+  {
+    "type": "Multi",
+    "qid": 10,
+    "question": "Did Li Hua ask Yuriko to play music together before Wolfgang proposed to pause playing musical instruments?",
+    "gold": "Yes",
+    "prediction": " No, Li Hua did not ask Yuriko to play music together before Wolfgang proposed to pause playing musical instruments. The conversation about a jam session occurred after Wolfgang's suggestion to pause their discussion.",
+    "error_type": "FP",
+    "judge_method": "fast"
+  },
+  {
+    "type": "Multi",
+    "qid": 13,
+    "question": "Did Turalyon announce the construction updates and feedback from residents after Illidan Stormrage complained about the construction noise?",
+    "gold": "Yes",
+    "prediction": " No, Turalyon did not announce the construction updates and feedback from residents after Illidan Stormrage complained about the construction noise. The conversation between TirionFordring, ArthasMenethil, LiHua, and MuradinBronzebeard discussed ways to manage noise during construction, but there was no mention of Turalyon announcing updates or feedback from residents after Illidan's complaint. The conversation about new noise reduction measures occurred later between AdamSmith and MalfurionStormrage.",
+    "error_type": "FP",
+    "judge_method": "fast"
+  },
+  {
+    "type": "Multi",
+    "qid": 17,
+    "question": "Did Jennifer remind Li Hua about proper nutrition and hydration before Jake shared his tips for staying hydrated during the match?",
+    "gold": "Yes",
+    "prediction": " No, Jennifer did not remind Li Hua about proper nutrition and hydration before Jake shared his tips for staying hydrated during the match. The conversation between Jennifer and Li Hua was about a talk on nutrition for athletes that would take place in the future, while Jake's reminder was related to a specific upcoming match.",
+    "error_type": "FP",
+    "judge_method": "fast"
+  }
+]
