@@ -1,0 +1,19 @@
+{
+  "source": "recomputed from subset summary.json (Multi/Single/Null) after manual edits",
+  "inputs": {
+    "multi_summary": "D:/PycharmProjects/Graduation-project/BAcompare/exp1_rescored_with_exp2_rules_20260508/llm_compare_20260401_154508_Multi/summary.json",
+    "single_summary": "D:/PycharmProjects/Graduation-project/BAcompare/exp1_rescored_with_exp2_rules_20260508/llm_compare_20260401_131033_Single/summary.json",
+    "null_summary": "D:/PycharmProjects/Graduation-project/BAcompare/exp1_rescored_with_exp2_rules_20260508/llm_compare_20260401_184038_Null/summary.json"
+  },
+  "overall": {
+    "num_samples": 180,
+    "tp": 70.0,
+    "fp": 95.0,
+    "fn": 41.0,
+    "micro": {
+      "precision": 0.42424242424242425,
+      "recall": 0.6306306306306306,
+      "f1": 0.5072463768115942
+    }
+  }
+}

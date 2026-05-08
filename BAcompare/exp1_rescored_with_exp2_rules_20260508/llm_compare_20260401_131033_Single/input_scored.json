@@ -1,0 +1,3196 @@
+{
+  "meta": {
+    "run_tag": "llm_compare_20260401_131033",
+    "generated_at": "20260401_192016",
+    "compare_jsonl": "D:\\PycharmProjects\\Graduation-project\\results\\llm_compare_20260401_131033.jsonl",
+    "queries": "D:\\PycharmProjects\\Graduation-project\\data\\test_datasets\\lihua-queries2",
+    "gold": "D:\\PycharmProjects\\Graduation-project\\data\\gold-answer\\lihua-queries2-gold-answer",
+    "type": "Single",
+    "dimensions": [
+      "correctness",
+      "faithfulness",
+      "completeness",
+      "hallucination",
+      "fluency"
+    ],
+    "rows": 60,
+    "queries_lines": 60,
+    "gold_lines": 60
+  },
+  "wins": {
+    "llama2": 13,
+    "mistral": 18,
+    "tie": 29
+  },
+  "averages": {
+    "llama2": {
+      "correctness": 2.2333333333333334,
+      "faithfulness": 3.683333333333333,
+      "completeness": 2.2333333333333334,
+      "hallucination": 3.216666666666667,
+      "fluency": 3.966666666666667
+    },
+    "mistral": {
+      "correctness": 2.183333333333333,
+      "faithfulness": 3.85,
+      "completeness": 2.1666666666666665,
+      "hallucination": 3.4833333333333334,
+      "fluency": 3.966666666666667
+    }
+  },
+  "overall_better": "mistral",
+  "items": [
+    {
+      "idx": 1,
+      "type": "Single",
+      "question": "Why did Adam remind Li Hua not to play guitar late at night?",
+      "ground_truth": "a few neighbors have mentioned they're hearing guitar music late at night",
+      "llama2": {
+        "answer": "Adam reminded Li Hua not to play guitar late at night because it was disturbing his neighbors.",
+        "scores": {
+          "correctness": 1,
+          "faithfulness": 4,
+          "completeness": 1,
+          "hallucination": 4,
+          "fluency": 4
+        },
+        "reason": "Does not match ground truth.",
+        "debug": {
+          "gold_type": "free",
+          "token_overlap": 0.4166666666666667,
+          "hedging": false
+        }
+      },
+      "mistral": {
+        "answer": " Adam reminded Li Hua not to play guitar late at night because a few neighbors had mentioned they were hearing the music and it might have been disturbing them.",
+        "scores": {
+          "correctness": 4,
+          "faithfulness": 4,
+          "completeness": 4,
+          "hallucination": 4,
+          "fluency": 4
+        },
+        "reason": "Partially matches ground truth.",
+        "debug": {
+          "gold_type": "free",
+          "token_overlap": 0.9166666666666666,
+          "hedging": false
+        }
+      },
+      "better_model": "mistral",
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2008
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2008
+        }
+      }
+    },
+    {
+      "idx": 2,
+      "type": "Single",
+      "question": "What type of ambiance does YurikoYamamoto want for her studio's homepage?",
+      "ground_truth": "more welcoming and engaging",
+      "llama2": {
+        "answer": "Based on the context provided, YurikoYamamoto wants a welcoming and engaging ambiance for her speech therapy studio's homepage.",
+        "scores": {
+          "correctness": 3,
+          "faithfulness": 4,
+          "completeness": 3,
+          "hallucination": 4,
+          "fluency": 4
+        },
+        "reason": "Partially matches ground truth.",
+        "debug": {
+          "gold_type": "short",
+          "token_overlap": 0.75,
+          "hedging": false
+        }
+      },
+      "mistral": {
+        "answer": " Based on the provided context, Yuriko Yamamoto wants a more welcoming and engaging ambiance for her speech therapy studio's homepage.",
+        "scores": {
+          "correctness": 5,
+          "faithfulness": 4,
+          "completeness": 5,
+          "hallucination": 4,
+          "fluency": 4
+        },
+        "reason": "Matches ground truth.",
+        "debug": {
+          "gold_type": "short",
+          "token_overlap": 1.0,
+          "hedging": false
+        }
+      },
+      "better_model": "mistral",
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        }
+      }
+    },
+    {
+      "idx": 3,
+      "type": "Single",
+      "question": "When did Li Hua invite Adam Smith to check the basement renovation progress?",
+      "ground_truth": "20260223_19:00",
+      "llama2": {
+        "answer": "Based on the provided context, the answer is:\nTime: 20260223_17:00\nAdam Smith was invited by Li Hua to check the basement renovation progress at 7 PM on February 23rd, 2026.",
+        "scores": {
+          "correctness": 3,
+          "faithfulness": 4,
+          "completeness": 3,
+          "hallucination": 3,
+          "fluency": 4
+        },
+        "reason": "Partially matches ground truth.",
+        "debug": {
+          "gold_type": "datetime",
+          "pred_datetime": "20260223_17:00",
+          "gold_datetime": "20260223_19:00",
+          "hedging": false
+        }
+      },
+      "mistral": {
+        "answer": " Li Hua invited Adam Smith to check the basement renovation progress on 20260223_17:00.",
+        "scores": {
+          "correctness": 3,
+          "faithfulness": 4,
+          "completeness": 3,
+          "hallucination": 4,
+          "fluency": 4
+        },
+        "reason": "Partially matches ground truth.",
+        "debug": {
+          "gold_type": "datetime",
+          "pred_datetime": "20260223_17:00",
+          "gold_datetime": "20260223_19:00",
+          "hedging": false
+        }
+      },
+      "better_model": "mistral",
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        }
+      }
+    },
+    {
+      "idx": 4,
+      "type": "Single",
+      "question": "What is the name of the café where Li Hua and YurikoYamamoto first meeting to talk about Yuriko's website?",
+      "ground_truth": "Central Perk",
+      "llama2": {
+        "answer": "Based on the provided context, the name of the café where Li Hua and YurikoYamamoto first meet to talk about Yuriko's website is \"Central Perk\".",
+        "scores": {
+          "correctness": 5,
+          "faithfulness": 4,
+          "completeness": 5,
+          "hallucination": 3,
+          "fluency": 4
+        },
+        "reason": "Matches ground truth.",
+        "debug": {
+          "gold_type": "short",
+          "token_overlap": 1.0,
+          "hedging": false
+        }
+      },
+      "mistral": {
+        "answer": " The name of the café where Li Hua and YurikoYamamoto are meeting to discuss Yuriko's website is \"Central Perk\".",
+        "scores": {
+          "correctness": 5,
+          "faithfulness": 4,
+          "completeness": 5,
+          "hallucination": 4,
+          "fluency": 4
+        },
+        "reason": "Matches ground truth.",
+        "debug": {
+          "gold_type": "short",
+          "token_overlap": 1.0,
+          "hedging": false
+        }
+      },
+      "better_model": "mistral",
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2008
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2008
+        }
+      }
+    },
+    {
+      "idx": 5,
+      "type": "Single",
+      "question": "What is the essence of YurikoYamamoto Li Hua is helping with her homepage?",
+      "ground_truth": "speech therapy",
+      "llama2": {
+        "answer": "Based on the provided context, the essence of Li Hua's help with Yuriko Yamamoto's homepage is to make it more welcoming and engaging.",
+        "scores": {
+          "correctness": 0,
+          "faithfulness": 3,
+          "completeness": 0,
+          "hallucination": 2,
+          "fluency": 4
+        },
+        "reason": "Does not match ground truth; likely contains fabricated/ungrounded details.",
+        "debug": {
+          "gold_type": "short",
+          "token_overlap": 0.0,
+          "hedging": false
+        }
+      },
+      "mistral": {
+        "answer": " The essence of YurikoYamamoto and Li Hua's interaction is that Li Hua is helping YurikoYamamoto improve the homepage of her speech therapy studio, making it more welcoming and engaging.",
+        "scores": {
+          "correctness": 5,
+          "faithfulness": 4,
+          "completeness": 5,
+          "hallucination": 3,
+          "fluency": 4
+        },
+        "reason": "Matches ground truth.",
+        "debug": {
+          "gold_type": "short",
+          "token_overlap": 1.0,
+          "hedging": false
+        }
+      },
+      "better_model": "mistral",
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        }
+      }
+    },
+    {
+      "idx": 6,
+      "type": "Single",
+      "question": "What type of instrument does Li Hua play in the basement?",
+      "ground_truth": "guitar",
+      "llama2": {
+        "answer": "Based on the context provided, Li Hua plays guitar in the basement.",
+        "scores": {
+          "correctness": 5,
+          "faithfulness": 4,
+          "completeness": 5,
+          "hallucination": 4,
+          "fluency": 4
+        },
+        "reason": "Matches ground truth.",
+        "debug": {
+          "gold_type": "short",
+          "token_overlap": 1.0,
+          "hedging": false
+        }
+      },
+      "mistral": {
+        "answer": " Based on the provided context, it is not explicitly stated that Li Hua plays any specific instrument in the basement. However, it is mentioned that she plays the guitar and that Wolfgang can bring his drums to jam together with her. Therefore, we cannot definitively say what type of instrument Li Hua plays in the basement.",
+        "scores": {
+          "correctness": 5,
+          "faithfulness": 4,
+          "completeness": 5,
+          "hallucination": 3,
+          "fluency": 4
+        },
+        "reason": "Matches ground truth; uses hedging/uncertainty phrasing.",
+        "debug": {
+          "gold_type": "short",
+          "token_overlap": 1.0,
+          "hedging": true
+        }
+      },
+      "better_model": "llama2",
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        }
+      }
+    },
+    {
+      "idx": 7,
+      "type": "Single",
+      "question": "When did Adam Smith inform Li Hua about potential issues with the pipes in the basement?",
+      "ground_truth": "20260301_13:00",
+      "llama2": {
+        "answer": "Based on the provided context, Adam Smith informed Li Hua about potential issues with the pipes in the basement on 20260301 at 13:00.",
+        "scores": {
+          "correctness": 5,
+          "faithfulness": 4,
+          "completeness": 5,
+          "hallucination": 4,
+          "fluency": 4
+        },
+        "reason": "Matches ground truth.",
+        "debug": {
+          "gold_type": "datetime",
+          "pred_datetime": "20260301_13:00",
+          "gold_datetime": "20260301_13:00",
+          "hedging": false
+        }
+      },
+      "mistral": {
+        "answer": " Adam Smith informed Li Hua about potential issues with the pipes in the basement on March 1, 2026.",
+        "scores": {
+          "correctness": 3,
+          "faithfulness": 4,
+          "completeness": 3,
+          "hallucination": 4,
+          "fluency": 4
+        },
+        "reason": "Partially matches ground truth.",
+        "debug": {
+          "gold_type": "datetime",
+          "pred_datetime": null,
+          "gold_datetime": "20260301_13:00",
+          "pred_date_only": "20260301",
+          "gold_date_only": "20260301",
+          "hedging": false
+        }
+      },
+      "better_model": "llama2",
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        }
+      }
+    },
+    {
+      "idx": 8,
+      "type": "Single",
+      "question": "When did Li Hua inform Adam Smith that the rent was transferred?",
+      "ground_truth": "20260301_10:00",
+      "llama2": {
+        "answer": "Based on the provided context, Li Hua informed Adam Smith that the rent was transferred on 2026-03-01 at 10:00.",
+        "scores": {
+          "correctness": 5,
+          "faithfulness": 4,
+          "completeness": 5,
+          "hallucination": 4,
+          "fluency": 4
+        },
+        "reason": "Matches ground truth.",
+        "debug": {
+          "gold_type": "datetime",
+          "pred_datetime": "20260301_10:00",
+          "gold_datetime": "20260301_10:00",
+          "hedging": false
+        }
+      },
+      "mistral": {
+        "answer": " Li Hua informed Adam Smith that the rent was transferred on 20260127_20:30.",
+        "scores": {
+          "correctness": 0,
+          "faithfulness": 3,
+          "completeness": 0,
+          "hallucination": 2,
+          "fluency": 4
+        },
+        "reason": "Does not match ground truth; likely contains fabricated/ungrounded details.",
+        "debug": {
+          "gold_type": "datetime",
+          "pred_datetime": "20260127_20:30",
+          "gold_datetime": "20260301_10:00",
+          "hedging": false
+        }
+      },
+      "better_model": "llama2",
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2008
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2008
+        }
+      }
+    },
+    {
+      "idx": 9,
+      "type": "Single",
+      "question": "When is the music concert that Wolfgang invites Li Hua to?",
+      "ground_truth": "20260307_18:00",
+      "llama2": {
+        "answer": "Based on the context provided, the music concert that Wolfgang invites Li Hua to is on March 7th at 6 PM.",
+        "scores": {
+          "correctness": 0,
+          "faithfulness": 3,
+          "completeness": 0,
+          "hallucination": 2,
+          "fluency": 4
+        },
+        "reason": "Does not match ground truth; likely contains fabricated/ungrounded details.",
+        "debug": {
+          "gold_type": "datetime",
+          "pred_datetime": null,
+          "gold_datetime": "20260307_18:00",
+          "pred_date_only": null,
+          "gold_date_only": "20260307",
+          "hedging": false
+        }
+      },
+      "mistral": {
+        "answer": " The music concert that Wolfgang invites Li Hua to is on March 7th at 6 PM.",
+        "scores": {
+          "correctness": 0,
+          "faithfulness": 3,
+          "completeness": 0,
+          "hallucination": 2,
+          "fluency": 4
+        },
+        "reason": "Does not match ground truth; likely contains fabricated/ungrounded details.",
+        "debug": {
+          "gold_type": "datetime",
+          "pred_datetime": null,
+          "gold_datetime": "20260307_18:00",
+          "pred_date_only": null,
+          "gold_date_only": "20260307",
+          "hedging": false
+        }
+      },
+      "better_model": "tie",
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        }
+      }
+    },
+    {
+      "idx": 10,
+      "type": "Single",
+      "question": "What dish does Li Hua agree to bring to the neighborhood potluck dinner?",
+      "ground_truth": "Homemade pasta salad",
+      "llama2": {
+        "answer": "Based on the context provided, Li Hua agrees to bring a homemade pasta salad to the neighborhood potluck dinner.",
+        "scores": {
+          "correctness": 5,
+          "faithfulness": 4,
+          "completeness": 5,
+          "hallucination": 4,
+          "fluency": 4
+        },
+        "reason": "Matches ground truth.",
+        "debug": {
+          "gold_type": "short",
+          "token_overlap": 1.0,
+          "hedging": false
+        }
+      },
+      "mistral": {
+        "answer": " Li Hua agrees to bring homemade pasta salad to the neighborhood potluck dinner.",
+        "scores": {
+          "correctness": 5,
+          "faithfulness": 4,
+          "completeness": 5,
+          "hallucination": 4,
+          "fluency": 4
+        },
+        "reason": "Matches ground truth.",
+        "debug": {
+          "gold_type": "short",
+          "token_overlap": 1.0,
+          "hedging": false
+        }
+      },
+      "better_model": "tie",
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2012
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2012
+        }
+      }
+    },
+    {
+      "idx": 11,
+      "type": "Single",
+      "question": "Who is Li Hua meeting with to discuss homepage design updates?",
+      "ground_truth": "Yuriko Yamamoto",
+      "llama2": {
+        "answer": "Based on the provided context, Li Hua is meeting with Yuriko Yamamoto to discuss homepage design updates for her speech therapy studio.",
+        "scores": {
+          "correctness": 5,
+          "faithfulness": 4,
+          "completeness": 5,
+          "hallucination": 4,
+          "fluency": 4
+        },
+        "reason": "Matches ground truth.",
+        "debug": {
+          "gold_type": "short",
+          "token_overlap": 1.0,
+          "hedging": false
+        }
+      },
+      "mistral": {
+        "answer": " Li Hua is meeting with Yuriko Yamamoto to discuss homepage design updates.",
+        "scores": {
+          "correctness": 5,
+          "faithfulness": 4,
+          "completeness": 5,
+          "hallucination": 4,
+          "fluency": 4
+        },
+        "reason": "Matches ground truth.",
+        "debug": {
+          "gold_type": "short",
+          "token_overlap": 1.0,
+          "hedging": false
+        }
+      },
+      "better_model": "tie",
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2008
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2008
+        }
+      }
+    },
+    {
+      "idx": 12,
+      "type": "Single",
+      "question": "What new feature does Yuriko Yamamoto consider adding to her studio's homepage?",
+      "ground_truth": "A blog section",
+      "llama2": {
+        "answer": "Based on the context provided, Yuriko Yamamoto considers adding a \"welcome\" section to her studio's homepage.",
+        "scores": {
+          "correctness": 1,
+          "faithfulness": 4,
+          "completeness": 1,
+          "hallucination": 4,
+          "fluency": 4
+        },
+        "reason": "Does not match ground truth.",
+        "debug": {
+          "gold_type": "short",
+          "token_overlap": 0.5,
+          "hedging": false
+        }
+      },
+      "mistral": {
+        "answer": " Based on the provided context, there is no information about Yuriko considering adding a new feature to her studio's homepage. The discussions revolve around making the homepage more welcoming and engaging, but no specific new features are mentioned.",
+        "scores": {
+          "correctness": 0,
+          "faithfulness": 5,
+          "completeness": 0,
+          "hallucination": 5,
+          "fluency": 4
+        },
+        "reason": "Model answered 'I don't know' (non-informative but avoids fabrication).",
+        "debug": {}
+      },
+      "better_model": "llama2",
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        }
+      }
+    },
+    {
+      "idx": 13,
+      "type": "Single",
+      "question": "What time is the power outage in the neighborhood?",
+      "ground_truth": "2 PM to 3 PM",
+      "llama2": {
+        "answer": "Based on the context provided, the power outage is scheduled for today from 2pm to 3pm.",
+        "scores": {
+          "correctness": 1,
+          "faithfulness": 4,
+          "completeness": 1,
+          "hallucination": 4,
+          "fluency": 4
+        },
+        "reason": "Does not match ground truth.",
+        "debug": {
+          "gold_type": "free",
+          "token_overlap": 0.5,
+          "hedging": false
+        }
+      },
+      "mistral": {
+        "answer": " I don't know. The provided context does not specify the exact time for the power outage in the neighborhood on August 12, as it only mentions that there will be an AC installation at 6 PM.",
+        "scores": {
+          "correctness": 0,
+          "faithfulness": 5,
+          "completeness": 0,
+          "hallucination": 5,
+          "fluency": 4
+        },
+        "reason": "Model answered 'I don't know' (non-informative but avoids fabrication).",
+        "debug": {}
+      },
+      "better_model": "llama2",
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2008
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2008
+        }
+      }
+    },
+    {
+      "idx": 14,
+      "type": "Single",
+      "question": "What suggestions does Li Hua give for promoting the new scheduling feature?",
+      "ground_truth": "Showcase it on social media platforms and include a short tutorial and send out a newsletter to clients",
+      "llama2": {
+        "answer": "Based on the context provided, Li Hua suggests the following for promoting the new scheduling feature:\n\n1. Visiting the homepage and trying to schedule a mock appointment using the new feature to test its smoothness.\n2. Focusing on efficiency and intensity to make the most of their sessions during training.\n3. Setting specific hours for work and separate times for personal hobbies to maintain a balance between the two.",
+        "scores": {
+          "correctness": 0,
+          "faithfulness": 3,
+          "completeness": 0,
+          "hallucination": 2,
+          "fluency": 3
+        },
+        "reason": "Does not match ground truth; likely contains fabricated/ungrounded details.",
+        "debug": {
+          "gold_type": "free",
+          "token_overlap": 0.2,
+          "hedging": false
+        }
+      },
+      "mistral": {
+        "answer": " Li Hua suggests that the new scheduling feature will make scheduling super convenient for clients as they'll be able to see available times right away, which should help in easing the process of scheduling. However, Li Hua did not explicitly provide suggestions for promoting the new feature in the given context.",
+        "scores": {
+          "correctness": 0,
+          "faithfulness": 3,
+          "completeness": 0,
+          "hallucination": 2,
+          "fluency": 4
+        },
+        "reason": "Does not match ground truth; likely contains fabricated/ungrounded details.",
+        "debug": {
+          "gold_type": "free",
+          "token_overlap": 0.13333333333333333,
+          "hedging": false
+        }
+      },
+      "better_model": "mistral",
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        }
+      }
+    },
+    {
+      "idx": 15,
+      "type": "Single",
+      "question": "Who invites Li Hua to join the community bake sale?",
+      "ground_truth": "Adam Smith",
+      "llama2": {
+        "answer": "Based on the provided context, the answer is: AdamSmith.",
+        "scores": {
+          "correctness": 0,
+          "faithfulness": 3,
+          "completeness": 0,
+          "hallucination": 2,
+          "fluency": 4
+        },
+        "reason": "Does not match ground truth; likely contains fabricated/ungrounded details.",
+        "debug": {
+          "gold_type": "short",
+          "token_overlap": 0.0,
+          "hedging": false
+        }
+      },
+      "mistral": {
+        "answer": " AdamSmith invites Li Hua to join the community bake sale.",
+        "scores": {
+          "correctness": 0,
+          "faithfulness": 3,
+          "completeness": 0,
+          "hallucination": 2,
+          "fluency": 4
+        },
+        "reason": "Does not match ground truth; likely contains fabricated/ungrounded details.",
+        "debug": {
+          "gold_type": "short",
+          "token_overlap": 0.0,
+          "hedging": false
+        }
+      },
+      "better_model": "tie",
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        }
+      }
+    },
+    {
+      "idx": 16,
+      "type": "Single",
+      "question": "What day and time is the community bake sale taking place?",
+      "ground_truth": "Sunday at 3 PM",
+      "llama2": {
+        "answer": "Based on the context provided, the community bake sale is taking place on Sunday at 3 PM.",
+        "scores": {
+          "correctness": 5,
+          "faithfulness": 4,
+          "completeness": 5,
+          "hallucination": 4,
+          "fluency": 4
+        },
+        "reason": "Matches ground truth.",
+        "debug": {
+          "gold_type": "short",
+          "token_overlap": 1.0,
+          "hedging": false
+        }
+      },
+      "mistral": {
+        "answer": " The community bake sale is taking place on Sunday at 3 PM.",
+        "scores": {
+          "correctness": 5,
+          "faithfulness": 4,
+          "completeness": 5,
+          "hallucination": 4,
+          "fluency": 4
+        },
+        "reason": "Matches ground truth.",
+        "debug": {
+          "gold_type": "short",
+          "token_overlap": 1.0,
+          "hedging": false
+        }
+      },
+      "better_model": "tie",
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        }
+      }
+    },
+    {
+      "idx": 17,
+      "type": "Single",
+      "question": "When does Li Hua request a delivery from Hailey Johnson?",
+      "ground_truth": "Tuesday",
+      "llama2": {
+        "answer": "Based on the provided context, Li Hua requests a delivery from Hailey Johnson on March 30th at 08:00.",
+        "scores": {
+          "correctness": 0,
+          "faithfulness": 3,
+          "completeness": 0,
+          "hallucination": 2,
+          "fluency": 4
+        },
+        "reason": "Does not match ground truth; likely contains fabricated/ungrounded details.",
+        "debug": {
+          "gold_type": "short",
+          "token_overlap": 0.0,
+          "hedging": false
+        }
+      },
+      "mistral": {
+        "answer": " The conversation where Li Hua requests a delivery from Hailey Johnson is on March 14, 2026 at 17:00. Li Hua expresses interest in trying out Hailey's doorstep delivery service for fresh milk and bread.",
+        "scores": {
+          "correctness": 0,
+          "faithfulness": 3,
+          "completeness": 0,
+          "hallucination": 2,
+          "fluency": 4
+        },
+        "reason": "Does not match ground truth; likely contains fabricated/ungrounded details.",
+        "debug": {
+          "gold_type": "short",
+          "token_overlap": 0.0,
+          "hedging": false
+        }
+      },
+      "better_model": "tie",
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2008
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2008
+        }
+      }
+    },
+    {
+      "idx": 18,
+      "type": "Single",
+      "question": "What is the address where Li Hua wants the bread delivery to be made?",
+      "ground_truth": "123 Sunny Street",
+      "llama2": {
+        "answer": "I don't know. The context does not provide the address where Li Hua wants the bread delivery to be made.",
+        "scores": {
+          "correctness": 0,
+          "faithfulness": 5,
+          "completeness": 0,
+          "hallucination": 5,
+          "fluency": 4
+        },
+        "reason": "Model answered 'I don't know' (non-informative but avoids fabrication).",
+        "debug": {}
+      },
+      "mistral": {
+        "answer": " The context does not provide information about Li Hua's address.",
+        "scores": {
+          "correctness": 0,
+          "faithfulness": 3,
+          "completeness": 0,
+          "hallucination": 2,
+          "fluency": 4
+        },
+        "reason": "Does not match ground truth; likely contains fabricated/ungrounded details.",
+        "debug": {
+          "gold_type": "short",
+          "token_overlap": 0.0,
+          "hedging": false
+        }
+      },
+      "better_model": "llama2",
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2008
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2008
+        }
+      }
+    },
+    {
+      "idx": 19,
+      "type": "Single",
+      "question": "What service does Hailey Johnson offer to Li Hua?",
+      "ground_truth": "Doorstep delivery service for fresh milk and bread",
+      "llama2": {
+        "answer": "Based on the provided context, Hailey Johnson offers doorstep deliveries of fresh baked goods to Li Hua.",
+        "scores": {
+          "correctness": 0,
+          "faithfulness": 3,
+          "completeness": 0,
+          "hallucination": 2,
+          "fluency": 4
+        },
+        "reason": "Does not match ground truth; likely contains fabricated/ungrounded details.",
+        "debug": {
+          "gold_type": "free",
+          "token_overlap": 0.25,
+          "hedging": false
+        }
+      },
+      "mistral": {
+        "answer": " Hailey Johnson offers doorstep delivery services to Li Hua.",
+        "scores": {
+          "correctness": 0,
+          "faithfulness": 3,
+          "completeness": 0,
+          "hallucination": 2,
+          "fluency": 4
+        },
+        "reason": "Does not match ground truth; likely contains fabricated/ungrounded details.",
+        "debug": {
+          "gold_type": "free",
+          "token_overlap": 0.25,
+          "hedging": false
+        }
+      },
+      "better_model": "tie",
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2008
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2008
+        }
+      }
+    },
+    {
+      "idx": 20,
+      "type": "Single",
+      "question": "What time does Hailey Johnson start baking?",
+      "ground_truth": "4 AM",
+      "llama2": {
+        "answer": "Based on the provided context, Hailey Johnson starts baking at 10 AM on Saturday.",
+        "scores": {
+          "correctness": 4,
+          "faithfulness": 4,
+          "completeness": 4,
+          "hallucination": 4,
+          "fluency": 4
+        },
+        "reason": "Partially matches ground truth.",
+        "debug": {
+          "gold_type": "short",
+          "token_overlap": 1.0,
+          "hedging": false
+        }
+      },
+      "mistral": {
+        "answer": " Based on the provided context, there is no information available about what time Hailey Johnson starts baking.",
+        "scores": {
+          "correctness": 0,
+          "faithfulness": 5,
+          "completeness": 0,
+          "hallucination": 5,
+          "fluency": 4
+        },
+        "reason": "Model answered 'I don't know' (non-informative but avoids fabrication).",
+        "debug": {}
+      },
+      "better_model": "llama2",
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        }
+      }
+    },
+    {
+      "idx": 21,
+      "type": "Single",
+      "question": "Where does Li Hua plan to meet Yuriko Yamamoto to show the final website?",
+      "ground_truth": "Central Perk café",
+      "llama2": {
+        "answer": "Based on the context provided, Li Hua plans to meet Yuriko Yamamoto at Central Perk café.",
+        "scores": {
+          "correctness": 5,
+          "faithfulness": 4,
+          "completeness": 5,
+          "hallucination": 4,
+          "fluency": 4
+        },
+        "reason": "Matches ground truth.",
+        "debug": {
+          "gold_type": "short",
+          "token_overlap": 1.0,
+          "hedging": false
+        }
+      },
+      "mistral": {
+        "answer": " Li Hua plans to meet Yuriko Yamamoto at Central Perk café.",
+        "scores": {
+          "correctness": 5,
+          "faithfulness": 4,
+          "completeness": 5,
+          "hallucination": 4,
+          "fluency": 4
+        },
+        "reason": "Matches ground truth.",
+        "debug": {
+          "gold_type": "short",
+          "token_overlap": 1.0,
+          "hedging": false
+        }
+      },
+      "better_model": "tie",
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        }
+      }
+    },
+    {
+      "idx": 22,
+      "type": "Single",
+      "question": "What does Li Hua suggest to Hailey regarding the frequency of bread delivery?",
+      "ground_truth": "Twice a week on Mondays and Fridays at 8am",
+      "llama2": {
+        "answer": "Based on the context provided, Li Hua suggests that Hailey should deliver bread \"super convenient,\" especially for busy days.",
+        "scores": {
+          "correctness": 0,
+          "faithfulness": 3,
+          "completeness": 0,
+          "hallucination": 2,
+          "fluency": 4
+        },
+        "reason": "Does not match ground truth; likely contains fabricated/ungrounded details.",
+        "debug": {
+          "gold_type": "free",
+          "token_overlap": 0.125,
+          "hedging": false
+        }
+      },
+      "mistral": {
+        "answer": " Li Hua does not suggest a specific frequency for bread delivery in the provided context.",
+        "scores": {
+          "correctness": 0,
+          "faithfulness": 3,
+          "completeness": 0,
+          "hallucination": 2,
+          "fluency": 4
+        },
+        "reason": "Does not match ground truth; likely contains fabricated/ungrounded details.",
+        "debug": {
+          "gold_type": "free",
+          "token_overlap": 0.0,
+          "hedging": false
+        }
+      },
+      "better_model": "tie",
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        }
+      }
+    },
+    {
+      "idx": 23,
+      "type": "Single",
+      "question": "What does Li Hua agree to bring to the bonfire singing party hosted by Chae Song-hwa?",
+      "ground_truth": "Li Hua will bring his guitar",
+      "llama2": {
+        "answer": "Based on the context provided, LiHua agrees to bring her guitar to the bonfire singing party hosted by Chae Song-hwa.",
+        "scores": {
+          "correctness": 0,
+          "faithfulness": 3,
+          "completeness": 0,
+          "hallucination": 2,
+          "fluency": 4
+        },
+        "reason": "Does not match ground truth; likely contains fabricated/ungrounded details.",
+        "debug": {
+          "gold_type": "free",
+          "token_overlap": 0.3333333333333333,
+          "hedging": false
+        }
+      },
+      "mistral": {
+        "answer": " Li Hua agrees to bring her guitar to the bonfire singing party hosted by ChaeSong-hwa.",
+        "scores": {
+          "correctness": 3,
+          "faithfulness": 4,
+          "completeness": 3,
+          "hallucination": 4,
+          "fluency": 4
+        },
+        "reason": "Partially matches ground truth.",
+        "debug": {
+          "gold_type": "free",
+          "token_overlap": 0.6666666666666666,
+          "hedging": false
+        }
+      },
+      "better_model": "mistral",
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2008
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2008
+        }
+      }
+    },
+    {
+      "idx": 24,
+      "type": "Single",
+      "question": "What is the focus of Li Hua's next month's fitness plan according to Jennifer?",
+      "ground_truth": "Strengthening lower limbs",
+      "llama2": {
+        "answer": "Based on the context provided, Jennifer mentions that Li Hua's next month's fitness plan will be focused on consistency.",
+        "scores": {
+          "correctness": 0,
+          "faithfulness": 3,
+          "completeness": 0,
+          "hallucination": 2,
+          "fluency": 4
+        },
+        "reason": "Does not match ground truth; likely contains fabricated/ungrounded details.",
+        "debug": {
+          "gold_type": "short",
+          "token_overlap": 0.0,
+          "hedging": false
+        }
+      },
+      "mistral": {
+        "answer": " I don't know. The provided context does not mention any specific details about Li Hua's next month's fitness plan under Jennifer's guidance.",
+        "scores": {
+          "correctness": 0,
+          "faithfulness": 5,
+          "completeness": 0,
+          "hallucination": 5,
+          "fluency": 4
+        },
+        "reason": "Model answered 'I don't know' (non-informative but avoids fabrication).",
+        "debug": {}
+      },
+      "better_model": "mistral",
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        }
+      }
+    },
+    {
+      "idx": 25,
+      "type": "Single",
+      "question": "What is the building's policy that Adam reminds Li Hua about?",
+      "ground_truth": "Recycling policy",
+      "llama2": {
+        "answer": "Based on the context provided, the building's policy that Adam reminds Li Hua about is the recycling policy.",
+        "scores": {
+          "correctness": 5,
+          "faithfulness": 4,
+          "completeness": 5,
+          "hallucination": 4,
+          "fluency": 4
+        },
+        "reason": "Matches ground truth.",
+        "debug": {
+          "gold_type": "short",
+          "token_overlap": 1.0,
+          "hedging": false
+        }
+      },
+      "mistral": {
+        "answer": " The building's policy that Adam Smith reminds Li Hua about is the recycling policy.",
+        "scores": {
+          "correctness": 5,
+          "faithfulness": 4,
+          "completeness": 5,
+          "hallucination": 4,
+          "fluency": 4
+        },
+        "reason": "Matches ground truth.",
+        "debug": {
+          "gold_type": "short",
+          "token_overlap": 1.0,
+          "hedging": false
+        }
+      },
+      "better_model": "tie",
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2008
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2008
+        }
+      }
+    },
+    {
+      "idx": 26,
+      "type": "Single",
+      "question": "What is the topic of the online tutorial Yuriko shares with the group?",
+      "ground_truth": "Advanced drum techniques",
+      "llama2": {
+        "answer": "Based on the context provided, the topic of the online tutorial shared by Yuriko with the group is \"new therapy techniques\".",
+        "scores": {
+          "correctness": 0,
+          "faithfulness": 3,
+          "completeness": 0,
+          "hallucination": 2,
+          "fluency": 4
+        },
+        "reason": "Does not match ground truth; likely contains fabricated/ungrounded details.",
+        "debug": {
+          "gold_type": "short",
+          "token_overlap": 0.3333333333333333,
+          "hedging": false
+        }
+      },
+      "mistral": {
+        "answer": " The context does not provide information about an online tutorial that Yuriko shares with the group.",
+        "scores": {
+          "correctness": 0,
+          "faithfulness": 3,
+          "completeness": 0,
+          "hallucination": 2,
+          "fluency": 4
+        },
+        "reason": "Does not match ground truth; likely contains fabricated/ungrounded details.",
+        "debug": {
+          "gold_type": "short",
+          "token_overlap": 0.0,
+          "hedging": false
+        }
+      },
+      "better_model": "tie",
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        }
+      }
+    },
+    {
+      "idx": 27,
+      "type": "Single",
+      "question": "What is Wolfgang looking for in his new drums?",
+      "ground_truth": "Something versatile that sounds good for both rock and softer tunes like The Beatles",
+      "llama2": {
+        "answer": "Based on the context provided, Wolfgang is looking for drums that will \"sound great but won't break the bank.\" He has also been considering trying out different brands.",
+        "scores": {
+          "correctness": 0,
+          "faithfulness": 3,
+          "completeness": 0,
+          "hallucination": 2,
+          "fluency": 4
+        },
+        "reason": "Does not match ground truth; likely contains fabricated/ungrounded details.",
+        "debug": {
+          "gold_type": "free",
+          "token_overlap": 0.21428571428571427,
+          "hedging": false
+        }
+      },
+      "mistral": {
+        "answer": " Based on the provided context, Wolfgang is looking for drums that sound great but are affordable.",
+        "scores": {
+          "correctness": 0,
+          "faithfulness": 3,
+          "completeness": 0,
+          "hallucination": 2,
+          "fluency": 4
+        },
+        "reason": "Does not match ground truth; likely contains fabricated/ungrounded details.",
+        "debug": {
+          "gold_type": "free",
+          "token_overlap": 0.21428571428571427,
+          "hedging": false
+        }
+      },
+      "better_model": "tie",
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        }
+      }
+    },
+    {
+      "idx": 28,
+      "type": "Single",
+      "question": "What song does Li Hua suggest for the jam session on 20260405?",
+      "ground_truth": "Viva la Vida",
+      "llama2": {
+        "answer": "Based on the context provided, Li Hua suggests the song \"Can't Wait\" by Paula Abdul for the jam session on 20260405.",
+        "scores": {
+          "correctness": 0,
+          "faithfulness": 3,
+          "completeness": 0,
+          "hallucination": 2,
+          "fluency": 4
+        },
+        "reason": "Does not match ground truth; likely contains fabricated/ungrounded details.",
+        "debug": {
+          "gold_type": "short",
+          "token_overlap": 0.0,
+          "hedging": false
+        }
+      },
+      "mistral": {
+        "answer": " I don't know. The context provided does not mention a specific date of 20260405 for the next jam session, so it is impossible to determine which song Li Hua suggests for that date.",
+        "scores": {
+          "correctness": 0,
+          "faithfulness": 5,
+          "completeness": 0,
+          "hallucination": 5,
+          "fluency": 4
+        },
+        "reason": "Model answered 'I don't know' (non-informative but avoids fabrication).",
+        "debug": {}
+      },
+      "better_model": "mistral",
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        }
+      }
+    },
+    {
+      "idx": 29,
+      "type": "Single",
+      "question": "What does Li Hua think about the rosemary focaccia?",
+      "ground_truth": "Li Hua thinks the rosemary focaccia is amazing",
+      "llama2": {
+        "answer": "Based on the context provided, Li Hua thinks the rosemary focaccia is amazing and loved the flavor and texture.",
+        "scores": {
+          "correctness": 5,
+          "faithfulness": 4,
+          "completeness": 5,
+          "hallucination": 4,
+          "fluency": 4
+        },
+        "reason": "Matches ground truth.",
+        "debug": {
+          "gold_type": "free",
+          "token_overlap": 1.0,
+          "hedging": false
+        }
+      },
+      "mistral": {
+        "answer": " Li Hua thinks that the rosemary focaccia is amazing and loved the flavor and texture.",
+        "scores": {
+          "correctness": 4,
+          "faithfulness": 4,
+          "completeness": 4,
+          "hallucination": 4,
+          "fluency": 4
+        },
+        "reason": "Partially matches ground truth.",
+        "debug": {
+          "gold_type": "free",
+          "token_overlap": 1.0,
+          "hedging": false
+        }
+      },
+      "better_model": "llama2",
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2008
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2008
+        }
+      }
+    },
+    {
+      "idx": 30,
+      "type": "Single",
+      "question": "When does Li Hua confirm the rent transfer to Adam?",
+      "ground_truth": "20260331_17:00",
+      "llama2": {
+        "answer": "Based on the provided context, Li Hua confirms the rent transfer to Adam on January 30th at 10:00.",
+        "scores": {
+          "correctness": 0,
+          "faithfulness": 3,
+          "completeness": 0,
+          "hallucination": 2,
+          "fluency": 4
+        },
+        "reason": "Does not match ground truth; likely contains fabricated/ungrounded details.",
+        "debug": {
+          "gold_type": "datetime",
+          "pred_datetime": null,
+          "gold_datetime": "20260331_17:00",
+          "pred_date_only": null,
+          "gold_date_only": "20260331",
+          "hedging": false
+        }
+      },
+      "mistral": {
+        "answer": " Li Hua confirms the rent transfer to Adam on 20260130_10:00.",
+        "scores": {
+          "correctness": 0,
+          "faithfulness": 3,
+          "completeness": 0,
+          "hallucination": 2,
+          "fluency": 4
+        },
+        "reason": "Does not match ground truth; likely contains fabricated/ungrounded details.",
+        "debug": {
+          "gold_type": "datetime",
+          "pred_datetime": "20260130_10:00",
+          "gold_datetime": "20260331_17:00",
+          "hedging": false
+        }
+      },
+      "better_model": "tie",
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2008
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2008
+        }
+      }
+    },
+    {
+      "idx": 31,
+      "type": "Single",
+      "question": "What joke does Wolfgang make as an April Fool's joke?",
+      "ground_truth": "That Wolfgang bought a set of expensive drums",
+      "llama2": {
+        "answer": "I don't know the answer to your question as it is not provided in the context you provided.",
+        "scores": {
+          "correctness": 0,
+          "faithfulness": 5,
+          "completeness": 0,
+          "hallucination": 5,
+          "fluency": 4
+        },
+        "reason": "Model answered 'I don't know' (non-informative but avoids fabrication).",
+        "debug": {}
+      },
+      "mistral": {
+        "answer": " There is no evidence in the provided context that Wolfgang makes a joke as an April Fool's joke.",
+        "scores": {
+          "correctness": 0,
+          "faithfulness": 3,
+          "completeness": 0,
+          "hallucination": 2,
+          "fluency": 4
+        },
+        "reason": "Does not match ground truth; likely contains fabricated/ungrounded details.",
+        "debug": {
+          "gold_type": "free",
+          "token_overlap": 0.2857142857142857,
+          "hedging": false
+        }
+      },
+      "better_model": "llama2",
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2014
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2014
+        }
+      }
+    },
+    {
+      "idx": 32,
+      "type": "Single",
+      "question": "Who is delivering the bread to Li Hua on 20260403?",
+      "ground_truth": "Alice",
+      "llama2": {
+        "answer": "Based on the context provided, the answer to the question \"Who is delivering the bread to Li Hua on 20260403?\" is:\n\nAlice",
+        "scores": {
+          "correctness": 5,
+          "faithfulness": 4,
+          "completeness": 5,
+          "hallucination": 4,
+          "fluency": 4
+        },
+        "reason": "Matches ground truth.",
+        "debug": {
+          "gold_type": "short",
+          "token_overlap": 1.0,
+          "hedging": false
+        }
+      },
+      "mistral": {
+        "answer": " Alice will be delivering the bread to Li Hua on 20260403, as mentioned in the context that Alice can bring the new gluten-free bread with Li Hua's usual order starting from next week.",
+        "scores": {
+          "correctness": 5,
+          "faithfulness": 4,
+          "completeness": 5,
+          "hallucination": 3,
+          "fluency": 4
+        },
+        "reason": "Matches ground truth.",
+        "debug": {
+          "gold_type": "short",
+          "token_overlap": 1.0,
+          "hedging": false
+        }
+      },
+      "better_model": "llama2",
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2008
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2008
+        }
+      }
+    },
+    {
+      "idx": 33,
+      "type": "Single",
+      "question": "What does Li Hua think about improvisation during the jam session?",
+      "ground_truth": "Improvisation sounds great",
+      "llama2": {
+        "answer": "Based on the context provided, Li Hua thinks that improvisation is a great way to go during the jam session. In the conversation, she expresses her excitement and enthusiasm for the idea of jamming without a strict plan, saying \"Improvisation sounds great! I love when we all just vibe together and see where the music takes us.\" She also mentions that it will keep things spontaneous and exciting. Therefore, the answer to the question is: Li Hua thinks improvisation is a good idea during the jam session.",
+        "scores": {
+          "correctness": 5,
+          "faithfulness": 3,
+          "completeness": 5,
+          "hallucination": 2,
+          "fluency": 3
+        },
+        "reason": "Matches ground truth; likely contains fabricated/ungrounded details.",
+        "debug": {
+          "gold_type": "short",
+          "token_overlap": 1.0,
+          "hedging": false
+        }
+      },
+      "mistral": {
+        "answer": " Li Hua thinks that improvisation sounds great during the jam session.",
+        "scores": {
+          "correctness": 5,
+          "faithfulness": 4,
+          "completeness": 5,
+          "hallucination": 4,
+          "fluency": 4
+        },
+        "reason": "Matches ground truth.",
+        "debug": {
+          "gold_type": "short",
+          "token_overlap": 1.0,
+          "hedging": false
+        }
+      },
+      "better_model": "mistral",
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2008
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2008
+        }
+      }
+    },
+    {
+      "idx": 34,
+      "type": "Single",
+      "question": "When is ChaeSong-hwa hosting the community medical knowledge lecture?",
+      "ground_truth": "7 PM on Saturday",
+      "llama2": {
+        "answer": "Based on the provided context, the answer to your question is:\nThis Saturday at 7 PM.",
+        "scores": {
+          "correctness": 4,
+          "faithfulness": 4,
+          "completeness": 4,
+          "hallucination": 4,
+          "fluency": 4
+        },
+        "reason": "Partially matches ground truth.",
+        "debug": {
+          "gold_type": "short",
+          "token_overlap": 1.0,
+          "hedging": false
+        }
+      },
+      "mistral": {
+        "answer": " The community medical knowledge lecture hosted by ChaeSong-hwa is on April 14th, as mentioned in the conversation at Time: 20260407_19:00.",
+        "scores": {
+          "correctness": 0,
+          "faithfulness": 3,
+          "completeness": 0,
+          "hallucination": 2,
+          "fluency": 4
+        },
+        "reason": "Does not match ground truth; likely contains fabricated/ungrounded details.",
+        "debug": {
+          "gold_type": "short",
+          "token_overlap": 0.3333333333333333,
+          "hedging": false
+        }
+      },
+      "better_model": "llama2",
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        }
+      }
+    },
+    {
+      "idx": 35,
+      "type": "Single",
+      "question": "What topics will be covered in the community medical knowledge lecture?",
+      "ground_truth": "Basics of common health issues and how to prevent them",
+      "llama2": {
+        "answer": "Based on the context provided, the topic that will be covered in the community medical knowledge lecture is \"some basics of common health issues and how to prevent them.\"",
+        "scores": {
+          "correctness": 5,
+          "faithfulness": 4,
+          "completeness": 5,
+          "hallucination": 4,
+          "fluency": 4
+        },
+        "reason": "Matches ground truth.",
+        "debug": {
+          "gold_type": "free",
+          "token_overlap": 1.0,
+          "hedging": false
+        }
+      },
+      "mistral": {
+        "answer": " The topics that will be covered in the community medical knowledge lecture include basics of common health issues and how to prevent them, basic health tips, common medical myths, and advancements in neurosurgery.",
+        "scores": {
+          "correctness": 5,
+          "faithfulness": 4,
+          "completeness": 5,
+          "hallucination": 4,
+          "fluency": 4
+        },
+        "reason": "Matches ground truth.",
+        "debug": {
+          "gold_type": "free",
+          "token_overlap": 1.0,
+          "hedging": false
+        }
+      },
+      "better_model": "tie",
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2008
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2008
+        }
+      }
+    },
+    {
+      "idx": 36,
+      "type": "Single",
+      "question": "What new song does the Jolly band decide to work on for the jam session according to their discussion on 20260410?",
+      "ground_truth": "Stand By Me",
+      "llama2": {
+        "answer": "Based on the context provided, the new song that the Jolly Band decides to work on for the jam session is \"The Jolly Band.\"",
+        "scores": {
+          "correctness": 0,
+          "faithfulness": 3,
+          "completeness": 0,
+          "hallucination": 2,
+          "fluency": 4
+        },
+        "reason": "Does not match ground truth; likely contains fabricated/ungrounded details.",
+        "debug": {
+          "gold_type": "short",
+          "token_overlap": 0.0,
+          "hedging": false
+        }
+      },
+      "mistral": {
+        "answer": " According to the provided context, there is no decision made about a specific new song that \"The Jolly Band\" decides to work on for the jam session on April 10, 2026. They are brainstorming ideas and discussing possibilities such as \"The Jolly Band,\" but no final decision has been reached.",
+        "scores": {
+          "correctness": 0,
+          "faithfulness": 3,
+          "completeness": 0,
+          "hallucination": 2,
+          "fluency": 4
+        },
+        "reason": "Does not match ground truth; likely contains fabricated/ungrounded details.",
+        "debug": {
+          "gold_type": "short",
+          "token_overlap": 0.0,
+          "hedging": false
+        }
+      },
+      "better_model": "tie",
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2008
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2008
+        }
+      }
+    },
+    {
+      "idx": 37,
+      "type": "Single",
+      "question": "What is Li Hua's feedback on Chae Song-hwa's medical knowledge lecture?",
+      "ground_truth": "It is insightful and makes complex topics easy to understand",
+      "llama2": {
+        "answer": "Based on the provided context, Li Hua's feedback on Chae Song-hwa's medical knowledge lecture is \"Sounds interesting! I'd love to join the lecture this Saturday. What topics will you be covering?\"",
+        "scores": {
+          "correctness": 0,
+          "faithfulness": 3,
+          "completeness": 0,
+          "hallucination": 2,
+          "fluency": 4
+        },
+        "reason": "Does not match ground truth; likely contains fabricated/ungrounded details.",
+        "debug": {
+          "gold_type": "free",
+          "token_overlap": 0.3,
+          "hedging": false
+        }
+      },
+      "mistral": {
+        "answer": " Li Hua's feedback on Chae Song-hwa's medical knowledge lecture is that it sounds interesting and super helpful, and she is looking forward to joining the lecture. She also mentions that it will be informative and that she is always looking to learn more about health topics.",
+        "scores": {
+          "correctness": 1,
+          "faithfulness": 4,
+          "completeness": 1,
+          "hallucination": 4,
+          "fluency": 4
+        },
+        "reason": "Does not match ground truth.",
+        "debug": {
+          "gold_type": "free",
+          "token_overlap": 0.5,
+          "hedging": false
+        }
+      },
+      "better_model": "mistral",
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        }
+      }
+    },
+    {
+      "idx": 38,
+      "type": "Single",
+      "question": "When is the anniversary event of Hailey Johnson's bakery shop?",
+      "ground_truth": "April 15 to 17",
+      "llama2": {
+        "answer": "Based on the context provided, the answer to the question \"When is the anniversary event of Hailey Johnson's bakery shop?\" is:\n\nApril 15-17, 2026.",
+        "scores": {
+          "correctness": 4,
+          "faithfulness": 4,
+          "completeness": 4,
+          "hallucination": 3,
+          "fluency": 4
+        },
+        "reason": "Partially matches ground truth.",
+        "debug": {
+          "gold_type": "short",
+          "token_overlap": 1.0,
+          "hedging": false
+        }
+      },
+      "mistral": {
+        "answer": " The anniversary event of Hailey Johnson's bakery shop takes place from April 15 to 17.",
+        "scores": {
+          "correctness": 5,
+          "faithfulness": 4,
+          "completeness": 5,
+          "hallucination": 4,
+          "fluency": 4
+        },
+        "reason": "Matches ground truth.",
+        "debug": {
+          "gold_type": "short",
+          "token_overlap": 1.0,
+          "hedging": false
+        }
+      },
+      "better_model": "mistral",
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        }
+      }
+    },
+    {
+      "idx": 39,
+      "type": "Single",
+      "question": "What does Li Hua want to have on Hailey's bakery shop anniversary event?",
+      "ground_truth": "Sourdough and sweet pastries",
+      "llama2": {
+        "answer": "Based on the context provided, Li Hua wants Hailey Johnson's bakery to offer a special promotion for Mother's Day.",
+        "scores": {
+          "correctness": 0,
+          "faithfulness": 3,
+          "completeness": 0,
+          "hallucination": 2,
+          "fluency": 4
+        },
+        "reason": "Does not match ground truth; likely contains fabricated/ungrounded details.",
+        "debug": {
+          "gold_type": "short",
+          "token_overlap": 0.0,
+          "hedging": false
+        }
+      },
+      "mistral": {
+        "answer": " Based on the provided context, it is not explicitly stated that Li Hua has expressed a desire for anything specific at Hailey's bakery shop anniversary event. However, we know from the conversation on 20260418_15:00 that Li Hua enjoyed the new pastries introduced during the event, particularly the raspberry tart. So, it can be inferred that Li Hua might appreciate more of such new and delicious pastries at future events. However, this is an assumption as there is no direct statement indicating what Li Hua wants specifically at Hailey's b",
+        "scores": {
+          "correctness": 1,
+          "faithfulness": 4,
+          "completeness": 0,
+          "hallucination": 3,
+          "fluency": 3
+        },
+        "reason": "Does not match ground truth; uses hedging/uncertainty phrasing.",
+        "debug": {
+          "gold_type": "short",
+          "token_overlap": 0.5,
+          "hedging": true
+        }
+      },
+      "better_model": "mistral",
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        }
+      }
+    },
+    {
+      "idx": 40,
+      "type": "Single",
+      "question": "Why does Li Hua ask ChaeSong-hwa about whether neurosurgeons actually use test tubes in their work?",
+      "ground_truth": "Li Hua is trying to get some insights for a website design",
+      "llama2": {
+        "answer": " Based on the context provided, Li Hua asks ChaeSong-hwa about whether neurosurgeons actually use test tubes in their work because they are designing a website and want to include information about the tools and techniques used by neurosurgeons.",
+        "scores": {
+          "correctness": 1,
+          "faithfulness": 4,
+          "completeness": 1,
+          "hallucination": 4,
+          "fluency": 4
+        },
+        "reason": "Does not match ground truth.",
+        "debug": {
+          "gold_type": "free",
+          "token_overlap": 0.36363636363636365,
+          "hedging": false
+        }
+      },
+      "mistral": {
+        "answer": " Li Hua asks ChaeSong-hwa about whether neurosurgeons actually use test tubes in their work because she is gathering information for a website she is designing, and she wants to ensure that the information presented on the website is accurate.",
+        "scores": {
+          "correctness": 1,
+          "faithfulness": 4,
+          "completeness": 1,
+          "hallucination": 4,
+          "fluency": 4
+        },
+        "reason": "Does not match ground truth.",
+        "debug": {
+          "gold_type": "free",
+          "token_overlap": 0.5454545454545454,
+          "hedging": false
+        }
+      },
+      "better_model": "tie",
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2008
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2008
+        }
+      }
+    },
+    {
+      "idx": 41,
+      "type": "Single",
+      "question": "Who proposes that the band takes a break from jamming this week?",
+      "ground_truth": "Wolfgang Schulz",
+      "llama2": {
+        "answer": "Based on the provided context, the person who proposes that the band takes a break from jamming this week is WolfgangSchulz.",
+        "scores": {
+          "correctness": 0,
+          "faithfulness": 3,
+          "completeness": 0,
+          "hallucination": 2,
+          "fluency": 4
+        },
+        "reason": "Does not match ground truth; likely contains fabricated/ungrounded details.",
+        "debug": {
+          "gold_type": "short",
+          "token_overlap": 0.0,
+          "hedging": false
+        }
+      },
+      "mistral": {
+        "answer": " WolfgangSchulz proposes that the band takes a break from jamming this week.",
+        "scores": {
+          "correctness": 0,
+          "faithfulness": 3,
+          "completeness": 0,
+          "hallucination": 2,
+          "fluency": 4
+        },
+        "reason": "Does not match ground truth; likely contains fabricated/ungrounded details.",
+        "debug": {
+          "gold_type": "short",
+          "token_overlap": 0.0,
+          "hedging": false
+        }
+      },
+      "better_model": "tie",
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        }
+      }
+    },
+    {
+      "idx": 42,
+      "type": "Single",
+      "question": "What suggestions does Li Hua propose to Adam Smith about the upcoming community garden renovation?",
+      "ground_truth": "Add more seating areas for people to relax and enjoy the space and some flower beds with native plants",
+      "llama2": {
+        "answer": "Based on the context provided, Li Hua proposes the following suggestions for the upcoming community garden renovation:\n\n1. Add more seating areas for people to relax and enjoy the space.\n2. Incorporate native plants into the garden to attract more butterflies and bees.",
+        "scores": {
+          "correctness": 3,
+          "faithfulness": 4,
+          "completeness": 3,
+          "hallucination": 4,
+          "fluency": 4
+        },
+        "reason": "Partially matches ground truth.",
+        "debug": {
+          "gold_type": "free",
+          "token_overlap": 0.7777777777777778,
+          "hedging": false
+        }
+      },
+      "mistral": {
+        "answer": " Li Hua suggests adding more seating areas for people to relax and enjoy the space, and also proposes the idea of having flower beds with native plants to attract more butterflies and bees.",
+        "scores": {
+          "correctness": 4,
+          "faithfulness": 4,
+          "completeness": 4,
+          "hallucination": 4,
+          "fluency": 4
+        },
+        "reason": "Partially matches ground truth.",
+        "debug": {
+          "gold_type": "free",
+          "token_overlap": 0.8888888888888888,
+          "hedging": false
+        }
+      },
+      "better_model": "mistral",
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        }
+      }
+    },
+    {
+      "idx": 43,
+      "type": "Single",
+      "question": "What kinds of flowers does Li Hua recommend to Adam Smith for the flower beds?",
+      "ground_truth": "Lavender and coneflowers and fresh herbs",
+      "llama2": {
+        "answer": "Based on the context provided, Li Hua recommends lavender and coneflowers for the flower beds.",
+        "scores": {
+          "correctness": 3,
+          "faithfulness": 4,
+          "completeness": 3,
+          "hallucination": 4,
+          "fluency": 4
+        },
+        "reason": "Partially matches ground truth.",
+        "debug": {
+          "gold_type": "free",
+          "token_overlap": 0.6,
+          "hedging": false
+        }
+      },
+      "mistral": {
+        "answer": " Li Hua recommends lavender and coneflowers to Adam Smith for the flower beds.",
+        "scores": {
+          "correctness": 3,
+          "faithfulness": 4,
+          "completeness": 3,
+          "hallucination": 4,
+          "fluency": 4
+        },
+        "reason": "Partially matches ground truth.",
+        "debug": {
+          "gold_type": "free",
+          "token_overlap": 0.6,
+          "hedging": false
+        }
+      },
+      "better_model": "tie",
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        }
+      }
+    },
+    {
+      "idx": 44,
+      "type": "Single",
+      "question": "What will be a gift for Li Hua if he chooses to renew the fitness contract with Jennifer Moore?",
+      "ground_truth": "A cool fitness bag as a gift for all the gym activities",
+      "llama2": {
+        "answer": "Based on the context provided, if Li Hua chooses to renew his fitness contract with Jennifer Moore, a cool fitness bag as a gift is mentioned.",
+        "scores": {
+          "correctness": 3,
+          "faithfulness": 4,
+          "completeness": 3,
+          "hallucination": 4,
+          "fluency": 4
+        },
+        "reason": "Partially matches ground truth.",
+        "debug": {
+          "gold_type": "free",
+          "token_overlap": 0.6,
+          "hedging": false
+        }
+      },
+      "mistral": {
+        "answer": " The gift for Li Hua if he chooses to renew the fitness contract with Jennifer Moore is a fitness bag.",
+        "scores": {
+          "correctness": 1,
+          "faithfulness": 4,
+          "completeness": 1,
+          "hallucination": 4,
+          "fluency": 4
+        },
+        "reason": "Does not match ground truth.",
+        "debug": {
+          "gold_type": "free",
+          "token_overlap": 0.5,
+          "hedging": false
+        }
+      },
+      "better_model": "llama2",
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        }
+      }
+    },
+    {
+      "idx": 45,
+      "type": "Single",
+      "question": "When is the karaoke activity organized by ChaeSong-hwa?",
+      "ground_truth": "Saturday at 7 PM",
+      "llama2": {
+        "answer": "Based on the context provided, the karaoke activity is organized on Saturday at 7 PM.",
+        "scores": {
+          "correctness": 5,
+          "faithfulness": 4,
+          "completeness": 5,
+          "hallucination": 4,
+          "fluency": 4
+        },
+        "reason": "Matches ground truth.",
+        "debug": {
+          "gold_type": "short",
+          "token_overlap": 1.0,
+          "hedging": false
+        }
+      },
+      "mistral": {
+        "answer": " The karaoke activity organized by ChaeSong-hwa is on this Saturday at 7 PM.",
+        "scores": {
+          "correctness": 5,
+          "faithfulness": 4,
+          "completeness": 5,
+          "hallucination": 4,
+          "fluency": 4
+        },
+        "reason": "Matches ground truth.",
+        "debug": {
+          "gold_type": "short",
+          "token_overlap": 1.0,
+          "hedging": false
+        }
+      },
+      "better_model": "tie",
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        }
+      }
+    },
+    {
+      "idx": 46,
+      "type": "Single",
+      "question": "Who is Li Hua bringing to the band's jam session according to their discussion on 20260425?",
+      "ground_truth": "ChaeSong-hwa",
+      "llama2": {
+        "answer": "Based on the provided context, Li Hua is bringing a friend to the band's jam session. However, the context does not provide any information about who this friend is. Therefore, I cannot answer the question.",
+        "scores": {
+          "correctness": 0,
+          "faithfulness": 3,
+          "completeness": 0,
+          "hallucination": 2,
+          "fluency": 4
+        },
+        "reason": "Does not match ground truth; likely contains fabricated/ungrounded details.",
+        "debug": {
+          "gold_type": "short",
+          "token_overlap": 0.0,
+          "hedging": false
+        }
+      },
+      "mistral": {
+        "answer": " I don't know. The context does not provide information about who Li Hua's friend is that they plan to bring to the jam session on 20260425.",
+        "scores": {
+          "correctness": 0,
+          "faithfulness": 5,
+          "completeness": 0,
+          "hallucination": 5,
+          "fluency": 4
+        },
+        "reason": "Model answered 'I don't know' (non-informative but avoids fabrication).",
+        "debug": {}
+      },
+      "better_model": "mistral",
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2008
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2008
+        }
+      }
+    },
+    {
+      "idx": 47,
+      "type": "Single",
+      "question": "What garden-related activity is Thrall planning to organize?",
+      "ground_truth": "A community planting day",
+      "llama2": {
+        "answer": "Based on the context provided, Thrall is planning to organize a community gardening activity involving community members in the garden's maintenance.",
+        "scores": {
+          "correctness": 0,
+          "faithfulness": 3,
+          "completeness": 0,
+          "hallucination": 2,
+          "fluency": 4
+        },
+        "reason": "Does not match ground truth; likely contains fabricated/ungrounded details.",
+        "debug": {
+          "gold_type": "short",
+          "token_overlap": 0.3333333333333333,
+          "hedging": false
+        }
+      },
+      "mistral": {
+        "answer": " Thrall is planning to organize gardening activities that involve community members.",
+        "scores": {
+          "correctness": 0,
+          "faithfulness": 3,
+          "completeness": 0,
+          "hallucination": 2,
+          "fluency": 4
+        },
+        "reason": "Does not match ground truth; likely contains fabricated/ungrounded details.",
+        "debug": {
+          "gold_type": "short",
+          "token_overlap": 0.3333333333333333,
+          "hedging": false
+        }
+      },
+      "better_model": "tie",
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        }
+      }
+    },
+    {
+      "idx": 48,
+      "type": "Single",
+      "question": "What is the proposed solution for making the garden more inviting on sunny days?",
+      "ground_truth": "Adding shade with umbrellas or trees",
+      "llama2": {
+        "answer": "Based on the context provided, the proposed solution for making the garden more inviting on sunny days is to install umbrellas.",
+        "scores": {
+          "correctness": 0,
+          "faithfulness": 3,
+          "completeness": 0,
+          "hallucination": 2,
+          "fluency": 4
+        },
+        "reason": "Does not match ground truth; likely contains fabricated/ungrounded details.",
+        "debug": {
+          "gold_type": "free",
+          "token_overlap": 0.16666666666666666,
+          "hedging": false
+        }
+      },
+      "mistral": {
+        "answer": " The proposed solution for making the garden more inviting on sunny days, according to the context, is to add umbrellas.",
+        "scores": {
+          "correctness": 0,
+          "faithfulness": 3,
+          "completeness": 0,
+          "hallucination": 2,
+          "fluency": 4
+        },
+        "reason": "Does not match ground truth; likely contains fabricated/ungrounded details.",
+        "debug": {
+          "gold_type": "free",
+          "token_overlap": 0.16666666666666666,
+          "hedging": false
+        }
+      },
+      "better_model": "tie",
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        }
+      }
+    },
+    {
+      "idx": 49,
+      "type": "Single",
+      "question": "What is the main topic of the conversation on 2026-04-28 at 5 PM?",
+      "ground_truth": "Breathing techniques and tips for squats during workouts",
+      "llama2": {
+        "answer": "Based on the provided context, the main topic of the conversation on 2026-04-28 at 5 PM is the exploration of free will and choice.",
+        "scores": {
+          "correctness": 0,
+          "faithfulness": 3,
+          "completeness": 0,
+          "hallucination": 2,
+          "fluency": 4
+        },
+        "reason": "Does not match ground truth; likely contains fabricated/ungrounded details.",
+        "debug": {
+          "gold_type": "free",
+          "token_overlap": 0.125,
+          "hedging": false
+        }
+      },
+      "mistral": {
+        "answer": " The main topic of the conversation on 2026-04-28 at 5 PM is not provided in the context.",
+        "scores": {
+          "correctness": 0,
+          "faithfulness": 5,
+          "completeness": 0,
+          "hallucination": 5,
+          "fluency": 4
+        },
+        "reason": "Model answered 'I don't know' (non-informative but avoids fabrication).",
+        "debug": {}
+      },
+      "better_model": "mistral",
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2008
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2008
+        }
+      }
+    },
+    {
+      "idx": 50,
+      "type": "Single",
+      "question": "When is Wolfgang Schulz's promotion celebration dinner?",
+      "ground_truth": "6 PM on the day after tomorrow (implied to be 2026-04-30)",
+      "llama2": {
+        "answer": "Based on the provided context, Wolfgang Schulz's promotion celebration dinner is scheduled for Thursday at 6 PM.",
+        "scores": {
+          "correctness": 0,
+          "faithfulness": 3,
+          "completeness": 0,
+          "hallucination": 2,
+          "fluency": 4
+        },
+        "reason": "Does not match ground truth; likely contains fabricated/ungrounded details.",
+        "debug": {
+          "gold_type": "date",
+          "pred_date": null,
+          "gold_date": "20260430",
+          "hedging": false
+        }
+      },
+      "mistral": {
+        "answer": " The promotion celebration dinner for Wolfgang Schulz is on Thursday, 2 days after the conversation started (which was April 28th), at 6 PM. This is based on the following excerpt from the context:\n\nTime: 20260428_18:30 WolfgangSchulz: Hey! 🎉 I just got promoted! Want to celebrate with dinner the day after tomorrow? How about 6 PM? LiHua: Congrats on the promotion! That's awesome! 🎉 I'd love to join for dinner on Thursday at",
+        "scores": {
+          "correctness": 0,
+          "faithfulness": 3,
+          "completeness": 0,
+          "hallucination": 2,
+          "fluency": 3
+        },
+        "reason": "Does not match ground truth; likely contains fabricated/ungrounded details.",
+        "debug": {
+          "gold_type": "date",
+          "pred_date": null,
+          "gold_date": "20260430",
+          "hedging": false
+        }
+      },
+      "better_model": "llama2",
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        }
+      }
+    },
+    {
+      "idx": 51,
+      "type": "Single",
+      "question": "What is the name of the Italian restaurant where Wolfgang and Li Hua are having dinner to celebrate Wolfgang's promotion?",
+      "ground_truth": "Venedia Grancaffe",
+      "llama2": {
+        "answer": "Based on the context provided, the name of the Italian restaurant where Wolfgang and Li Hua are having dinner to celebrate Wolfgang's promotion is \"Venedia Grancaffe.\"",
+        "scores": {
+          "correctness": 5,
+          "faithfulness": 4,
+          "completeness": 5,
+          "hallucination": 3,
+          "fluency": 4
+        },
+        "reason": "Matches ground truth.",
+        "debug": {
+          "gold_type": "short",
+          "token_overlap": 1.0,
+          "hedging": false
+        }
+      },
+      "mistral": {
+        "answer": " Venedia Grancaffe",
+        "scores": {
+          "correctness": 5,
+          "faithfulness": 4,
+          "completeness": 5,
+          "hallucination": 4,
+          "fluency": 4
+        },
+        "reason": "Matches ground truth.",
+        "debug": {
+          "gold_type": "short",
+          "token_overlap": 1.0,
+          "hedging": false
+        }
+      },
+      "better_model": "mistral",
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2008
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2008
+        }
+      }
+    },
+    {
+      "idx": 52,
+      "type": "Single",
+      "question": "What is Li Hua's suggestion for scheduling the water pipe repairs in the garden?",
+      "ground_truth": "During off-peak hours",
+      "llama2": {
+        "answer": "Based on the context provided, Li Hua's suggestion for scheduling the water pipe repairs in the garden is to schedule it during off-peak hours to reduce the impact on everyone.",
+        "scores": {
+          "correctness": 5,
+          "faithfulness": 4,
+          "completeness": 5,
+          "hallucination": 3,
+          "fluency": 4
+        },
+        "reason": "Matches ground truth.",
+        "debug": {
+          "gold_type": "short",
+          "token_overlap": 1.0,
+          "hedging": false
+        }
+      },
+      "mistral": {
+        "answer": " Li Hua's suggestion for scheduling the water pipe repairs in the garden is to plan it during off-peak hours.",
+        "scores": {
+          "correctness": 5,
+          "faithfulness": 4,
+          "completeness": 5,
+          "hallucination": 4,
+          "fluency": 4
+        },
+        "reason": "Matches ground truth.",
+        "debug": {
+          "gold_type": "short",
+          "token_overlap": 1.0,
+          "hedging": false
+        }
+      },
+      "better_model": "mistral",
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2008
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2008
+        }
+      }
+    },
+    {
+      "idx": 53,
+      "type": "Single",
+      "question": "When is the community meeting for the garden project scheduled according to the discussion on 20260507?",
+      "ground_truth": "Saturday at 10 am",
+      "llama2": {
+        "answer": "Based on the provided context, I don't know when the community meeting for the garden project is scheduled. The conversation takes place on 20260507, but there is no mention of a specific date or time for the meeting.",
+        "scores": {
+          "correctness": 0,
+          "faithfulness": 5,
+          "completeness": 0,
+          "hallucination": 5,
+          "fluency": 4
+        },
+        "reason": "Model answered 'I don't know' (non-informative but avoids fabrication).",
+        "debug": {}
+      },
+      "mistral": {
+        "answer": " I don't know. The conversation on May 7th, 2026 does not mention any specific date or time for a community meeting regarding the garden project.",
+        "scores": {
+          "correctness": 0,
+          "faithfulness": 5,
+          "completeness": 0,
+          "hallucination": 5,
+          "fluency": 4
+        },
+        "reason": "Model answered 'I don't know' (non-informative but avoids fabrication).",
+        "debug": {}
+      },
+      "better_model": "tie",
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        }
+      }
+    },
+    {
+      "idx": 54,
+      "type": "Single",
+      "question": "What percentage discount is Hailey Johnson offering for Mother's Day pastries?",
+      "ground_truth": "15%",
+      "llama2": {
+        "answer": "Based on the context provided, Hailey Johnson is offering a 15% discount on all pastries and special cakes for Mother's Day.",
+        "scores": {
+          "correctness": 5,
+          "faithfulness": 4,
+          "completeness": 5,
+          "hallucination": 4,
+          "fluency": 4
+        },
+        "reason": "Matches ground truth.",
+        "debug": {
+          "gold_type": "short",
+          "token_overlap": 1.0,
+          "hedging": false
+        }
+      },
+      "mistral": {
+        "answer": " The percentage discount that Hailey Johnson is offering for Mother's Day pastries is 15%.",
+        "scores": {
+          "correctness": 5,
+          "faithfulness": 4,
+          "completeness": 5,
+          "hallucination": 4,
+          "fluency": 4
+        },
+        "reason": "Matches ground truth.",
+        "debug": {
+          "gold_type": "short",
+          "token_overlap": 1.0,
+          "hedging": false
+        }
+      },
+      "better_model": "tie",
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        }
+      }
+    },
+    {
+      "idx": 55,
+      "type": "Single",
+      "question": "Which two specific pastries does Hailey Johnson recommend for Mother's Day?",
+      "ground_truth": "Raspberry-filled croissants and chocolate eclairs",
+      "llama2": {
+        "answer": "Based on the provided context, Hailey Johnson recommends trying their raspberry-filled croissants and chocolate eclairs for Mother's Day.",
+        "scores": {
+          "correctness": 5,
+          "faithfulness": 4,
+          "completeness": 5,
+          "hallucination": 4,
+          "fluency": 4
+        },
+        "reason": "Matches ground truth.",
+        "debug": {
+          "gold_type": "free",
+          "token_overlap": 1.0,
+          "hedging": false
+        }
+      },
+      "mistral": {
+        "answer": " The two specific pastries that Hailey Johnson recommends for Mother's Day are raspberry-filled croissants and chocolate eclairs.",
+        "scores": {
+          "correctness": 5,
+          "faithfulness": 4,
+          "completeness": 5,
+          "hallucination": 4,
+          "fluency": 4
+        },
+        "reason": "Matches ground truth.",
+        "debug": {
+          "gold_type": "free",
+          "token_overlap": 1.0,
+          "hedging": false
+        }
+      },
+      "better_model": "tie",
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2008
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2008
+        }
+      }
+    },
+    {
+      "idx": 56,
+      "type": "Single",
+      "question": "What type of stretches does JenniferMoore suggest before and after workouts?",
+      "ground_truth": "Dynamic stretches before and static stretches after",
+      "llama2": {
+        "answer": "Based on the context provided, JenniferMoore suggests doing dynamic stretches before a workout to warm up muscles, and static stretches after exercising to cool down.",
+        "scores": {
+          "correctness": 4,
+          "faithfulness": 4,
+          "completeness": 4,
+          "hallucination": 4,
+          "fluency": 4
+        },
+        "reason": "Partially matches ground truth.",
+        "debug": {
+          "gold_type": "free",
+          "token_overlap": 1.0,
+          "hedging": false
+        }
+      },
+      "mistral": {
+        "answer": " JenniferMoore suggests dynamic stretches before a workout to warm up muscles, and static stretches after exercising to cool down.",
+        "scores": {
+          "correctness": 4,
+          "faithfulness": 4,
+          "completeness": 4,
+          "hallucination": 4,
+          "fluency": 4
+        },
+        "reason": "Partially matches ground truth.",
+        "debug": {
+          "gold_type": "free",
+          "token_overlap": 1.0,
+          "hedging": false
+        }
+      },
+      "better_model": "tie",
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        }
+      }
+    },
+    {
+      "idx": 57,
+      "type": "Single",
+      "question": "When is the web design seminar at Wolfgang's company happening?",
+      "ground_truth": "Thursday at 3 PM",
+      "llama2": {
+        "answer": "Based on the provided context, the answer to your question is:\nThursday at 3 PM.",
+        "scores": {
+          "correctness": 5,
+          "faithfulness": 4,
+          "completeness": 5,
+          "hallucination": 4,
+          "fluency": 4
+        },
+        "reason": "Matches ground truth.",
+        "debug": {
+          "gold_type": "short",
+          "token_overlap": 1.0,
+          "hedging": false
+        }
+      },
+      "mistral": {
+        "answer": " The web design seminar at Wolfgang's company is happening on Thursday at 3 PM.",
+        "scores": {
+          "correctness": 5,
+          "faithfulness": 4,
+          "completeness": 5,
+          "hallucination": 4,
+          "fluency": 4
+        },
+        "reason": "Matches ground truth.",
+        "debug": {
+          "gold_type": "short",
+          "token_overlap": 1.0,
+          "hedging": false
+        }
+      },
+      "better_model": "tie",
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2008
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2008
+        }
+      }
+    },
+    {
+      "idx": 58,
+      "type": "Single",
+      "question": "What is Li Hua looking forward to trying from the summer promotion?",
+      "ground_truth": "Fruity ice cream flavors and a mango-coconut pastry",
+      "llama2": {
+        "answer": "Based on the context provided, Li Hua is looking forward to trying mango and coconut flavors from the summer promotion.",
+        "scores": {
+          "correctness": 1,
+          "faithfulness": 4,
+          "completeness": 1,
+          "hallucination": 4,
+          "fluency": 4
+        },
+        "reason": "Does not match ground truth.",
+        "debug": {
+          "gold_type": "free",
+          "token_overlap": 0.5,
+          "hedging": false
+        }
+      },
+      "mistral": {
+        "answer": " Li Hua is looking forward to trying mango and coconut flavors from the summer promotion.",
+        "scores": {
+          "correctness": 1,
+          "faithfulness": 4,
+          "completeness": 1,
+          "hallucination": 4,
+          "fluency": 4
+        },
+        "reason": "Does not match ground truth.",
+        "debug": {
+          "gold_type": "free",
+          "token_overlap": 0.5,
+          "hedging": false
+        }
+      },
+      "better_model": "tie",
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2008
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2008
+        }
+      }
+    },
+    {
+      "idx": 59,
+      "type": "Single",
+      "question": "What did Li Hua enjoy the most about the restaurant that he and Wolfgang visited for dinner on 20260514?",
+      "ground_truth": "The pasta dish and the dessert",
+      "llama2": {
+        "answer": "Based on the context provided, Li Hua enjoyed the pasta dish the most at the restaurant they visited for dinner on 20260514.",
+        "scores": {
+          "correctness": 3,
+          "faithfulness": 4,
+          "completeness": 3,
+          "hallucination": 4,
+          "fluency": 4
+        },
+        "reason": "Partially matches ground truth.",
+        "debug": {
+          "gold_type": "free",
+          "token_overlap": 0.6,
+          "hedging": false
+        }
+      },
+      "mistral": {
+        "answer": " Li Hua enjoyed the pasta dish the most at the restaurant they visited on 20260514.",
+        "scores": {
+          "correctness": 3,
+          "faithfulness": 4,
+          "completeness": 3,
+          "hallucination": 4,
+          "fluency": 4
+        },
+        "reason": "Partially matches ground truth.",
+        "debug": {
+          "gold_type": "free",
+          "token_overlap": 0.6,
+          "hedging": false
+        }
+      },
+      "better_model": "tie",
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        }
+      }
+    },
+    {
+      "idx": 60,
+      "type": "Single",
+      "question": "Why is Chae Song-hwa unable to join the rehearsal?",
+      "ground_truth": "She has to attend a medical lecture",
+      "llama2": {
+        "answer": "Based on the context provided, Chae Song-hwa is unable to join the rehearsal because...\n\nI don't know. The context does not provide any information about Chae Song-hwa's whereabouts or availability for the rehearsal.",
+        "scores": {
+          "correctness": 0,
+          "faithfulness": 5,
+          "completeness": 0,
+          "hallucination": 5,
+          "fluency": 4
+        },
+        "reason": "Model answered 'I don't know' (non-informative but avoids fabrication).",
+        "debug": {}
+      },
+      "mistral": {
+        "answer": " The context does not provide information about Chae Song-hwa being unable to join a rehearsal.",
+        "scores": {
+          "correctness": 0,
+          "faithfulness": 5,
+          "completeness": 0,
+          "hallucination": 5,
+          "fluency": 4
+        },
+        "reason": "Does not match ground truth; uses hedging/uncertainty phrasing.",
+        "debug": {
+          "gold_type": "free",
+          "token_overlap": 0.16666666666666666,
+          "hedging": true
+        }
+      },
+      "better_model": "tie",
+      "rag_diagnostics": {
+        "llama2": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        },
+        "mistral": {
+          "num_chunks_retrieved": 15,
+          "retrieval_empty": false,
+          "rerank_enabled": true,
+          "context_length": 2006
+        }
+      }
+    }
+  ]
+}

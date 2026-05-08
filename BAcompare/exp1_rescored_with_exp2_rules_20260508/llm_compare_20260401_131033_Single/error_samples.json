@@ -1,0 +1,92 @@
+[
+  {
+    "type": "Single",
+    "qid": 3,
+    "question": "When did Li Hua invite Adam Smith to check the basement renovation progress?",
+    "gold": "20260223_19:00",
+    "prediction": " Li Hua invited Adam Smith to check the basement renovation progress on 20260223_17:00.",
+    "error_type": "FP",
+    "judge_method": "llm"
+  },
+  {
+    "type": "Single",
+    "qid": 7,
+    "question": "When did Adam Smith inform Li Hua about potential issues with the pipes in the basement?",
+    "gold": "20260301_13:00",
+    "prediction": " Adam Smith informed Li Hua about potential issues with the pipes in the basement on March 1, 2026.",
+    "error_type": "FP",
+    "judge_method": "llm"
+  },
+  {
+    "type": "Single",
+    "qid": 8,
+    "question": "When did Li Hua inform Adam Smith that the rent was transferred?",
+    "gold": "20260301_10:00",
+    "prediction": " Li Hua informed Adam Smith that the rent was transferred on 20260127_20:30.",
+    "error_type": "FP",
+    "judge_method": "llm"
+  },
+  {
+    "type": "Single",
+    "qid": 12,
+    "question": "What new feature does Yuriko Yamamoto consider adding to her studio's homepage?",
+    "gold": "A blog section",
+    "prediction": " Based on the provided context, there is no information about Yuriko considering adding a new feature to her studio's homepage. The discussions revolve around making the homepage more welcoming and engaging, but no specific new features are mentioned.",
+    "error_type": "FN",
+    "judge_method": "abstain"
+  },
+  {
+    "type": "Single",
+    "qid": 13,
+    "question": "What time is the power outage in the neighborhood?",
+    "gold": "2 PM to 3 PM",
+    "prediction": " I don't know. The provided context does not specify the exact time for the power outage in the neighborhood on August 12, as it only mentions that there will be an AC installation at 6 PM.",
+    "error_type": "FP",
+    "judge_method": "llm"
+  },
+  {
+    "type": "Single",
+    "qid": 14,
+    "question": "What suggestions does Li Hua give for promoting the new scheduling feature?",
+    "gold": "Showcase it on social media platforms and include a short tutorial and send out a newsletter to clients",
+    "prediction": " Li Hua suggests that the new scheduling feature will make scheduling super convenient for clients as they'll be able to see available times right away, which should help in easing the process of scheduling. However, Li Hua did not explicitly provide suggestions for promoting the new feature in the given context.",
+    "error_type": "FP",
+    "judge_method": "llm"
+  },
+  {
+    "type": "Single",
+    "qid": 15,
+    "question": "Who invites Li Hua to join the community bake sale?",
+    "gold": "Adam Smith",
+    "prediction": " AdamSmith invites Li Hua to join the community bake sale.",
+    "error_type": "FP",
+    "judge_method": "llm"
+  },
+  {
+    "type": "Single",
+    "qid": 17,
+    "question": "When does Li Hua request a delivery from Hailey Johnson?",
+    "gold": "Tuesday",
+    "prediction": " The conversation where Li Hua requests a delivery from Hailey Johnson is on March 14, 2026 at 17:00. Li Hua expresses interest in trying out Hailey's doorstep delivery service for fresh milk and bread.",
+    "error_type": "FP",
+    "judge_method": "llm"
+  },
+  {
+    "type": "Single",
+    "qid": 18,
+    "question": "What is the address where Li Hua wants the bread delivery to be made?",
+    "gold": "123 Sunny Street",
+    "prediction": " The context does not provide information about Li Hua's address.",
+    "error_type": "FP",
+    "judge_method": "llm"
+  },
+  {
+    "type": "Single",
+    "qid": 19,
+    "question": "What service does Hailey Johnson offer to Li Hua?",
+    "gold": "Doorstep delivery service for fresh milk and bread",
+    "prediction": " Hailey Johnson offers doorstep delivery services to Li Hua.",
+    "error_type": "FP",
+    "judge_method": "llm"
+  }
+]
